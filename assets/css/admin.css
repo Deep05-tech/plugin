@@ -1,0 +1,197 @@
+/**
+ * SEO City Pages — Scoped Admin Styles
+ */
+
+.seo-city-pages-wrap {
+	max-width: 1200px;
+	margin-top: 20px;
+}
+
+.scp-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 20px;
+}
+
+.scp-subtitle {
+	margin: 4px 0 0;
+	color: #646970;
+	font-size: 14px;
+}
+
+.scp-card {
+	background: #ffffff;
+	border: 1px solid #c3c4c7;
+	border-radius: 6px;
+	padding: 24px;
+	margin-bottom: 20px;
+	box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.scp-card-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border-bottom: 1px solid #f0f0f1;
+	padding-bottom: 12px;
+	margin-bottom: 18px;
+}
+
+.scp-card-header h2 {
+	margin: 0;
+	font-size: 18px;
+	color: #1d2327;
+}
+
+/* Dropzone */
+.scp-dropzone {
+	border: 2px dashed #c3c4c7;
+	background: #fbfbfc;
+	border-radius: 8px;
+	padding: 40px 20px;
+	text-align: center;
+	transition: all 0.2s ease-in-out;
+	cursor: pointer;
+}
+
+.scp-dropzone:hover, .scp-dropzone.dragover {
+	border-color: #2271b1;
+	background: #f0f6fc;
+}
+
+.scp-dropzone-icon {
+	font-size: 48px;
+	width: 48px;
+	height: 48px;
+	color: #2271b1;
+	margin-bottom: 10px;
+}
+
+/* Progress Bar */
+.scp-progress-wrapper {
+	margin: 20px 0;
+}
+
+.scp-progress-bar-bg {
+	background: #f0f0f1;
+	height: 24px;
+	border-radius: 12px;
+	overflow: hidden;
+	box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.scp-progress-bar-fill {
+	background: #2271b1;
+	background-image: linear-gradient(45deg, rgba(255,255,255,0.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.15) 75%, transparent 75%, transparent);
+	background-size: 40px 40px;
+	height: 100%;
+	transition: width 0.3s ease;
+	animation: scp-progress-stripes 2s linear infinite;
+}
+
+@keyframes scp-progress-stripes {
+	from { background-position: 40px 0; }
+	to { background-position: 0 0; }
+}
+
+.scp-progress-label {
+	margin-top: 8px;
+	font-size: 14px;
+	font-weight: 600;
+	color: #1d2327;
+	text-align: center;
+}
+
+/* Metrics Grid */
+.scp-metrics-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+	gap: 12px;
+}
+
+.scp-metric-card {
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	padding: 12px;
+	text-align: center;
+}
+
+.scp-metric-value {
+	display: block;
+	font-size: 24px;
+	font-weight: 700;
+	color: #1d2327;
+}
+
+.scp-metric-label {
+	display: block;
+	font-size: 11px;
+	color: #646970;
+	text-transform: uppercase;
+	margin-top: 4px;
+}
+
+.scp-text-success { color: #007017 !important; }
+.scp-text-warning { color: #d63638 !important; }
+.scp-text-danger  { color: #d63638 !important; }
+
+/* Badges */
+.scp-badge {
+	display: inline-block;
+	padding: 3px 8px;
+	border-radius: 4px;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+}
+
+.scp-badge-active   { background: #d1e7dd; color: #0f5132; }
+.scp-badge-inactive { background: #f8d7da; color: #842029; }
+.scp-badge-warning  { background: #fff3cd; color: #664d03; }
+.scp-badge-info     { background: #cff4fc; color: #055160; }
+
+.badge { display: inline-block; padding: 3px 8px; border-radius: 3px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+.badge-pass { background-color: #d1e7dd; color: #0f5132; }
+.badge-fail { background-color: #f8d7da; color: #842029; }
+.badge-info { background-color: #cff4fc; color: #055160; }
+
+/* Spin dashicon */
+.spin {
+	animation: scp-spin 1.5s infinite linear;
+}
+
+@keyframes scp-spin {
+	0% { transform: rotate(0deg); }
+	100% { transform: rotate(359deg); }
+}
+
+.scp-code-block {
+	background: #f6f7f7;
+	border: 1px solid #c3c4c7;
+	padding: 12px;
+	border-radius: 4px;
+	font-family: monospace;
+	font-size: 12px;
+	line-height: 1.5;
+	overflow-x: auto;
+}
+
+.scp-features-list {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.scp-features-list li {
+	margin-bottom: 8px;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	color: #3c434a;
+}
+
+.scp-features-list .dashicons-yes-alt {
+	color: #007017;
+}
