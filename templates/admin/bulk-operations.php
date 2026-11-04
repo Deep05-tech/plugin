@@ -22,7 +22,10 @@ $nonce = Security::create_nonce( Bulk_Controller::NONCE_ACTION );
 				<h1 style="font-size: 26px; font-weight: 700; color: #1a202c; margin: 0 0 6px 0;">⚡ Bulk Operations Center</h1>
 				<p style="color: #718096; margin: 0; font-size: 14px;">High-scale batch creation, AI generation, CSV pipelines, and queue management (10 to 50,000+ pages).</p>
 			</div>
-			<div style="display: flex; gap: 12px;">
+			<div style="display: flex; gap: 12px; align-items: center;">
+				<button type="button" id="scp-cleanup-duplicates-btn" onclick="scpExecuteDuplicateCleanup(this)" style="background: #e53e3e; color: #fff; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(229, 62, 62, 0.25);">
+					🧹 Remove Duplicate Pages
+				</button>
 				<span style="background: #ebf8ff; color: #2b6cb0; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600;">DB v0.8.0</span>
 				<span style="background: #f0fff4; color: #276749; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600;">Queue Active</span>
 			</div>
@@ -60,6 +63,7 @@ $nonce = Security::create_nonce( Bulk_Controller::NONCE_ACTION );
 		<button type="button" class="scp-tab-btn" onclick="switchTab('csv-export')" style="padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; background: #edf2f7; color: #4a5568;">📤 CSV Export Hub</button>
 		<button type="button" class="scp-tab-btn" onclick="switchTab('jobs')" style="padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; background: #edf2f7; color: #4a5568;">📊 Job Queue Center</button>
 		<button type="button" class="scp-tab-btn" onclick="switchTab('rollback')" style="padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; background: #edf2f7; color: #4a5568;">🔄 Rollback Center</button>
+		<button type="button" class="scp-tab-btn" onclick="switchTab('duplicate-cleaner')" style="padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; background: #fff5f5; color: #c53030; border: 1px solid #feb2b2;">🧹 Duplicate Cleaner</button>
 	</div>
 
 	<!-- TAB 1: BULK WIZARD -->
@@ -241,6 +245,24 @@ $nonce = Security::create_nonce( Bulk_Controller::NONCE_ACTION );
 			<button type="button" onclick="startRollbackOperation()" style="background: #e53e3e; color: #fff; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer;">Execute Rollback &rarr;</button>
 		</div>
 	</div>
+
+	<!-- TAB 6: DUPLICATE CLEANER -->
+	<div id="tab-duplicate-cleaner" class="scp-tab-content" style="display: none; background: #fff; padding: 28px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+		<h2 style="font-size: 20px; font-weight: 700; margin: 0 0 16px 0; color: #9b2c2c;">🧹 1-Click Duplicate WordPress Page Cleaner</h2>
+		<p style="color: #4a5568; line-height: 1.6; margin-bottom: 20px;">
+			If multiple WordPress pages were generated for the same city page (due to simultaneous queue workers, background synchronization, or multiple regeneration runs), this tool automatically scans your database, identifies all duplicate groups, preserves the single primary page with its latest Elementor data and SEO settings, and permanently removes all redundant duplicate copies.
+		</p>
+		<div style="background: #fffaf0; border-left: 4px solid #dd6b20; padding: 16px; border-radius: 6px; margin-bottom: 24px;">
+			<strong style="color: #c05621;">Safe & Non-Destructive:</strong>
+			<span style="color: #7b341e;"> Your core SEO landing page database records, AI-written content, and URLs will remain 100% intact. Only redundant WordPress <code>wp_posts</code> copies sharing the same ID are purged.</span>
+		</div>
+		<div style="display: flex; align-items: center; gap: 16px;">
+			<button type="button" onclick="scpExecuteDuplicateCleanup(this)" style="background: #e53e3e; color: #fff; border: none; padding: 14px 32px; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(229,62,62,0.3);">
+				🧹 Purge All Duplicate Pages Now &rarr;
+			</button>
+			<span id="scp-tab-cleaner-status" style="font-weight: 600; color: #4a5568;"></span>
+		</div>
+	</div>
 </div>
 
 <script>
@@ -269,6 +291,8 @@ function uploadAndPreviewCSV() {
 
 	const formData = new FormData();
 	formData.append('action', 'seo_city_pages_csv_preview');
+	formData.append('nonce', bulkNonce);
+	formData.append('_wpnonce', bulkNonce);
 	formData.append('seo_city_pages_nonce', bulkNonce);
 	formData.append('csv_file', fileInput.files[0]);
 
@@ -314,6 +338,8 @@ function uploadAndPreviewCSV() {
 function confirmCSVImport(token, dryRun) {
 	const formData = new FormData();
 	formData.append('action', 'seo_city_pages_csv_import_queue');
+	formData.append('nonce', bulkNonce);
+	formData.append('_wpnonce', bulkNonce);
 	formData.append('seo_city_pages_nonce', bulkNonce);
 	formData.append('preview_token', token);
 	formData.append('is_dry_run', dryRun ? 1 : 0);
@@ -339,6 +365,8 @@ function startWizardOperation() {
 
 	const formData = new FormData();
 	formData.append('action', action);
+	formData.append('nonce', bulkNonce);
+	formData.append('_wpnonce', bulkNonce);
 	formData.append('seo_city_pages_nonce', bulkNonce);
 	formData.append('is_dry_run', isDryRun ? 1 : 0);
 
@@ -369,6 +397,8 @@ function pollJobTick() {
 
 	const formData = new FormData();
 	formData.append('action', 'seo_city_pages_bulk_job_poll');
+	formData.append('nonce', bulkNonce);
+	formData.append('_wpnonce', bulkNonce);
 	formData.append('seo_city_pages_nonce', bulkNonce);
 	formData.append('job_id', currentActiveJobId);
 	formData.append('batch_size', 25);
@@ -394,6 +424,8 @@ function controlActiveJob(ctrl) {
 	if (!currentActiveJobId) return;
 	const formData = new FormData();
 	formData.append('action', 'seo_city_pages_bulk_job_control');
+	formData.append('nonce', bulkNonce);
+	formData.append('_wpnonce', bulkNonce);
 	formData.append('seo_city_pages_nonce', bulkNonce);
 	formData.append('job_id', currentActiveJobId);
 	formData.append('control_action', ctrl);
@@ -408,6 +440,65 @@ function controlActiveJob(ctrl) {
 				document.getElementById('btn-job-pause').style.display = 'inline-block';
 				document.getElementById('btn-job-resume').style.display = 'none';
 			}
+		});
+}
+
+function scpExecuteDuplicateCleanup(btn) {
+	if (!confirm('This will scan all WordPress pages, detect multiple copies sharing the same SEO City Page ID, keep exactly 1 primary canonical page, and permanently delete all redundant duplicate copies.\n\nAre you sure you want to proceed?')) {
+		return;
+	}
+
+	const origText = btn.innerHTML;
+	btn.disabled = true;
+	btn.innerHTML = '⏳ Cleaning Duplicates...';
+	btn.style.opacity = '0.7';
+
+	const statusSpan = document.getElementById('scp-tab-cleaner-status');
+	if (statusSpan) {
+		statusSpan.style.color = '#2b6cb0';
+		statusSpan.innerText = 'Scanning & cleaning duplicate posts...';
+	}
+
+	const formData = new FormData();
+	formData.append('action', 'seo_city_pages_cleanup_duplicates');
+	formData.append('nonce', bulkNonce);
+	formData.append('_wpnonce', bulkNonce);
+	formData.append('seo_city_pages_nonce', bulkNonce);
+
+	fetch(ajaxurl, { method: 'POST', body: formData })
+		.then(r => r.json())
+		.then(res => {
+			btn.disabled = false;
+			btn.innerHTML = origText;
+			btn.style.opacity = '1';
+
+			if (res.success) {
+				const d = res.data;
+				const msg = d.message || `Cleanup complete! Successfully deleted ${d.deleted_posts} duplicate pages.`;
+				if (statusSpan) {
+					statusSpan.style.color = '#276749';
+					statusSpan.innerText = msg;
+				}
+				alert(msg);
+				window.location.reload();
+			} else {
+				const errMsg = res.data ? res.data.message : 'Failed to clean duplicates.';
+				if (statusSpan) {
+					statusSpan.style.color = '#c53030';
+					statusSpan.innerText = errMsg;
+				}
+				alert('Error: ' + errMsg);
+			}
+		})
+		.catch(err => {
+			btn.disabled = false;
+			btn.innerHTML = origText;
+			btn.style.opacity = '1';
+			if (statusSpan) {
+				statusSpan.style.color = '#c53030';
+				statusSpan.innerText = 'Request failed: ' + err.message;
+			}
+			alert('Network or server error occurred during cleanup: ' + err.message);
 		});
 }
 </script>

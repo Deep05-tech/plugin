@@ -36,6 +36,8 @@ class Settings {
 	 */
 	public function init(): void {
 		add_action( 'admin_init', [ $this, 'register_settings' ] );
+		add_action( 'wp_ajax_seo_city_pages_rebuild_permalinks', [ $this, 'ajax_rebuild_permalinks' ] );
+		add_action( 'wp_ajax_seo_city_pages_settings_cleanup_duplicates', [ $this, 'ajax_cleanup_duplicates' ] );
 	}
 
 	/**
@@ -301,6 +303,22 @@ class Settings {
 			'seo-city-pages-settings',
 			'seo_city_pages_uninstall_section'
 		);
+
+		// Section: Page & Database Maintenance.
+		add_settings_section(
+			'seo_city_pages_maintenance_section',
+			__( '🧹 Page Synchronization & Maintenance', 'seo-city-pages' ),
+			[ $this, 'render_maintenance_section_desc' ],
+			'seo-city-pages-settings'
+		);
+
+		add_settings_field(
+			'cleanup_duplicates_tool',
+			__( 'WordPress Pages Deduplication', 'seo-city-pages' ),
+			[ $this, 'render_cleanup_duplicates_field' ],
+			'seo-city-pages-settings',
+			'seo_city_pages_maintenance_section'
+		);
 	}
 
 	/**
@@ -372,7 +390,11 @@ class Settings {
 			$val_check   = \SeoCityPages\URL\URL_Engine::validate_pattern( $raw_pattern );
 
 			if ( $val_check['valid'] ) {
-				$output['url_pattern'] = '/' . trim( preg_replace( '#/+#', '/', $raw_pattern ), '/' ) . '/';
+				$new_pattern           = '/' . trim( preg_replace( '#/+#', '/', $raw_pattern ), '/' ) . '/';
+				$output['url_pattern'] = $new_pattern;
+
+				// Automatically rebuild all existing page url_paths to match the new pattern!
+				\SeoCityPages\Database\City_Page_Repository::rebuild_all_url_paths( $new_pattern );
 			} else {
 				$existing = get_option( self::OPTION_NAME, self::get_defaults() );
 				$output['url_pattern'] = $existing['url_pattern'] ?? \SeoCityPages\URL\URL_Engine::DEFAULT_PATTERN;
@@ -500,17 +522,28 @@ class Settings {
 		$options = get_option( self::OPTION_NAME, self::get_defaults() );
 		$val     = $options['url_pattern'] ?? \SeoCityPages\URL\URL_Engine::DEFAULT_PATTERN;
 		?>
-		<input type="text" id="seo_city_pages_url_pattern" name="<?php echo esc_attr( self::OPTION_NAME ); ?>[url_pattern]" value="<?php echo esc_attr( $val ); ?>" class="regular-text code" />
+		<input type="text" id="seo_city_pages_url_pattern" name="<?php echo esc_attr( self::OPTION_NAME ); ?>[url_pattern]" value="<?php echo esc_attr( $val ); ?>" class="regular-text code" style="width: 100%; max-width: 500px;" />
 		<p class="description">
 			<?php esc_html_e( 'Supported dynamic tokens: ', 'seo-city-pages' ); ?>
-			<code>{country}</code>, <code>{state}</code>, <code>{city}</code>, <code>{service}</code>
+			<code>{country}</code>, <code>{country_code}</code>, <code>{state}</code>, <code>{state_code}</code>, <code>{city}</code>, <code>{county}</code>, <code>{service}</code>, <code>{topic}</code>
 		</p>
 		<p class="description" style="margin-top: 6px;">
 			<strong><?php esc_html_e( 'Example Generated URLs:', 'seo-city-pages' ); ?></strong><br />
+			<code>/{country_code}/top-{topic}-in-{county}-{state}/</code> &rarr; <code>/us/top-law-firm-in-kitsap-washington/</code><br />
+			<code>/{country_code}/{topic}-in-{county}-{state}/</code> &rarr; <code>/us/law-firm-in-kitsap-washington/</code><br />
 			<code>/{service}/{city}/</code> &rarr; <code>/seo-agency/rajkot/</code><br />
-			<code>/{city}/{service}/</code> &rarr; <code>/rajkot/seo-agency/</code><br />
 			<code>/{country}/{state}/{city}/{service}/</code> &rarr; <code>/india/gujarat/rajkot/seo-agency/</code>
 		</p>
+		<div style="margin-top: 14px; padding: 12px 14px; background: #f0f6fc; border-left: 4px solid #2271b1; border-radius: 4px;">
+			<p style="margin: 0 0 8px 0; font-weight: 600; color: #1d2327;">
+				<?php esc_html_e( 'Apply Pattern to All Existing Generated Pages:', 'seo-city-pages' ); ?>
+			</p>
+			<button type="button" id="scp-rebuild-permalinks-btn" class="button button-secondary" style="font-weight: 600;">
+				<span class="dashicons dashicons-admin-links" style="margin-top: 3px; font-size: 16px;"></span>
+				<?php esc_html_e( 'Regenerate All Permalinks Now', 'seo-city-pages' ); ?>
+			</button>
+			<span id="scp-rebuild-permalinks-status" style="margin-left: 10px; font-weight: 600; vertical-align: middle;"></span>
+		</div>
 		<?php
 	}
 
@@ -972,6 +1005,134 @@ class Settings {
 			return (bool) is_email( $email );
 		}
 		return (bool) filter_var( $email, FILTER_VALIDATE_EMAIL );
+	}
+
+	/**
+	 * AJAX Handler: Rebuild all permalinks for existing city pages.
+	 *
+	 * @return void
+	 */
+	public function ajax_rebuild_permalinks(): void {
+		if ( ! current_user_can( 'manage_options' ) && ! current_user_can( \SeoCityPages\Security\Capabilities::MANAGE_SETTINGS ) ) {
+			wp_send_json_error( [ 'message' => __( 'Permission denied.', 'seo-city-pages' ) ], 403 );
+		}
+
+		if ( function_exists( 'check_ajax_referer' ) ) {
+			check_ajax_referer( 'seo_city_pages_admin_nonce', 'nonce' );
+		}
+
+		$pattern = ! empty( $_POST['url_pattern'] ) ? sanitize_text_field( wp_unslash( $_POST['url_pattern'] ) ) : '';
+		if ( ! empty( $pattern ) ) {
+			$val_check = \SeoCityPages\URL\URL_Engine::validate_pattern( $pattern );
+			if ( ! $val_check['valid'] ) {
+				wp_send_json_error( [ 'message' => $val_check['error'] ], 400 );
+			}
+			$pattern = '/' . trim( preg_replace( '#/+#', '/', $pattern ), '/' ) . '/';
+
+			// Update option as well
+			$options = get_option( self::OPTION_NAME, self::get_defaults() );
+			$options['url_pattern'] = $pattern;
+			update_option( self::OPTION_NAME, $options );
+		}
+
+		$updated = \SeoCityPages\Database\City_Page_Repository::rebuild_all_url_paths( $pattern );
+
+		// Flush rewrite rules
+		if ( function_exists( 'flush_rewrite_rules' ) ) {
+			flush_rewrite_rules( false );
+		}
+
+		wp_send_json_success( [
+			'message' => sprintf( __( 'Successfully updated and regenerated permalinks for %d pages.', 'seo-city-pages' ), $updated ),
+			'updated' => $updated,
+			'pattern' => $pattern ?: \SeoCityPages\URL\URL_Engine::get_pattern(),
+		] );
+	}
+
+	/**
+	 * Render Maintenance Section Description.
+	 *
+	 * @return void
+	 */
+	public function render_maintenance_section_desc(): void {
+		echo '<p class="description">' . esc_html__( 'Maintenance tools to ensure exactly 1 clean WordPress page per city page record and purge redundant duplicates.', 'seo-city-pages' ) . '</p>';
+	}
+
+	/**
+	 * Render Cleanup Duplicates Field.
+	 *
+	 * @return void
+	 */
+	public function render_cleanup_duplicates_field(): void {
+		$nonce = wp_create_nonce( 'seo_city_pages_admin_nonce' );
+		?>
+		<div style="display: flex; align-items: center; gap: 12px;">
+			<button type="button" class="button button-secondary" id="scp-cleanup-dups-btn-settings" onclick="scpRunCleanupDuplicatesSettings(this)">
+				<span class="dashicons dashicons-trash" style="vertical-align: middle; margin-right: 4px;"></span>
+				<?php esc_html_e( 'Remove Duplicate WordPress Pages', 'seo-city-pages' ); ?>
+			</button>
+			<span id="scp-cleanup-dups-status-settings" style="font-weight: 600; color: #4a5568;"></span>
+		</div>
+		<p class="description" style="margin-top: 6px;">
+			<?php esc_html_e( 'Scans all WordPress pages, detects multiple copies sharing the same city page ID, keeps the primary page, and safely deletes redundant duplicates.', 'seo-city-pages' ); ?>
+		</p>
+		<script>
+		function scpRunCleanupDuplicatesSettings(btn) {
+			if (!confirm('This will scan all WordPress pages, keep exactly 1 primary canonical page for each city page, and permanently delete all redundant duplicate copies.\n\nAre you sure you want to proceed?')) {
+				return;
+			}
+			var status = document.getElementById('scp-cleanup-dups-status-settings');
+			btn.disabled = true;
+			btn.innerText = '⏳ Scanning & cleaning duplicates...';
+			status.style.color = '#2b6cb0';
+			status.innerText = 'Processing...';
+
+			jQuery.post(ajaxurl, {
+				action: 'seo_city_pages_settings_cleanup_duplicates',
+				nonce: '<?php echo esc_js( $nonce ); ?>'
+			}, function(response) {
+				btn.disabled = false;
+				btn.innerHTML = '<span class="dashicons dashicons-trash" style="vertical-align: middle; margin-right: 4px;"></span> Remove Duplicate WordPress Pages';
+				if (response.success) {
+					status.style.color = '#276749';
+					status.innerText = response.data.message || 'Cleanup completed successfully!';
+					alert(response.data.message || 'Cleanup completed successfully!');
+				} else {
+					status.style.color = '#c53030';
+					status.innerText = (response.data && response.data.message) ? response.data.message : 'Failed to clean duplicates.';
+					alert((response.data && response.data.message) ? response.data.message : 'Failed to clean duplicates.');
+				}
+			}).fail(function() {
+				btn.disabled = false;
+				btn.innerHTML = '<span class="dashicons dashicons-trash" style="vertical-align: middle; margin-right: 4px;"></span> Remove Duplicate WordPress Pages';
+				status.style.color = '#c53030';
+				status.innerText = 'Request failed. Please try again.';
+			});
+		}
+		</script>
+		<?php
+	}
+
+	/**
+	 * AJAX Handler: Settings Duplicate WordPress Page Cleaner.
+	 *
+	 * @return void
+	 */
+	public function ajax_cleanup_duplicates(): void {
+		if ( ! current_user_can( 'manage_options' ) && ! current_user_can( \SeoCityPages\Security\Capabilities::MANAGE_SETTINGS ) ) {
+			wp_send_json_error( [ 'message' => __( 'Permission denied.', 'seo-city-pages' ) ], 403 );
+		}
+
+		if ( function_exists( 'check_ajax_referer' ) ) {
+			check_ajax_referer( 'seo_city_pages_admin_nonce', 'nonce' );
+		}
+
+		if ( ! class_exists( '\\SeoCityPages\\Integration\\Post_Sync' ) ) {
+			wp_send_json_error( [ 'message' => __( 'Post Synchronization component is not available.', 'seo-city-pages' ) ] );
+		}
+
+		$result = \SeoCityPages\Integration\Post_Sync::cleanup_duplicate_posts();
+		wp_send_json_success( $result );
 	}
 
 	/**

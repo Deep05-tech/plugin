@@ -907,7 +907,7 @@ namespace SeoCityPages\Tests {
 		private function test_content_versioning_lifecycle(): void {
 			echo "\n\033[1;33m[6] Content Versioning & Approval Lifecycle\033[0m\n";
 
-			$page = City_Page_Repository::get_by_url_path( '/seo-services/orlando/' );
+			$page = City_Page_Repository::get_by_url_path( '/us/best-digital-marketing-agency-for-seo-services-in-orlando/' );
 
 			$content_data = [
 				'hero' => [
@@ -987,7 +987,7 @@ namespace SeoCityPages\Tests {
 		private function test_non_destructive_regeneration(): void {
 			echo "\n\033[1;33m[7] Non-Destructive Regeneration & Version Isolation\033[0m\n";
 
-			$page = City_Page_Repository::get_by_url_path( '/seo-services/orlando/' );
+			$page = City_Page_Repository::get_by_url_path( '/us/best-digital-marketing-agency-for-seo-services-in-orlando/' );
 
 			$active_before = Content_Version_Repository::get_active_version( $page->id );
 			$v1_id = (int) $active_before->id;
@@ -1027,7 +1027,7 @@ namespace SeoCityPages\Tests {
 		private function test_manual_content_editing(): void {
 			echo "\n\033[1;33m[8] Manual Content Editing & Sanitization\033[0m\n";
 
-			$page = City_Page_Repository::get_by_url_path( '/seo-services/orlando/' );
+			$page = City_Page_Repository::get_by_url_path( '/us/best-digital-marketing-agency-for-seo-services-in-orlando/' );
 
 			$active = Content_Version_Repository::get_active_version( $page->id );
 			$edited_content = json_decode( (string) $active->content_json, true );
@@ -1192,7 +1192,7 @@ namespace SeoCityPages\Tests {
 
 			Elementor_Integration::instance()->register_shortcodes();
 
-			$page = City_Page_Repository::get_by_url_path( '/seo-services/orlando/' );
+			$page = City_Page_Repository::get_by_url_path( '/us/best-digital-marketing-agency-for-seo-services-in-orlando/' );
 
 			// Hydrate Page_Context
 			Page_Context::set_context( $page );
@@ -1223,7 +1223,7 @@ namespace SeoCityPages\Tests {
 			$this->assert( 'Token {{seo_metro_stats}} replaced with stats grid', false !== strpos( $rendered, 'Metro Population' ) || false !== strpos( $rendered, 'vispan-hover-card' ) );
 			$this->assert( 'Token {{seo_submarkets_grid}} replaced with submarkets cards', false !== strpos( $rendered, 'Submarket' ) || false !== strpos( $rendered, 'vispan-hover-card' ) );
 			$this->assert( 'Token {{seo_case_proof}} replaced with proof banner', false !== strpos( $rendered, 'Case Study' ) || false !== strpos( $rendered, 'vispan-btn-glow' ) );
-			$this->assert( 'Token {{seo_signal_stack}} replaced with signals', false !== strpos( $rendered, 'Signal Stack' ) || false !== strpos( $rendered, 'Topical Depth' ) );
+			$this->assert( 'Token {{seo_signal_stack}} replaced / removed cleanly', false === strpos( $rendered, '{{seo_signal_stack}}' ) );
 			$this->assert( 'Token {{seo_long_essay}} replaced with essay', false !== strpos( $rendered, 'Roadmap' ) || false !== strpos( $rendered, 'EDITORIAL ANALYSIS' ) );
 			$this->assert( 'No raw curly braces remain in processed content', false === strpos( $rendered, '{{seo_hero_title}}' ) );
 

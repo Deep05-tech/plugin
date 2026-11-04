@@ -109,6 +109,8 @@ class Elementor_Integration {
 		add_shortcode( 'seo_long_essay', [ Content_Context::class, 'render_essay_html' ] );
 		add_shortcode( 'seo_comparison_table', [ Content_Context::class, 'render_comparison_table_html' ] );
 		add_shortcode( 'seo_industry_verticals', [ Content_Context::class, 'render_industry_verticals_html' ] );
+		add_shortcode( 'seo_home_services_trades', [ Content_Context::class, 'render_home_services_trades_html' ] );
+		add_shortcode( 'seo_trade_directory', [ Content_Context::class, 'render_home_services_trades_html' ] );
 		add_shortcode( 'seo_deliverables_checklist', [ Content_Context::class, 'render_deliverables_checklist_html' ] );
 		add_shortcode( 'seo_inquiry_form', [ Content_Context::class, 'render_inquiry_form' ] );
 		add_shortcode( 'seo_inquiry_form_hero', [ Content_Context::class, 'render_inquiry_form_hero' ] );
@@ -140,6 +142,22 @@ class Elementor_Integration {
 		$service = Page_Context::get_service();
 		$title   = Page_Context::get_title();
 		$url     = Page_Context::get_url();
+
+		$is_home_services = (bool) preg_match( '/\b(home\s*services?|home\s*cleaning|contractors?|emergency\s*trades?)\b/i', (string) $service );
+
+		// Developer-crafted Home Services Landing Page: replace the generic master Elementor template with the custom multi-trade contractor landing page.
+		if ( $is_home_services && null === $widget && ( false !== strpos( $content, 'vispan_hero_section' ) || ( false !== strpos( $content, 'data-elementor-type' ) && false !== strpos( $content, 'elementor-section' ) ) || false !== strpos( $content, 'vispan_cta_section' ) ) ) {
+			// Don't replace if inside Elementor live editor
+			$is_editor = false;
+			if ( class_exists( '\Elementor\Plugin' ) && isset( \Elementor\Plugin::$instance->editor ) && method_exists( \Elementor\Plugin::$instance->editor, 'is_edit_mode' ) ) {
+				$is_editor = (bool) \Elementor\Plugin::$instance->editor->is_edit_mode();
+			}
+			if ( ! $is_editor ) {
+				$crafted_page = Content_Context::render_home_services_full_page_html();
+				$is_filtering = false;
+				return $crafted_page;
+			}
+		}
 
 		$replacements = [
 			// Core identity tokens.
@@ -189,6 +207,8 @@ class Elementor_Integration {
 			'{{seo_long_essay}}'              => Content_Context::render_essay_html(),
 			'{{seo_comparison_table}}'        => Content_Context::render_comparison_table_html(),
 			'{{seo_industry_verticals}}'      => Content_Context::render_industry_verticals_html(),
+			'{{seo_home_services_trades}}'    => Content_Context::render_home_services_trades_html(),
+			'{{seo_trade_directory}}'         => Content_Context::render_home_services_trades_html(),
 			'{{seo_deliverables_checklist}}'  => Content_Context::render_deliverables_checklist_html(),
 
 			// High-Res Photography Asset Tokens.
@@ -220,6 +240,51 @@ class Elementor_Integration {
 			$animation_assets = self::get_animation_assets();
 			$content          = $animation_assets . $content;
 		}
+
+		// Ensure Hero / Proposal CTA button redirects directly to contact page
+		$content = preg_replace_callback(
+			'/<a\b([^>]*?class=["\'][^"\']*vispan-btn-glow[^"\']*["\'][^>]*)>(.*?)<\/a>/is',
+			function( $matches ) {
+				$tag_attrs  = $matches[1];
+				$inner_text = $matches[2];
+				$tag_attrs  = preg_replace( '/href=["\'][^"\']*["\']/i', 'href="https://vispansolutions.com/contact-us/"', $tag_attrs );
+				return '<a' . $tag_attrs . '>' . $inner_text . '</a>';
+			},
+			$content
+		);
+
+		// Remove legacy Signal Stack section if present in rendered Elementor HTML
+		if ( false !== strpos( $content, 'vispan_signal_section' ) ) {
+			$content = preg_replace(
+				'/<section\b[^>]*?(?:data-id=["\']vispan_signal_section["\']|id=["\']vispan_signal_section["\'])[^>]*?>.*?<\/section>/is',
+				'',
+				$content
+			);
+		}
+
+		// Normalize any block lists inside p tags to avoid invalid HTML nesting
+		$content = preg_replace(
+			'/<p\b([^>]*?)>(\s*<ul[\s\S]*?<\/ul>\s*)<\/p>/i',
+			'<div$1>$2</div>',
+			$content
+		);
+
+		// Ensure Industry Services section title mentions targeted service on both new and existing pages.
+		if ( ! empty( $service ) ) {
+			$content = preg_replace(
+				'/(<h2\b[^>]*?>\s*Our Full Suite of Digital Marketing & Creative Services)(?!\s+for\b)(.*?<\/h2>)/i',
+				'$1 for ' . esc_html( $service ) . '$2',
+				$content
+			);
+			$content = preg_replace(
+				'/(scale your)\s+brand(\s+in\s+)/i',
+				'$1 ' . esc_html( $service ) . ' practice$2',
+				$content
+			);
+		}
+
+		// Normalize target business entity fumbles (e.g. "dental services" -> "dental clinics" where business entity is referenced).
+		$content = Content_Context::normalize_target_entity_fumbles( $content, $service );
 
 		$is_filtering = false;
 
@@ -258,6 +323,12 @@ class Elementor_Integration {
 		$service = \SeoCityPages\Database\Service_Repository::get( (int) $page->service_id );
 
 		Page_Context::set_context( $page, $country, $state, $city, $service );
+
+		$service_name = $service ? $service->name : '';
+		$is_home_services = (bool) preg_match( '/\b(home\s*services?|home\s*cleaning|contractors?|emergency\s*trades?)\b/i', (string) $service_name );
+		if ( $is_home_services ) {
+			return Content_Context::render_home_services_full_page_html();
+		}
 
 		// Check if Elementor template is configured and active.
 		if ( Environment::is_elementor_active() ) {
@@ -307,6 +378,17 @@ class Elementor_Integration {
 		$rendered = true;
 
 		return '<style id="vispan-scroll-animations-css">
+			/* 0. Universal Typography Spacing Override: Prevent theme/kit negative spacing collisions */
+			.elementor-kit-3 h1, .elementor-kit-3 h2, .elementor-kit-3 h3, .elementor-kit-3 h4, .elementor-kit-3 h5, .elementor-kit-3 h6,
+			.elementor-kit-3 p, .elementor-kit-3 a, .elementor-kit-3 span, .elementor-kit-3 div,
+			.elementor-widget-text-editor h1, .elementor-widget-text-editor h2, .elementor-widget-text-editor h3, .elementor-widget-text-editor h4,
+			.vispan-reveal-left, .vispan-reveal-right, .vispan-reveal-up, .vispan-reveal-fade,
+			.vispan-reveal-left *, .vispan-reveal-right *, .vispan-reveal-up *, .vispan-reveal-fade *,
+			.vispan-hover-card, .vispan-hover-card * {
+				letter-spacing: 0px !important;
+				word-spacing: normal !important;
+			}
+
 			/* 1. Universal Theme Preloader Neutralizer for SEO City Pages */
 			#preloader, .preloader, .arolax-preloader, #loading, .page-loader, .loading-screen, .arolax-page-loading, .preloader-wrap {
 				display: none !important;
@@ -823,7 +905,7 @@ class Elementor_Integration {
 											<span style="display: inline-flex; align-items: center; gap: 6px;"><span style="color: #02426A; font-weight: 900;">✓</span> Granular Submarket Targeting</span>
 										</div>
 										<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px;">
-											<a href="{{seo_city_url}}" class="vispan-btn-glow" style="display: inline-block; background: #02426A; color: #FFFFFF; font-family: \'DM Sans\', sans-serif; font-weight: 700; font-size: 13.5px; letter-spacing: 0.04em; text-transform: uppercase; padding: 14px 32px; border-radius: 100px; text-decoration: none; box-shadow: 0 12px 28px -10px rgba(2,66,106,0.5);">{{seo_hero_cta}}</a>
+											<a href="https://vispansolutions.com/contact-us/" class="vispan-btn-glow" style="display: inline-block; background: #02426A; color: #FFFFFF; font-family: \'DM Sans\', sans-serif; font-weight: 700; font-size: 13.5px; letter-spacing: 0.04em; text-transform: uppercase; padding: 14px 32px; border-radius: 100px; text-decoration: none; box-shadow: 0 12px 28px -10px rgba(2,66,106,0.5);">{{seo_hero_cta}}</a>
 											<a href="tel:+918485986860" style="font-family: \'DM Sans\', sans-serif; font-size: 14px; font-weight: 700; color: #02426A; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">📞 +91 84859 86860</a>
 										</div>
 										<div style="margin-top: 22px; padding-top: 16px; border-top: 1px solid #CCE0ED; display: flex; flex-wrap: wrap; gap: 16px; font-family: \'DM Sans\', sans-serif; font-size: 13px; color: #5D5756;">
@@ -1023,49 +1105,7 @@ class Elementor_Integration {
 				],
 			],
 
-			// 6. SIGNAL STACK & RANKING FACTOR FORMULA
-			[
-				'id'       => 'vispan_signal_section',
-				'elType'   => 'section',
-				'settings' => [
-					'padding' => [
-						'unit'     => 'px',
-						'top'      => '55',
-						'bottom'   => '55',
-						'right'    => '20',
-						'left'     => '20',
-						'isLinked' => false,
-					],
-					'background_background' => 'classic',
-					'background_color'      => '#FFFFFF',
-				],
-				'elements' => [
-					[
-						'id'       => 'vispan_signal_col',
-						'elType'   => 'column',
-						'settings' => [ '_column_size' => 100 ],
-						'elements' => [
-							[
-								'id'         => 'vispan_signal_content',
-								'elType'     => 'widget',
-								'widgetType' => 'text-editor',
-								'settings'   => [
-									'editor' => '<div style="max-width: 1000px; margin: 0 auto; font-family: \'DM Sans\', sans-serif;">
-										<div class="vispan-reveal-up" style="text-align: center; margin-bottom: 32px; font-family: \'Plus Jakarta Sans\', sans-serif;">
-											<div style="font-size: 11.5px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: #02426A; margin-bottom: 8px;">AUTHORITY WEIGHTING</div>
-											<h2 style="font-size: clamp(24px, 3vw, 36px); font-weight: 800; color: #121212; line-height: 1.25; margin: 0 0 10px;">The Local Ranking Signal Stack</h2>
-											<p style="font-size: 15px; line-height: 1.6; color: #5D5756; max-width: 720px; margin: 0 auto;">Multi-layered search engine authority signals weighted for sustainable top-tier rankings in {{seo_city_name}}.</p>
-										</div>
-										{{seo_signal_stack}}
-									</div>',
-								],
-							],
-						],
-					],
-				],
-			],
-
-			// 7. LONG-FORM AUTHORITY ESSAY & MILESTONE ROADMAP
+			// 6. LONG-FORM AUTHORITY ESSAY & MILESTONE ROADMAP
 			[
 				'id'       => 'vispan_essay_section',
 				'elType'   => 'section',
@@ -1102,7 +1142,7 @@ class Elementor_Integration {
 				],
 			],
 
-			// 9. INDUSTRY VERTICAL SPECIALIZATION (Cards)
+			// 7. ALL AGENCY SERVICES (10 Core Capabilities Cards)
 			[
 				'id'       => 'vispan_industry_section',
 				'elType'   => 'section',
@@ -1129,10 +1169,10 @@ class Elementor_Integration {
 								'elType'     => 'widget',
 								'widgetType' => 'text-editor',
 								'settings'   => [
-									'editor' => '<div class="vispan-reveal-up" style="text-align: center; max-width: 760px; margin: 0 auto 32px; font-family: \'Plus Jakarta Sans\', sans-serif;">
-										<div style="font-size: 11.5px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: #02426A; margin-bottom: 8px;">TARGETED INDUSTRY HUBS</div>
-										<h2 style="font-size: clamp(26px, 3.2vw, 38px); font-weight: 800; color: #121212; margin: 0 0 10px;">Industry-Specific Search Strategies in {{seo_city_name}}</h2>
-										<p style="font-family: \'DM Sans\', sans-serif; font-size: 15.5px; color: #5D5756; margin: 0 auto;">Every commercial sector in the metro region requires tailored entity schema and buyer conversion funnels.</p>
+									'editor' => '<div class="vispan-reveal-up" style="text-align: center; max-width: 820px; margin: 0 auto 32px; font-family: \'Plus Jakarta Sans\', sans-serif;">
+										<div style="font-size: 11.5px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: #02426A; margin-bottom: 8px;">OUR COMPREHENSIVE SUITE</div>
+										<h2 style="font-size: clamp(26px, 3.2vw, 38px); font-weight: 800; color: #121212; margin: 0 0 10px; letter-spacing: 0px !important; word-spacing: normal !important;">Our Full Suite of Digital Marketing & Creative Services for {{service}}</h2>
+										<p style="font-family: \'DM Sans\', sans-serif; font-size: 15.5px; color: #5D5756; margin: 0 auto; letter-spacing: 0px !important; word-spacing: normal !important;">From high-intent search campaigns to world-class 3D visuals, explore all 10 specialized services engineered to scale your {{service}} practice in {{seo_city_name}}.</p>
 									</div>',
 								],
 							],
@@ -1273,7 +1313,7 @@ class Elementor_Integration {
 									'editor' => '<div class="vispan-reveal-up" style="text-align: center; max-width: 760px; margin: 0 auto 32px; font-family: \'Plus Jakarta Sans\', sans-serif;">
 										<div style="font-size: 11.5px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: #02426A; margin-bottom: 8px;">CORE EXPERTISE</div>
 										<h2 style="font-size: clamp(26px, 3.2vw, 38px); font-weight: 800; color: #121212; margin: 0 0 10px;">{{seo_service_overview_heading}}</h2>
-										<p style="font-family: \'DM Sans\', sans-serif; font-size: 15.5px; color: #5D5756; margin: 0 auto;">{{seo_service_overview_body}}</p>
+										<div style="font-family: \'DM Sans\', sans-serif; font-size: 15.5px; line-height: 1.65; color: #5D5756; margin: 0 auto; max-width: 780px;">{{seo_service_overview_body}}</div>
 									</div>',
 								],
 							],

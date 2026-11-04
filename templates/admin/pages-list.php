@@ -32,6 +32,9 @@ $bulk_nonce = \SeoCityPages\Security\Security::create_nonce( 'bulk-pages' );
 	<div class="scp-header">
 		<div class="scp-header-left">
 			<h1 class="wp-heading-inline"><?php esc_html_e( 'SEO City Pages', 'seo-city-pages' ); ?></h1>
+			<a href="<?php echo esc_url( admin_url( 'admin.php?page=seo-city-pages-pages&action=new' ) ); ?>" class="page-title-action button button-primary" style="margin-left: 8px;">
+				<span class="dashicons dashicons-plus-alt2"></span> <?php esc_html_e( 'Generate Page Manually', 'seo-city-pages' ); ?>
+			</a>
 			<a href="<?php echo esc_url( admin_url( 'admin.php?page=seo-city-pages-import' ) ); ?>" class="page-title-action">
 				<span class="dashicons dashicons-upload"></span> <?php esc_html_e( 'Import More via CSV', 'seo-city-pages' ); ?>
 			</a>

@@ -28,6 +28,9 @@ $can_import          = \SeoCityPages\Security\Capabilities::user_can( \SeoCityPa
 			<p class="scp-subtitle"><?php esc_html_e( 'The primary, high-volume data-ingestion pipeline for Countries, States, Cities, Services, and Logical City Pages.', 'seo-city-pages' ); ?></p>
 		</div>
 		<div class="scp-header-right">
+			<a href="<?php echo esc_url( admin_url( 'admin.php?page=seo-city-pages-pages&action=new' ) ); ?>" class="button button-primary">
+				<span class="dashicons dashicons-plus-alt2"></span> <?php esc_html_e( 'Generate Page Manually', 'seo-city-pages' ); ?>
+			</a>
 			<a href="<?php echo esc_url( $sample_download_url ); ?>" class="button button-secondary">
 				<span class="dashicons dashicons-download"></span> <?php esc_html_e( 'Download Sample CSV', 'seo-city-pages' ); ?>
 			</a>
@@ -263,6 +266,17 @@ $can_import          = \SeoCityPages\Security\Capabilities::user_can( \SeoCityPa
 			</div>
 		</div>
 	<?php else : ?>
+		<!-- MANUAL GENERATION CALLOUT BANNER -->
+		<div style="background: #e7f3fe; border-left: 4px solid #2271b1; padding: 14px 18px; margin-bottom: 20px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
+			<div>
+				<strong style="color: #02426A; font-size: 14px;"><?php esc_html_e( '✍️ Want to generate a landing page without uploading a CSV file?', 'seo-city-pages' ); ?></strong>
+				<p style="margin: 4px 0 0 0; color: #50575e;"><?php esc_html_e( 'You can directly type in your location (Country, State, City) and niche topic (e.g. Dental Clinic) to generate the page instantly.', 'seo-city-pages' ); ?></p>
+			</div>
+			<a href="<?php echo esc_url( admin_url( 'admin.php?page=seo-city-pages-pages&action=new' ) ); ?>" class="button button-primary" style="font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+				<span class="dashicons dashicons-plus-alt2"></span> <?php esc_html_e( 'Generate Page Manually', 'seo-city-pages' ); ?>
+			</a>
+		</div>
+
 		<!-- STEP 1: UPLOAD CARD -->
 		<div class="scp-card">
 			<div class="scp-card-header">

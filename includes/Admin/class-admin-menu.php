@@ -41,6 +41,7 @@ class Admin_Menu {
 		add_action( 'admin_menu', [ $this, 'register_menus' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_assets' ] );
 		add_action( 'admin_notices', [ $this, 'render_environment_notices' ] );
+		add_filter( 'parent_file', [ $this, 'filter_parent_file' ] );
 	}
 
 	/**
@@ -94,17 +95,6 @@ class Admin_Menu {
 		);
 		$this->hook_suffixes[] = $keywords_hook;
 
-		// Submenu: County Generator
-		$county_gen_hook = add_submenu_page(
-			self::MENU_SLUG,
-			__( 'County Generator — SEO City Pages', 'seo-city-pages' ),
-			__( 'County Generator', 'seo-city-pages' ),
-			Capabilities::MANAGE,
-			self::MENU_SLUG . '-county-generator',
-			[ $this, 'render_county_generator_page' ]
-		);
-		$this->hook_suffixes[] = $county_gen_hook;
-
 		// Submenu: Pages
 		$pages_hook = add_submenu_page(
 			self::MENU_SLUG,
@@ -127,72 +117,6 @@ class Admin_Menu {
 		);
 		$this->hook_suffixes[] = $template_hook;
 
-		// Submenu: Countries
-		$countries_hook = add_submenu_page(
-			self::MENU_SLUG,
-			__( 'Countries — SEO City Pages', 'seo-city-pages' ),
-			__( 'Countries', 'seo-city-pages' ),
-			Capabilities::MANAGE,
-			self::MENU_SLUG . '-countries',
-			[ $this, 'render_countries_page' ]
-		);
-		$this->hook_suffixes[] = $countries_hook;
-
-		// Submenu: States / Regions
-		$states_hook = add_submenu_page(
-			self::MENU_SLUG,
-			__( 'States / Regions — SEO City Pages', 'seo-city-pages' ),
-			__( 'States / Regions', 'seo-city-pages' ),
-			Capabilities::MANAGE,
-			self::MENU_SLUG . '-states',
-			[ $this, 'render_states_page' ]
-		);
-		$this->hook_suffixes[] = $states_hook;
-
-		// Submenu: Cities
-		$cities_hook = add_submenu_page(
-			self::MENU_SLUG,
-			__( 'Cities — SEO City Pages', 'seo-city-pages' ),
-			__( 'Cities', 'seo-city-pages' ),
-			Capabilities::MANAGE,
-			self::MENU_SLUG . '-cities',
-			[ $this, 'render_cities_page' ]
-		);
-		$this->hook_suffixes[] = $cities_hook;
-
-		// Submenu: Services
-		$services_hook = add_submenu_page(
-			self::MENU_SLUG,
-			__( 'Services — SEO City Pages', 'seo-city-pages' ),
-			__( 'Services', 'seo-city-pages' ),
-			Capabilities::MANAGE,
-			self::MENU_SLUG . '-services',
-			[ $this, 'render_services_page' ]
-		);
-		$this->hook_suffixes[] = $services_hook;
-
-		// Submenu: System Status
-		$status_hook = add_submenu_page(
-			self::MENU_SLUG,
-			__( 'System Status — SEO City Pages', 'seo-city-pages' ),
-			__( 'System Status', 'seo-city-pages' ),
-			Capabilities::VIEW_STATUS,
-			self::MENU_SLUG . '-status',
-			[ $this, 'render_status_page' ]
-		);
-		$this->hook_suffixes[] = $status_hook;
-
-		// Submenu: SEO Integration & Metadata
-		$seo_hook = add_submenu_page(
-			self::MENU_SLUG,
-			__( 'SEO Integration — SEO City Pages', 'seo-city-pages' ),
-			__( 'SEO Controls', 'seo-city-pages' ),
-			Capabilities::MANAGE,
-			self::MENU_SLUG . '-seo',
-			[ $this, 'render_seo_page' ]
-		);
-		$this->hook_suffixes[] = $seo_hook;
-
 		// Submenu: Bulk Operations
 		$bulk_hook = add_submenu_page(
 			self::MENU_SLUG,
@@ -204,39 +128,6 @@ class Admin_Menu {
 		);
 		$this->hook_suffixes[] = $bulk_hook;
 
-		// Submenu: Quality Dashboard
-		$quality_hook = add_submenu_page(
-			self::MENU_SLUG,
-			__( 'Quality Dashboard — SEO City Pages', 'seo-city-pages' ),
-			__( 'Quality Dashboard', 'seo-city-pages' ),
-			Capabilities::MANAGE_QUALITY,
-			self::MENU_SLUG . '-quality',
-			[ $this, 'render_quality_page' ]
-		);
-		$this->hook_suffixes[] = $quality_hook;
-
-		// Submenu: System Health
-		$health_hook = add_submenu_page(
-			self::MENU_SLUG,
-			__( 'System Health — SEO City Pages', 'seo-city-pages' ),
-			__( 'System Health', 'seo-city-pages' ),
-			Capabilities::VIEW_HEALTH,
-			self::MENU_SLUG . '-health',
-			[ $this, 'render_health_page' ]
-		);
-		$this->hook_suffixes[] = $health_hook;
-
-		// Submenu: Audit Log
-		$audit_hook = add_submenu_page(
-			self::MENU_SLUG,
-			__( 'Audit Log — SEO City Pages', 'seo-city-pages' ),
-			__( 'Audit Log', 'seo-city-pages' ),
-			Capabilities::VIEW_AUDIT_LOGS,
-			self::MENU_SLUG . '-audit',
-			[ $this, 'render_audit_page' ]
-		);
-		$this->hook_suffixes[] = $audit_hook;
-
 		// Submenu: Settings
 		$settings_hook = add_submenu_page(
 			self::MENU_SLUG,
@@ -247,6 +138,124 @@ class Admin_Menu {
 			[ $this, 'render_settings_page' ]
 		);
 		$this->hook_suffixes[] = $settings_hook;
+
+		/*
+		|--------------------------------------------------------------------------
+		| Options Moved from Sidebar to Dashboard (Accessible via Dashboard Cards)
+		|--------------------------------------------------------------------------
+		| Registered with parent_slug = null so they do not clutter the sidebar,
+		| while keeping their routes, capabilities, and screen renders fully active.
+		*/
+
+		// Moved to Dashboard: 1. County Generator
+		$county_gen_hook = add_submenu_page(
+			null,
+			__( 'County Generator — SEO City Pages', 'seo-city-pages' ),
+			__( 'County Generator', 'seo-city-pages' ),
+			Capabilities::MANAGE,
+			self::MENU_SLUG . '-county-generator',
+			[ $this, 'render_county_generator_page' ]
+		);
+		$this->hook_suffixes[] = $county_gen_hook;
+
+		// Moved to Dashboard: 2. Countries
+		$countries_hook = add_submenu_page(
+			null,
+			__( 'Countries — SEO City Pages', 'seo-city-pages' ),
+			__( 'Countries', 'seo-city-pages' ),
+			Capabilities::MANAGE,
+			self::MENU_SLUG . '-countries',
+			[ $this, 'render_countries_page' ]
+		);
+		$this->hook_suffixes[] = $countries_hook;
+
+		// Moved to Dashboard: 3. States / Regions
+		$states_hook = add_submenu_page(
+			null,
+			__( 'States / Regions — SEO City Pages', 'seo-city-pages' ),
+			__( 'States / Regions', 'seo-city-pages' ),
+			Capabilities::MANAGE,
+			self::MENU_SLUG . '-states',
+			[ $this, 'render_states_page' ]
+		);
+		$this->hook_suffixes[] = $states_hook;
+
+		// Moved to Dashboard: 4. Cities
+		$cities_hook = add_submenu_page(
+			null,
+			__( 'Cities — SEO City Pages', 'seo-city-pages' ),
+			__( 'Cities', 'seo-city-pages' ),
+			Capabilities::MANAGE,
+			self::MENU_SLUG . '-cities',
+			[ $this, 'render_cities_page' ]
+		);
+		$this->hook_suffixes[] = $cities_hook;
+
+		// Moved to Dashboard: 5. Services
+		$services_hook = add_submenu_page(
+			null,
+			__( 'Services — SEO City Pages', 'seo-city-pages' ),
+			__( 'Services', 'seo-city-pages' ),
+			Capabilities::MANAGE,
+			self::MENU_SLUG . '-services',
+			[ $this, 'render_services_page' ]
+		);
+		$this->hook_suffixes[] = $services_hook;
+
+		// Moved to Dashboard: 6. System Status
+		$status_hook = add_submenu_page(
+			null,
+			__( 'System Status — SEO City Pages', 'seo-city-pages' ),
+			__( 'System Status', 'seo-city-pages' ),
+			Capabilities::VIEW_STATUS,
+			self::MENU_SLUG . '-status',
+			[ $this, 'render_status_page' ]
+		);
+		$this->hook_suffixes[] = $status_hook;
+
+		// Moved to Dashboard: 7. SEO Controls
+		$seo_hook = add_submenu_page(
+			null,
+			__( 'SEO Integration — SEO City Pages', 'seo-city-pages' ),
+			__( 'SEO Controls', 'seo-city-pages' ),
+			Capabilities::MANAGE,
+			self::MENU_SLUG . '-seo',
+			[ $this, 'render_seo_page' ]
+		);
+		$this->hook_suffixes[] = $seo_hook;
+
+		// Moved to Dashboard: 8. System Health
+		$health_hook = add_submenu_page(
+			null,
+			__( 'System Health — SEO City Pages', 'seo-city-pages' ),
+			__( 'System Health', 'seo-city-pages' ),
+			Capabilities::VIEW_HEALTH,
+			self::MENU_SLUG . '-health',
+			[ $this, 'render_health_page' ]
+		);
+		$this->hook_suffixes[] = $health_hook;
+
+		// Moved to Dashboard: 9. Quality Dashboard
+		$quality_hook = add_submenu_page(
+			null,
+			__( 'Quality Dashboard — SEO City Pages', 'seo-city-pages' ),
+			__( 'Quality Dashboard', 'seo-city-pages' ),
+			Capabilities::MANAGE_QUALITY,
+			self::MENU_SLUG . '-quality',
+			[ $this, 'render_quality_page' ]
+		);
+		$this->hook_suffixes[] = $quality_hook;
+
+		// Moved to Dashboard: 10. Audit Log
+		$audit_hook = add_submenu_page(
+			null,
+			__( 'Audit Log — SEO City Pages', 'seo-city-pages' ),
+			__( 'Audit Log', 'seo-city-pages' ),
+			Capabilities::VIEW_AUDIT_LOGS,
+			self::MENU_SLUG . '-audit',
+			[ $this, 'render_audit_page' ]
+		);
+		$this->hook_suffixes[] = $audit_hook;
 	}
 
 	/**
@@ -506,5 +515,19 @@ class Admin_Menu {
 		Security::enforce_capability( Capabilities::MANAGE_SETTINGS );
 		$settings = new Settings();
 		$settings->render();
+	}
+
+	/**
+	 * Keep top-level SEO City Pages menu highlighted for dashboard-only screens.
+	 *
+	 * @param string $parent_file Parent menu slug.
+	 * @return string
+	 */
+	public function filter_parent_file( string $parent_file ): string {
+		$page = sanitize_text_field( $_GET['page'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! empty( $page ) && 0 === strpos( $page, self::MENU_SLUG ) ) {
+			return self::MENU_SLUG;
+		}
+		return $parent_file;
 	}
 }

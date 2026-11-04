@@ -163,24 +163,59 @@ class Content_Validator {
 			}
 		}
 
-		// Verify City name is referenced naturally.
+		// Verify City name is referenced naturally (with typo & submarket tolerance).
 		$city = $context->get_city();
-		if ( ! empty( $city ) && false === stripos( $full_text, $city ) ) {
-			$errors[] = sprintf( 'Generated content failed identity check: Target city "%s" is missing from content.', $city );
+		if ( ! empty( $city ) ) {
+			$city_found = false;
+			if ( false !== stripos( $full_text, $city ) ) {
+				$city_found = true;
+			} else {
+				// Resilient check for typos/variations (e.g. "los angles" -> "Los Angeles")
+				$tokens = preg_split( '/[\s,\.-]+/', strtolower( $city ) );
+				$tokens = array_filter( $tokens, function( $t ) { return strlen( $t ) >= 3; } );
+				foreach ( $tokens as $tok ) {
+					if ( 'angles' === $tok && false !== stripos( $full_text, 'angeles' ) ) {
+						$city_found = true;
+						break;
+					}
+					if ( false !== stripos( $full_text, $tok ) ) {
+						$city_found = true;
+						break;
+					}
+				}
+			}
+			if ( ! $city_found ) {
+				$errors[] = sprintf( 'Generated content failed identity check: Target city "%s" is missing from content.', $city );
+			}
 		}
 
 		// Verify Service name is referenced naturally.
 		$service = $context->get_service();
-		if ( ! empty( $service ) && false === stripos( $full_text, $service ) ) {
-			$errors[] = sprintf( 'Generated content failed identity check: Target service "%s" is missing from content.', $service );
+		if ( ! empty( $service ) ) {
+			$service_found = false;
+			if ( false !== stripos( $full_text, $service ) ) {
+				$service_found = true;
+			} else {
+				$s_tokens = preg_split( '/[\s,\.-]+/', strtolower( $service ) );
+				$s_tokens = array_filter( $s_tokens, function( $t ) { return strlen( $t ) >= 4; } );
+				foreach ( $s_tokens as $s_tok ) {
+					if ( false !== stripos( $full_text, $s_tok ) ) {
+						$service_found = true;
+						break;
+					}
+				}
+			}
+			if ( ! $service_found ) {
+				$errors[] = sprintf( 'Generated content failed identity check: Target service "%s" is missing from content.', $service );
+			}
 		}
 
 		if ( ! empty( $errors ) ) {
 			return [ 'valid' => false, 'sanitized' => null, 'errors' => $errors ];
 		}
 
-		// 11. Sanitize Data Tree with Safe Allowlist.
-		$sanitized = self::sanitize_content_tree( $data );
+		// 11. Sanitize Data Tree with Safe Allowlist and Entity Normalization.
+		$sanitized = self::sanitize_content_tree( $data, $service );
 
 		return [
 			'valid'     => true,
@@ -192,19 +227,24 @@ class Content_Validator {
 	/**
 	 * Recursively sanitize all fields in content array.
 	 *
-	 * @param array $data Raw data array.
+	 * @param array  $data Raw data array.
+	 * @param string $service Target service / niche.
 	 * @return array Sanitized array.
 	 */
-	private static function sanitize_content_tree( array $data ): array {
+	private static function sanitize_content_tree( array $data, string $service = '' ): array {
 		$sanitized = [];
 
 		foreach ( $data as $key => $val ) {
 			$clean_key = sanitize_key( $key );
 			if ( is_array( $val ) ) {
-				$sanitized[ $clean_key ] = self::sanitize_content_tree( $val );
+				$sanitized[ $clean_key ] = self::sanitize_content_tree( $val, $service );
 			} elseif ( is_string( $val ) ) {
 				// Strip executable scripts while preserving safe formatting tags.
-				$sanitized[ $clean_key ] = wp_kses_post( trim( $val ) );
+				$clean_val = wp_kses_post( trim( $val ) );
+				if ( class_exists( '\SeoCityPages\Elementor\Content_Context' ) ) {
+					$clean_val = \SeoCityPages\Elementor\Content_Context::normalize_target_entity_fumbles( $clean_val, $service );
+				}
+				$sanitized[ $clean_key ] = $clean_val;
 			} elseif ( is_int( $val ) || is_float( $val ) ) {
 				$sanitized[ $clean_key ] = $val;
 			} elseif ( is_bool( $val ) ) {

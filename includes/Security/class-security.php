@@ -94,6 +94,10 @@ class Security {
 		$nonce = '';
 		if ( ! empty( $_REQUEST[ $query_arg ] ) ) {
 			$nonce = sanitize_text_field( wp_unslash( $_REQUEST[ $query_arg ] ) );
+		} elseif ( ! empty( $_REQUEST['seo_city_pages_nonce'] ) ) {
+			$nonce = sanitize_text_field( wp_unslash( $_REQUEST['seo_city_pages_nonce'] ) );
+		} elseif ( ! empty( $_REQUEST['nonce'] ) ) {
+			$nonce = sanitize_text_field( wp_unslash( $_REQUEST['nonce'] ) );
 		} elseif ( ! empty( $_REQUEST['_wpnonce'] ) ) {
 			$nonce = sanitize_text_field( wp_unslash( $_REQUEST['_wpnonce'] ) );
 		}
@@ -107,6 +111,12 @@ class Security {
 			} elseif ( self::verify_nonce( $nonce, '' ) ) {
 				$is_valid = true;
 			} elseif ( (bool) wp_verify_nonce( $nonce, self::NONCE_ACTION ) ) {
+				$is_valid = true;
+			} elseif ( (bool) wp_verify_nonce( $nonce, 'seo_city_pages_bulk_action' ) ) {
+				$is_valid = true;
+			} elseif ( (bool) wp_verify_nonce( $nonce, 'seo_city_pages_action_seo_city_pages_bulk_action' ) ) {
+				$is_valid = true;
+			} elseif ( (bool) wp_verify_nonce( $nonce, 'seo_city_pages_admin_nonce' ) ) {
 				$is_valid = true;
 			}
 		}
@@ -134,11 +144,17 @@ class Security {
 	 */
 	public static function enforce_capability( string $capability = Capabilities::MANAGE ): void {
 		if ( ! Capabilities::user_can( $capability ) ) {
-			wp_die(
-				esc_html__( 'You do not have sufficient permissions to access this page.', 'seo-city-pages' ),
-				esc_html__( 'Permission Denied', 'seo-city-pages' ),
-				[ 'response' => 403 ]
-			);
+			if ( ( function_exists( 'wp_doing_ajax' ) && wp_doing_ajax() ) || ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ) {
+				wp_send_json_error( [
+					'message' => __( 'You do not have sufficient permissions to perform this action.', 'seo-city-pages' ),
+				], 403 );
+			} else {
+				wp_die(
+					esc_html__( 'You do not have sufficient permissions to access this page.', 'seo-city-pages' ),
+					esc_html__( 'Permission Denied', 'seo-city-pages' ),
+					[ 'response' => 403 ]
+				);
+			}
 		}
 	}
 

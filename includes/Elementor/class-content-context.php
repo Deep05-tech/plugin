@@ -98,7 +98,12 @@ class Content_Context {
 
 		self::$cached_version = $version;
 		$decoded = json_decode( (string) $version->content_json, true );
-		self::$cached_content = is_array( $decoded ) ? $decoded : null;
+		if ( is_array( $decoded ) ) {
+			$service = class_exists( Page_Context::class ) ? Page_Context::get_service() : '';
+			self::$cached_content = self::normalize_content_array( $decoded, $service );
+		} else {
+			self::$cached_content = null;
+		}
 
 		return self::$cached_content;
 	}
@@ -120,7 +125,107 @@ class Content_Context {
 	 * @return void
 	 */
 	public static function set_content( array $content ): void {
-		self::$cached_content = $content;
+		$service = class_exists( Page_Context::class ) ? Page_Context::get_service() : '';
+		self::$cached_content = self::normalize_content_array( $content, $service );
+	}
+
+	/**
+	 * Recursively normalize entity fumbles across all strings in content array.
+	 *
+	 * @param array  $data Content array.
+	 * @param string $service Service name.
+	 * @return array Normalized array.
+	 */
+	public static function normalize_content_array( array $data, string $service = '' ): array {
+		$clean = [];
+		foreach ( $data as $k => $v ) {
+			if ( is_array( $v ) ) {
+				$clean[ $k ] = self::normalize_content_array( $v, $service );
+			} elseif ( is_string( $v ) ) {
+				$clean[ $k ] = self::normalize_target_entity_fumbles( $v, $service );
+			} else {
+				$clean[ $k ] = $v;
+			}
+		}
+		return $clean;
+	}
+
+	/**
+	 * Normalize improper entity-versus-service substitutions.
+	 *
+	 * Ensures that the target business entity (e.g. Dental Clinic, Law Firm)
+	 * is not mistakenly replaced by procedural service terms (e.g. 'dental services')
+	 * where the clinic, practice, or firm itself is the subject, while carefully
+	 * preserving valid patient queries and procedural references (e.g. 'patients searching for dental services').
+	 *
+	 * @param string $text Content text or HTML.
+	 * @param string $service Target service/niche name.
+	 * @return string Normalized text.
+	 */
+	public static function normalize_target_entity_fumbles( string $text, string $service = '' ): string {
+		if ( empty( $text ) ) {
+			return $text;
+		}
+
+		if ( empty( $service ) && class_exists( Page_Context::class ) ) {
+			$service = Page_Context::get_service();
+		}
+
+		// Dental Clinic / Practice normalization.
+		if ( empty( $service ) || false !== stripos( $service, 'dental' ) || false !== stripos( $service, 'dentist' ) ) {
+			$rules = [
+				'/(\b(?:landscape|ecosystem|market|competition)\s+of\s+)dental\s+services\b/i' => '${1}dental clinics',
+				'/(\b(?:agency|partner|consultant|consulting|solutions?|campaigns?|strategies|marketing|SEO|funnels?|specialists?|experts?)\s+for\s+)dental\s+services\b/i' => '${1}dental clinics',
+				'/(\b(?:tailored|engineered|built|designed|crafted|customized)\s+for\s+)dental\s+services\b/i' => '${1}dental clinics',
+				'/(\b(?:helping|empowering|enabling|allowing|scale|grow|elevate|serving|connect|connecting)\s+)dental\s+services(?=\s+(?:to|reach|grow|rank|scale|dominate|capture|attract|with|across|in)\b)/i' => '${1}dental clinics',
+				'/(\bhelp\s+)dental\s+services(?=\s+(?:to|reach|grow|rank|scale|dominate|capture|attract|acquire)\b)/i' => '${1}dental clinics',
+				'/(\b(?:grow|scale|elevate|boost)\s+your\s+)dental\s+services\b/i' => '${1}dental clinic',
+				'/(^|[\.\?!;]\s+|\n\s*)For\s+dental\s+services\s+(in|across|throughout)\b/i' => '${1}For dental clinics ${2}',
+				'/\bdental\s+services\s+(competing|looking|striving|seeking|operating)\s+in\b/i' => 'dental clinics ${1} in',
+				'/(\b(?:local|independent|regional|top)\s+)dental\s+services\s+(?=in\s+[A-Z][a-zA-Z\s]+?\s+(?:face|compete|struggle|require|need|rely|benefit|choose))/i' => '${1}dental clinics ',
+				'/\bdental\s+services\s+in\s+([A-Z][a-zA-Z\s]+?)\s+(face|compete|struggle|require|need|rely|benefit|choose)\b/i' => 'dental clinics in ${1} ${2}',
+				'/(\branking\s+for\s+)dental\s+services(?=\s+is\s+more\s+than\b)/i' => 'ranking a dental clinic',
+				'/(\b(?:partner\s+with|working\s+with|trusted\s+by)\s+)dental\s+services\b/i' => '${1}dental clinics',
+				'/(\bpremier\s+(?:choice|provider)\s+for\s+)dental\s+services\b/i' => '${1}dental clinics',
+			];
+			foreach ( $rules as $pattern => $replacement ) {
+				$text = preg_replace( $pattern, $replacement, $text );
+			}
+		}
+
+		// Law Firm / Legal normalization.
+		if ( ! empty( $service ) && ( false !== stripos( $service, 'law' ) || false !== stripos( $service, 'legal' ) || false !== stripos( $service, 'attorney' ) ) ) {
+			$legal_rules = [
+				'/(\b(?:landscape|ecosystem|market|competition)\s+of\s+)legal\s+services\b/i' => '${1}law firms',
+				'/(\b(?:agency|partner|consultant|consulting|solutions?|campaigns?|strategies|marketing|SEO|funnels?|specialists?|experts?)\s+for\s+)legal\s+services\b/i' => '${1}law firms',
+				'/(\b(?:tailored|engineered|built|designed|crafted|customized)\s+for\s+)legal\s+services\b/i' => '${1}law firms',
+				'/(\b(?:grow|scale|elevate|boost)\s+your\s+)legal\s+services\b/i' => '${1}law firm',
+				'/(^|[\.\?!;]\s+|\n\s*)For\s+legal\s+services\s+(in|across|throughout)\b/i' => '${1}For law firms ${2}',
+				'/\blegal\s+services\s+(competing|looking|striving|seeking|operating)\s+in\b/i' => 'law firms ${1} in',
+				'/(\b(?:partner\s+with|working\s+with|trusted\s+by)\s+)legal\s+services\b/i' => '${1}law firms',
+			];
+			foreach ( $legal_rules as $pattern => $replacement ) {
+				$text = preg_replace( $pattern, $replacement, $text );
+			}
+		}
+
+		// Home Services & Trade Contractors normalization.
+		if ( ! empty( $service ) && ( false !== stripos( $service, 'home service' ) || false !== stripos( $service, 'home cleaning' ) || false !== stripos( $service, 'contractor' ) ) ) {
+			$contractor_rules = [
+				'/(\b(?:landscape|ecosystem|market|competition)\s+of\s+)home\s+services\b/i' => '${1}home service contractors',
+				'/(\b(?:agency|partner|consultant|consulting|solutions?|campaigns?|strategies|marketing|SEO|funnels?|specialists?|experts?)\s+for\s+)home\s+services\b/i' => '${1}home service contractors',
+				'/(\b(?:tailored|engineered|built|designed|crafted|customized)\s+for\s+)home\s+services\b/i' => '${1}home service contractors',
+				'/(\b(?:grow|scale|elevate|boost)\s+your\s+)home\s+services\b/i' => '${1}home service company',
+				'/(^|[\.\?!;]\s+|\n\s*)For\s+home\s+services\s+(in|across|throughout)\b/i' => '${1}For home service contractors ${2}',
+				'/\bhome\s+services\s+(competing|looking|striving|seeking|operating)\s+in\b/i' => 'home service contractors ${1} in',
+				'/(\b(?:partner\s+with|working\s+with|trusted\s+by)\s+)home\s+services\b/i' => '${1}home service contractors',
+			];
+			foreach ( $contractor_rules as $pattern => $replacement ) {
+				$text = preg_replace( $pattern, $replacement, $text );
+			}
+		}
+
+		return $text;
 	}
 
 	public static function get_hero_title(): string {
@@ -138,7 +243,7 @@ class Content_Context {
 		}
 		$city    = Page_Context::get_city();
 		$service = Page_Context::get_service();
-		return esc_html( sprintf( 'Turn local search traffic in %s into high-paying clients with custom %s strategies engineered for measurable revenue growth.', $city, $service ) );
+		return esc_html( sprintf( 'Dominate Google search, Google Ads, and Meta Ads for %s in %s. Vispan Solutions delivers full-suite digital marketing, high-converting Local SEO, and PPC lead generation funnels engineered for measurable revenue growth.', $service, $city ) );
 	}
 
 	/**
@@ -163,20 +268,109 @@ class Content_Context {
 		if ( ! empty( $content['introduction']['heading'] ) ) {
 			return esc_html( $content['introduction']['heading'] );
 		}
-		return esc_html( sprintf( 'Dominating Search in %s Starts With Data', Page_Context::get_city() ) );
+		return esc_html( sprintf( 'Dominating Google Search & High-ROI Ads in %s', Page_Context::get_city() ) );
 	}
 
 	/**
-	 * Safe sanitization fallback for HTML body content.
+	 * Safe sanitization and Markdown-to-HTML parser for editorial body content.
 	 *
-	 * @param string $text Text to sanitize.
-	 * @return string
+	 * Converts markdown bold (**text**), italics (*text*), and lists (- item or * item)
+	 * into clean, beautifully styled semantic HTML tags and runs wp_kses_post.
+	 *
+	 * @param string $text Raw text or markdown.
+	 * @return string Clean, styled HTML.
 	 */
 	public static function safe_sanitize_body( string $text ): string {
-		if ( function_exists( 'wp_kses_post' ) ) {
-			return \wp_kses_post( $text );
+		if ( empty( trim( $text ) ) ) {
+			return '';
 		}
-		return $text;
+
+		// Normalize target business entity fumbles before formatting
+		$text = self::normalize_target_entity_fumbles( $text );
+
+		// Normalize line endings
+		$text = str_replace( [ "\r\n", "\r" ], "\n", $text );
+
+		// Normalize inline bullets if generated on one line: e.g. "include: - **SEO:**" -> "include:\n- **SEO:**"
+		$text = preg_replace( '/(?:\s+|^)[-*•]\s+\*\*/', "\n- **", $text );
+
+		// Convert markdown bold: **text** or __text__
+		$text = preg_replace( '/\*\*(.+?)\*\*/s', '<strong>$1</strong>', $text );
+		$text = preg_replace( '/__(.+?)__/s', '<strong>$1</strong>', $text );
+
+		// Convert markdown italics: *text* or _text_
+		$text = preg_replace( '/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/s', '<em>$1</em>', $text );
+
+		// Check if the content has newlines or bullet list items
+		$has_newlines = ( false !== strpos( $text, "\n" ) );
+		$has_bullets  = (bool) preg_match( '/(?:^|\n)[-*•]\s+/m', $text );
+
+		if ( ! $has_newlines && ! $has_bullets ) {
+			if ( function_exists( 'wp_kses_post' ) ) {
+				return \wp_kses_post( $text );
+			}
+			return $text;
+		}
+
+		$lines      = explode( "\n", $text );
+		$output     = [];
+		$list_items = [];
+		$in_list    = false;
+
+		foreach ( $lines as $line ) {
+			$trimmed = trim( $line );
+
+			// Check for bullet list item: - or * or • followed by space
+			if ( preg_match( '/^[-*•]\s+(.+)$/', $trimmed, $m ) ) {
+				$in_list      = true;
+				$list_items[] = $m[1];
+			} elseif ( preg_match( '/^\d+\.\s+(.+)$/', $trimmed, $m ) ) {
+				$in_list      = true;
+				$list_items[] = $m[1];
+			} else {
+				if ( $in_list && ! empty( $list_items ) ) {
+					$output[]   = self::render_styled_bullet_list( $list_items );
+					$list_items = [];
+					$in_list    = false;
+				}
+				if ( '' !== $trimmed ) {
+					$output[] = '<p style="margin: 0 0 14px; line-height: 1.65;">' . $trimmed . '</p>';
+				}
+			}
+		}
+
+		if ( $in_list && ! empty( $list_items ) ) {
+			$output[] = self::render_styled_bullet_list( $list_items );
+		}
+
+		$html = implode( "\n", $output );
+
+		if ( function_exists( 'wp_kses_post' ) ) {
+			return \wp_kses_post( $html );
+		}
+
+		return $html;
+	}
+
+	/**
+	 * Render styled checkmark bullet list HTML.
+	 *
+	 * @param array $items Array of list item strings.
+	 * @return string HTML output.
+	 */
+	public static function render_styled_bullet_list( array $items ): string {
+		$html = '<ul style="list-style: none; padding: 0; margin: 16px auto; max-width: 720px; text-align: left; display: flex; flex-direction: column; gap: 10px;">';
+		foreach ( $items as $item ) {
+			$html .= sprintf(
+				'<li style="display: flex; align-items: flex-start; gap: 10px; font-size: 14.5px; line-height: 1.55; color: #4A5568;">' .
+				'<span style="color: #02426A; font-weight: 900; font-size: 15px; flex-shrink: 0; margin-top: 1px;">✓</span>' .
+				'<div>%s</div>' .
+				'</li>',
+				$item
+			);
+		}
+		$html .= '</ul>';
+		return $html;
 	}
 
 	public static function get_intro_body(): string {
@@ -186,7 +380,7 @@ class Content_Context {
 		}
 		$city  = Page_Context::get_city();
 		$state = Page_Context::get_state();
-		return esc_html( sprintf( 'Generic campaigns fail in competitive local markets. Our localized search architecture captures commercial-intent queries from ready-to-buy clients across %s, %s.', $city, $state ) );
+		return esc_html( sprintf( 'Generic marketing fails in competitive markets. Vispan Solutions combines Google Ads, Meta Ads (Facebook & Instagram), Local SEO, and Google Map Pack 3-Pack optimization to capture commercial-intent clients across %s, %s.', $city, $state ) );
 	}
 
 	public static function get_service_overview_heading(): string {
@@ -194,7 +388,7 @@ class Content_Context {
 		if ( ! empty( $content['service_overview']['heading'] ) ) {
 			return esc_html( $content['service_overview']['heading'] );
 		}
-		return esc_html( sprintf( 'Comprehensive %s Solutions', Page_Context::get_service() ) );
+		return esc_html( sprintf( 'Full-Funnel Digital Marketing, Google Ads & SEO for %s', Page_Context::get_service() ) );
 	}
 
 	public static function get_service_overview_body(): string {
@@ -202,7 +396,7 @@ class Content_Context {
 		if ( ! empty( $content['service_overview']['body'] ) ) {
 			return self::safe_sanitize_body( $content['service_overview']['body'] );
 		}
-		return esc_html( sprintf( 'We combine technical search precision with high-converting landing page experiences to maximize your return on investment in %s.', Page_Context::get_city() ) );
+		return esc_html( sprintf( 'We engineer complete client acquisition engines for %s in %s — integrating Google Ads PPC, Meta Ads, Technical SEO, Google Map Pack dominance, Web Development, and Online Reputation Management.', Page_Context::get_service(), Page_Context::get_city() ) );
 	}
 
 	public static function get_local_relevance_heading(): string {
@@ -210,7 +404,7 @@ class Content_Context {
 		if ( ! empty( $content['local_relevance']['heading'] ) ) {
 			return esc_html( $content['local_relevance']['heading'] );
 		}
-		return esc_html( sprintf( 'Why Growing Brands in %s Partner with Us', Page_Context::get_city() ) );
+		return esc_html( sprintf( 'Why %s Businesses in %s Choose Vispan Solutions', Page_Context::get_service(), Page_Context::get_city() ) );
 	}
 
 	public static function get_local_relevance_body(): string {
@@ -220,7 +414,7 @@ class Content_Context {
 		}
 		$city  = Page_Context::get_city();
 		$state = Page_Context::get_state();
-		return esc_html( sprintf( 'Our specialized search infrastructure drives consistent organic rankings and localized authority across %s, %s.', $city, $state ) );
+		return esc_html( sprintf( 'Our data-driven digital marketing infrastructure drives high-converting organic rankings, verified Google Ads ROI, and hyper-targeted Meta advertising across %s, %s.', $city, $state ) );
 	}
 
 	public static function get_final_cta_heading(): string {
@@ -588,65 +782,478 @@ class Content_Context {
 	 * @return string HTML output.
 	 */
 	public static function render_industry_verticals_html(): string {
-		$city    = Page_Context::get_city();
-		$service = Page_Context::get_service();
+		$city           = Page_Context::get_city();
+		$service        = Page_Context::get_service();
+		$target_service = ! empty( $service ) ? $service : 'Your Business';
 
-		$verticals = [
+		$is_home_services = (bool) preg_match( '/\b(home\s*services?|home\s*cleaning|contractors?|emergency\s*trades?)\b/i', (string) $service );
+		if ( $is_home_services ) {
+			return self::render_home_services_trades_html();
+		}
+
+		$services = [
 			[
-				'icon'        => '⚖️',
-				'title'       => 'Legal & Professional Services',
-				'niche'       => 'High-CPC Corporate & Litigation Search',
-				'description' => sprintf( 'Capturing corporate decision makers seeking verified legal counsel in %s with high-trust conversion funnels and entity authority schema.', $city ),
+				'icon'        => '🚀',
+				'niche'       => 'Full-Funnel Growth',
+				'btn_title'   => 'Digital Marketing',
+				'title'       => sprintf( 'Digital Marketing for %s', $target_service ),
+				'description' => sprintf( 'Comprehensive performance marketing funnels engineered to drive consistent, high-intent client acquisition and measurable ROI across %s.', $city ),
 			],
 			[
-				'icon'        => '🏥',
-				'title'       => 'Medical & Healthcare Clinics',
-				'niche'       => 'Patient Radius & Procedure Search',
-				'description' => sprintf( 'Targeting patient searches across %s submarkets with Google Map Pack 3-Pack optimization and condition-specific landing nodes.', $city ),
+				'icon'        => '🎯',
+				'niche'       => 'PPC & Search Ads',
+				'btn_title'   => 'Google Ads',
+				'title'       => 'Google Ads',
+				'description' => 'High-converting Google Search, Display, and Performance Max campaigns precision-targeted to capture motivated, high-intent prospects at the exact moment of decision.',
 			],
 			[
-				'icon'        => '🏗️',
-				'title'       => 'Commercial B2B & Industrial',
-				'niche'       => 'Enterprise Procurement & High Contract Values',
-				'description' => sprintf( 'Engineering search architecture for %s industrial corridors, logistics hubs, and commercial operators with large order values.', $city ),
+				'icon'        => '🎨',
+				'niche'       => 'Identity & Positioning',
+				'btn_title'   => 'Branding Services',
+				'title'       => 'Branding Services',
+				'description' => 'Distinct brand identities, compelling visual guidelines, corporate narrative, and market positioning that build enduring authority, client trust, and long-term loyalty.',
 			],
 			[
-				'icon'        => '🏡',
-				'title'       => 'High-End Home & Field Services',
-				'niche'       => 'High-Intent Emergency & Installation Queries',
-				'description' => sprintf( 'Dominating local zip-code search radiuses in %s with mobile-to-call conversion paths and Google Local Services synergy.', $city ),
+				'icon'        => '🌐',
+				'niche'       => 'Organic Search Domination',
+				'btn_title'   => 'Search Engine Optimization',
+				'title'       => 'Search Engine Optimization',
+				'description' => sprintf( 'Dominant Google Map Pack and organic search visibility powered by localized entity schema, deep technical SEO, and authority-building content architecture for %s practices in %s.', $target_service, $city ),
+			],
+			[
+				'icon'        => '💻',
+				'niche'       => 'High-Performance UI/UX',
+				'btn_title'   => 'Web Development',
+				'title'       => sprintf( 'Web Development for %s', $target_service ),
+				'description' => sprintf( 'Ultra-fast, mobile-first websites and landing pages custom-engineered with intuitive UX, seamless booking funnels, and frictionless conversion optimization in %s.', $city ),
+			],
+			[
+				'icon'        => '📱',
+				'niche'       => 'Engagement & Growth',
+				'btn_title'   => 'Social Media Management',
+				'title'       => 'Social Media Management',
+				'description' => 'Strategic content creation, engaging visual storytelling, active community management, and targeted paid social funnels across Instagram, LinkedIn, and Facebook.',
+			],
+			[
+				'icon'        => '🛡️',
+				'niche'       => 'Review Velocity & Trust',
+				'btn_title'   => 'Online Reputation Management',
+				'title'       => 'Online Reputation Management',
+				'description' => sprintf( 'Proactive 5-star review generation, positive sentiment cultivation, and 24/7 brand protection across Google Business Profile and local directories in %s.', $city ),
+			],
+			[
+				'icon'        => '🎬',
+				'niche'       => 'Cinematic Storytelling',
+				'btn_title'   => 'Video Production',
+				'title'       => 'Video Production',
+				'description' => sprintf( 'High-impact commercial video production, brand documentaries, client case testimonials, and social video assets crafted to engage prospective %s clients.', $target_service ),
+			],
+			[
+				'icon'        => '✨',
+				'niche'       => 'High-End Visual FX',
+				'btn_title'   => 'VFX (Visual Effects)',
+				'title'       => 'VFX (Visual Effects)',
+				'description' => 'Hollywood-grade visual effects, dynamic motion design, and seamless photorealistic compositing for premium commercial advertisements and high-end digital media.',
+			],
+			[
+				'icon'        => '🧊',
+				'niche'       => '3D Animation & Renders',
+				'btn_title'   => 'CGI Services',
+				'title'       => 'CGI Services',
+				'description' => 'Photorealistic 3D modeling, detailed visual product and architectural renderings, and state-of-the-art computer-generated animations bringing visionary concepts to life.',
 			],
 		];
 
-		$html = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 20px; font-family: \'DM Sans\', sans-serif;">';
+		$html = '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: 20px; font-family: \'DM Sans\', sans-serif;">';
 		$delays = [ 'vispan-delay-1', 'vispan-delay-2', 'vispan-delay-3', 'vispan-delay-4' ];
 
-		foreach ( $verticals as $idx => $v ) {
+		foreach ( $services as $idx => $s ) {
 			$delay = $delays[ $idx % count( $delays ) ];
 			$reveal_class = ( 0 === $idx % 2 ) ? 'vispan-reveal-left' : 'vispan-reveal-right';
 
 			$html .= sprintf(
-				'<div class="%s %s vispan-hover-card" style="background: #FFFFFF; border: 1.5px solid #CCE0ED; border-radius: 16px; padding: 26px 22px; display: flex; flex-direction: column; justify-content: space-between;">
+				'<div class="%s %s vispan-hover-card" style="background: #FFFFFF; border: 1.5px solid #CCE0ED; border-radius: 16px; padding: 24px 20px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 14px rgba(2,66,106,0.04);">
 					<div>
-						<div style="font-size: 28px; margin-bottom: 12px;">%s</div>
-						<div style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #02426A; margin-bottom: 4px;">%s</div>
-						<h3 style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 17.5px; font-weight: 800; color: #121212; margin: 0 0 10px; line-height: 1.35;">%s</h3>
-						<p style="font-size: 14px; line-height: 1.6; color: #5D5756; margin: 0;">%s</p>
+						<div style="font-size: 30px; margin-bottom: 12px; line-height: 1;">%s</div>
+						<div style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #02426A; margin-bottom: 6px;">%s</div>
+						<h3 style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 18px; font-weight: 800; color: #121212; margin: 0 0 10px; line-height: 1.3; letter-spacing: 0px !important; word-spacing: normal !important;">%s</h3>
+						<p style="font-size: 13.5px; line-height: 1.6; color: #5D5756; margin: 0; letter-spacing: 0px !important; word-spacing: normal !important;">%s</p>
 					</div>
-					<div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #CCE0ED; font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 12px; font-weight: 800; color: #02426A;">
-						Tailored %s Strategy →
+					<div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid #CCE0ED;">
+						<a href="https://vispansolutions.com/contact-us/" style="text-decoration: none; font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 12px; font-weight: 800; color: #02426A; display: inline-flex; align-items: center; gap: 4px; letter-spacing: 0px !important; word-spacing: normal !important;">
+							Explore %s →
+						</a>
 					</div>
 				</div>',
 				esc_attr( $reveal_class ),
 				esc_attr( $delay ),
-				$v['icon'],
-				esc_html( $v['niche'] ),
-				esc_html( $v['title'] ),
-				esc_html( $v['description'] ),
-				esc_html( $service )
+				$s['icon'],
+				esc_html( $s['niche'] ),
+				esc_html( $s['title'] ),
+				esc_html( $s['description'] ),
+				esc_html( $s['btn_title'] ?? $s['title'] )
 			);
 		}
 		$html .= '</div>';
+
+		return $html;
+	}
+
+	/**
+	 * Render 6 Pillars & 21 Trades Multi-Trade Grid with interactive category filter for Home Services.
+	 *
+	 * @return string HTML output.
+	 */
+	public static function render_home_services_trades_html(): string {
+		$city  = Page_Context::get_city();
+		$state = Page_Context::get_state();
+
+		$trades = [
+			// Pillar 1: Core Systems & Emergency Trades
+			[
+				'pillar'      => 'Core Systems & Emergency',
+				'category'    => 'core',
+				'badge'       => 'High-Ticket Emergency',
+				'title'       => 'HVAC Services',
+				'description' => 'Heating, ventilation, air conditioning repair, system replacements, and seasonal duct maintenance.',
+				'highlights'  => [ 'Emergency 24/7 Dispatch', 'High-Ticket Replacements' ],
+				'icon_svg'    => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#02426A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/><circle cx="12" cy="12" r="10"/></svg>',
+			],
+			[
+				'pillar'      => 'Core Systems & Emergency',
+				'category'    => 'core',
+				'badge'       => 'High-Ticket Emergency',
+				'title'       => 'Plumbing Services',
+				'description' => 'Drain clearing, pipe repair, leak detection, water heater installations, and emergency plumbing.',
+				'highlights'  => [ 'Urgent Inbound Calls', 'Repiping & Heaters' ],
+				'icon_svg'    => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#02426A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2v6a2 2 0 0 0 2 2h6"/><path d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4z"/><path d="M4 12v6a2 2 0 0 0 2 2h6"/><path d="M20 12a8 8 0 0 1-8 8v-4a4 4 0 0 0 4-4h4z"/></svg>',
+			],
+			[
+				'pillar'      => 'Core Systems & Emergency',
+				'category'    => 'core',
+				'badge'       => 'High-Ticket Emergency',
+				'title'       => 'Electrical Services',
+				'description' => 'Residential rewiring, breaker panel upgrades, lighting installations, EV charger setups, and smart home hardwiring.',
+				'highlights'  => [ 'Panel Upgrades & EV', 'Safety Inspections' ],
+				'icon_svg'    => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#02426A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+			],
+
+			// Pillar 2: Exterior & Structural Maintenance
+			[
+				'pillar'      => 'Exterior & Structural',
+				'category'    => 'exterior',
+				'badge'       => 'Weather & Storm Events',
+				'title'       => 'Roofing & Siding',
+				'description' => 'Roof repairs, total replacements, leak interventions, gutters, and vinyl/wood exterior siding.',
+				'highlights'  => [ 'Insurance & Storm Claims', 'High-Ticket Installs' ],
+				'icon_svg'    => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#02426A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+			],
+			[
+				'pillar'      => 'Exterior & Structural',
+				'category'    => 'exterior',
+				'badge'       => 'Seasonal Cleanout',
+				'title'       => 'Gutter Cleaning & Installation',
+				'description' => 'Gutter guard installations, seasonal cleanouts, and drainage alignments.',
+				'highlights'  => [ 'Gutter Guards & Alignments', 'Seasonal Surges' ],
+				'icon_svg'    => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#02426A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>',
+			],
+			[
+				'pillar'      => 'Exterior & Structural',
+				'category'    => 'exterior',
+				'badge'       => '24/7 Emergency Dispatch',
+				'title'       => 'Garage Door Repair',
+				'description' => 'Spring replacements, opener installations, track realignments, and 24/7 emergency dispatch.',
+				'highlights'  => [ 'Torsion Springs & Openers', 'Same-Day Dispatch' ],
+				'icon_svg'    => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#02426A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18"/></svg>',
+			],
+			[
+				'pillar'      => 'Exterior & Structural',
+				'category'    => 'exterior',
+				'badge'       => 'Exterior Revitalization',
+				'title'       => 'Pressure Washing',
+				'description' => 'Exterior siding, driveway degreasing, deck revitalization, and commercial surface stripping.',
+				'highlights'  => [ 'Driveways & Siding', 'Commercial Power Wash' ],
+				'icon_svg'    => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#02426A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
+			],
+
+			// Pillar 3: Interior & Handyman Trades
+			[
+				'pillar'      => 'Interior & Handyman',
+				'category'    => 'interior',
+				'badge'       => 'High-Frequency Inquiries',
+				'title'       => 'General Handyman Work',
+				'description' => 'Fixture installations, drywall patching, minor carpentry, door repairs, and odd jobs.',
+				'highlights'  => [ 'Drywall & Fixture Setup', 'Residential Repairs' ],
+				'icon_svg'    => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#02426A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
+			],
+			[
+				'pillar'      => 'Interior & Handyman',
+				'category'    => 'interior',
+				'badge'       => 'Aesthetic Renovation',
+				'title'       => 'Painting',
+				'description' => 'Interior and exterior painting, trim restoration, cabinet refinishing, and deck staining.',
+				'highlights'  => [ 'Cabinet Refinishing', 'Interior/Exterior Trim' ],
+				'icon_svg'    => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#02426A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 11-8-8-8.6 8.6a2 2 0 0 0 0 2.8l5.2 5.2c.8.8 2 .8 2.8 0L19 11Z"/><path d="m5 2 5 5"/><path d="M2 13h15"/><path d="M22 20a2 2 0 1 1-4 0c0-1.6 1.7-2.4 2-4 .3 1.6 2 2.4 2 4Z"/></svg>',
+			],
+			[
+				'pillar'      => 'Interior & Handyman',
+				'category'    => 'interior',
+				'badge'       => 'Flooring & Hardwood',
+				'title'       => 'Flooring & Carpeting',
+				'description' => 'Hardwood installation, tile setting, carpet fitting, floor sanding, and luxury vinyl planking.',
+				'highlights'  => [ 'Luxury Vinyl Plank & Tile', 'Hardwood Sanding' ],
+				'icon_svg'    => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#02426A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>',
+			],
+			[
+				'pillar'      => 'Interior & Handyman',
+				'category'    => 'interior',
+				'badge'       => 'Custom Woodworking',
+				'title'       => 'Carpentry Services',
+				'description' => 'Custom cabinetry, trim and molding, framing, staircases, and built-in shelving.',
+				'highlights'  => [ 'Custom Built-Ins & Trim', 'Framing & Staircases' ],
+				'icon_svg'    => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#02426A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.3 8.7 8.7 21.3c-.4.4-1 .4-1.4 0l-4.6-4.6c-.4-.4-.4-1 0-1.4L15.3 2.7c.4-.4 1-.4 1.4 0l4.6 4.6c.4.4.4 1 0 1.4z"/></svg>',
+			],
+
+			// Pillar 4: Outdoor Living & Yard Care
+			[
+				'pillar'      => 'Outdoor Living & Yard',
+				'category'    => 'outdoor',
+				'badge'       => 'Recurring Landscape Contracts',
+				'title'       => 'Lawn Care & Landscaping',
+				'description' => 'Landscape architecture, hardscaping, lawn fertilization, aerating, and sod installations.',
+				'highlights'  => [ 'Hardscaping & Retaining Walls', 'Recurring Turf Plans' ],
+				'icon_svg'    => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#02426A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-9"/><path d="M9 13a4.5 4.5 0 0 0 6 0"/><path d="M12 9a7 7 0 0 0 7-7 7 7 0 0 0-7 7z"/><path d="M12 9A7 7 0 0 0 5 2a7 7 0 0 0 7 7z"/></svg>',
+			],
+			[
+				'pillar'      => 'Outdoor Living & Yard',
+				'category'    => 'outdoor',
+				'badge'       => 'High-Intent Extermination',
+				'title'       => 'Pest Control & Wildlife Removal',
+				'description' => 'Termite extermination, rodent exclusion, bed bug eradication, and humane wildlife removal.',
+				'highlights'  => [ 'Termite & Rodent Exclusion', 'Emergency Infestation' ],
+				'icon_svg'    => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#02426A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 2 1.88 1.88"/><path d="M14.12 3.88 16 2"/><path d="M9 7.13v-1a3.003 3.003 0 1 1 6 0v1"/><path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6"/><path d="M12 20v-9"/><path d="M6.53 9C4.6 8.8 3 7.1 3 5"/><path d="M6 13H2"/><path d="M3 21c0-2.1 1.7-3.9 3.8-4"/><path d="M20.97 5c0 2.1-1.6 3.8-3.5 4"/><path d="M22 13h-4"/><path d="M17.2 17c2.1.1 3.8 1.9 3.8 4"/></svg>',
+			],
+			[
+				'pillar'      => 'Outdoor Living & Yard',
+				'category'    => 'outdoor',
+				'badge'       => 'Seasonal Maintenance',
+				'title'       => 'Pool Maintenance',
+				'description' => 'Chemical balancing, pump and filtration repairs, liner replacement, and seasonal winterization.',
+				'highlights'  => [ 'Pump & Filter Repairs', 'Winterization & Openings' ],
+				'icon_svg'    => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#02426A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/></svg>',
+			],
+			[
+				'pillar'      => 'Outdoor Living & Yard',
+				'category'    => 'outdoor',
+				'badge'       => 'Winter Surge Demand',
+				'title'       => 'Snow & Ice Removal',
+				'description' => 'Driveway plowing, commercial lot de-icing, and emergency salting.',
+				'highlights'  => [ 'Commercial Plowing Contracts', 'Emergency Salting' ],
+				'icon_svg'    => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#02426A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M19.07 4.93 4.93 19.07"/></svg>',
+			],
+
+			// Pillar 5: Residential Cleaning & Sanitation
+			[
+				'pillar'      => 'Cleaning & Sanitation',
+				'category'    => 'cleaning',
+				'badge'       => 'High-LTV Recurring',
+				'title'       => 'Housekeeping & Maid Services',
+				'description' => 'Recurring residential cleaning, deep scrubbing, move-in/move-out cleans, and turnover prep.',
+				'highlights'  => [ 'Bi-Weekly Recurring LTV', 'Deep Turnover Cleans' ],
+				'icon_svg'    => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#02426A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M19 21v-4a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v4"/><path d="M10 9a3 3 0 1 0 6 0 3 3 0 0 0-6 0"/></svg>',
+			],
+			[
+				'pillar'      => 'Cleaning & Sanitation',
+				'category'    => 'cleaning',
+				'badge'       => 'Fast Turnover Disposal',
+				'title'       => 'Junk Removal & Hauling',
+				'description' => 'Property cleanouts, construction debris hauling, bulky item disposal, and eco-friendly recycling.',
+				'highlights'  => [ 'Estate & Garage Cleanouts', 'Debris Hauling' ],
+				'icon_svg'    => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#02426A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>',
+			],
+			[
+				'pillar'      => 'Cleaning & Sanitation',
+				'category'    => 'cleaning',
+				'badge'       => 'High-Ticket Panes',
+				'title'       => 'Window Cleaning',
+				'description' => 'Residential exterior/interior panes, multi-story glass, screen restoration, and track cleaning.',
+				'highlights'  => [ 'Pure Water Pole Systems', 'Multi-Story Glass' ],
+				'icon_svg'    => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#02426A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg>',
+			],
+
+			// Pillar 6: Safety, Security & Energy Management
+			[
+				'pillar'      => 'Safety, Security & Energy',
+				'category'    => 'safety',
+				'badge'       => 'Smart Integration',
+				'title'       => 'Home Security Systems',
+				'description' => 'Smart alarm installations, 24/7 CCTV surveillance, biometric access, and motion sensor grids.',
+				'highlights'  => [ 'CCTV & Alarm Systems', 'Smart Access Control' ],
+				'icon_svg'    => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#02426A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+			],
+			[
+				'pillar'      => 'Safety, Security & Energy',
+				'category'    => 'safety',
+				'badge'       => 'Emergency Lockouts',
+				'title'       => 'Locksmith Services',
+				'description' => 'Emergency lockouts, rekeying, high-security deadbolts, smart keypads, and access control.',
+				'highlights'  => [ 'Emergency 24/7 Rekeying', 'Smart Keypad Locks' ],
+				'icon_svg'    => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#02426A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+			],
+			[
+				'pillar'      => 'Safety, Security & Energy',
+				'category'    => 'safety',
+				'badge'       => 'Clean Energy & Inverters',
+				'title'       => 'Solar Power & Energy Management',
+				'description' => 'Photovoltaic panel design, battery storage backups, inverter repairs, and energy efficiency audits.',
+				'highlights'  => [ 'Battery Storage Backups', 'Commercial & Home Solar' ],
+				'icon_svg'    => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#02426A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>',
+			],
+		];
+
+		// Header Overview Strip
+		$html  = '<div style="font-family: \'DM Sans\', sans-serif; width: 100%; max-width: 1200px; margin: 0 auto;">';
+		$html .= '<div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 14px; padding: 24px 28px; margin-bottom: 28px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px;">';
+		$html .= '<div style="max-width: 650px;">';
+		$html .= '<span style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: #0B63F6; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px;">';
+		$html .= '<span style="width: 6px; height: 6px; border-radius: 50%; background: #0B63F6; display: inline-block;"></span> Multi-Trade Lead Generation Ecosystem</span>';
+		$html .= sprintf( '<h3 style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 20px; font-weight: 800; color: #0F172A; margin: 0 0 8px; line-height: 1.3;">Digital Marketing Engineered for 6 Pillars &amp; 21 Contractor Trades in %s</h3>', esc_html( $city ) );
+		$html .= sprintf( '<p style="font-size: 14px; line-height: 1.6; color: #475569; margin: 0;">From urgent emergency dispatches to seasonal maintenance contracts, Vispan Solutions deploys high-intent SEO, Google Local Services Ads, and conversion systems built exclusively for residential service pros.</p>' );
+		$html .= '</div>';
+		$html .= '<div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">';
+		$html .= '<div style="text-align: center; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 10px 18px; min-width: 95px;">';
+		$html .= '<div style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 22px; font-weight: 800; color: #02426A; line-height: 1;">21</div>';
+		$html .= '<div style="font-size: 10.5px; color: #64748B; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px;">Trades Supported</div>';
+		$html .= '</div>';
+		$html .= '<div style="text-align: center; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 10px 18px; min-width: 95px;">';
+		$html .= '<div style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 22px; font-weight: 800; color: #02426A; line-height: 1;">6</div>';
+		$html .= '<div style="font-size: 10.5px; color: #64748B; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px;">Core Pillars</div>';
+		$html .= '</div>';
+		$html .= '<div style="text-align: center; background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 10px; padding: 10px 18px; min-width: 95px;">';
+		$html .= '<div style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 22px; font-weight: 800; color: #059669; line-height: 1;">100%</div>';
+		$html .= '<div style="font-size: 10.5px; color: #047857; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px;">Exclusive Leads</div>';
+		$html .= '</div>';
+		$html .= '</div>';
+		$html .= '</div>';
+
+		// Modern Segmented Category Filter Track
+		$html .= '<div style="display: flex; justify-content: center; margin-bottom: 28px;">';
+		$html .= '<div class="scp-trade-filter-bar" style="display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 6px; background: #FFFFFF; border: 1px solid #E2E8F0; padding: 5px; border-radius: 40px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">';
+		$html .= '<button type="button" class="scp-filter-btn" data-category="all" onclick="scpFilterTrades(\'all\', this)" style="padding: 8px 16px; border-radius: 30px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all 0.2s; font-family: \'Plus Jakarta Sans\', sans-serif; border: none; background: #02426A; color: #FFFFFF; box-shadow: 0 2px 8px rgba(2,66,106,0.2);">All Trades (21)</button>';
+		$html .= '<button type="button" class="scp-filter-btn" data-category="core" onclick="scpFilterTrades(\'core\', this)" style="padding: 8px 16px; border-radius: 30px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: \'Plus Jakarta Sans\', sans-serif; border: none; background: transparent; color: #475569;">Core &amp; Emergency (3)</button>';
+		$html .= '<button type="button" class="scp-filter-btn" data-category="exterior" onclick="scpFilterTrades(\'exterior\', this)" style="padding: 8px 16px; border-radius: 30px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: \'Plus Jakarta Sans\', sans-serif; border: none; background: transparent; color: #475569;">Exterior &amp; Structural (4)</button>';
+		$html .= '<button type="button" class="scp-filter-btn" data-category="interior" onclick="scpFilterTrades(\'interior\', this)" style="padding: 8px 16px; border-radius: 30px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: \'Plus Jakarta Sans\', sans-serif; border: none; background: transparent; color: #475569;">Interior &amp; Handyman (4)</button>';
+		$html .= '<button type="button" class="scp-filter-btn" data-category="outdoor" onclick="scpFilterTrades(\'outdoor\', this)" style="padding: 8px 16px; border-radius: 30px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: \'Plus Jakarta Sans\', sans-serif; border: none; background: transparent; color: #475569;">Outdoor &amp; Yard Care (4)</button>';
+		$html .= '<button type="button" class="scp-filter-btn" data-category="cleaning" onclick="scpFilterTrades(\'cleaning\', this)" style="padding: 8px 16px; border-radius: 30px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: \'Plus Jakarta Sans\', sans-serif; border: none; background: transparent; color: #475569;">Cleaning &amp; Sanitation (3)</button>';
+		$html .= '<button type="button" class="scp-filter-btn" data-category="safety" onclick="scpFilterTrades(\'safety\', this)" style="padding: 8px 16px; border-radius: 30px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; font-family: \'Plus Jakarta Sans\', sans-serif; border: none; background: transparent; color: #475569;">Safety &amp; Solar (3)</button>';
+		$html .= '</div>';
+		$html .= '</div>';
+
+		// Single Unified 3-Column Grid for All 21 Trades (3 services per row)
+		$html .= '<div class="scp-trade-cards-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 28px;">';
+
+		$delays = [ 'vispan-delay-1', 'vispan-delay-2', 'vispan-delay-3', 'vispan-delay-4' ];
+
+		foreach ( $trades as $idx => $t ) {
+			$delay        = $delays[ $idx % count( $delays ) ];
+			$reveal_class = ( 0 === $idx % 2 ) ? 'vispan-reveal-left' : 'vispan-reveal-right';
+
+			$badge_html = '';
+			foreach ( $t['highlights'] as $hl ) {
+				$badge_html .= sprintf(
+					'<span style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 12px; font-weight: 600; color: #334155; background: #F1F5F9; border-radius: 6px; padding: 4px 10px; display: inline-flex; align-items: center; gap: 5px;"><span style="color: #059669; font-weight: 900; font-size: 13px;">✓</span> %s</span>',
+					esc_html( $hl )
+				);
+			}
+
+			$html .= sprintf(
+				'<div class="scp-trade-card vispan-hover-card %s %s" data-category="%s" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 14px; padding: 24px 22px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.02); transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;" onmouseover="this.style.borderColor=\'#02426A\';this.style.transform=\'translateY(-3px)\';this.style.boxShadow=\'0 12px 28px -6px rgba(2,66,106,0.12)\';" onmouseout="this.style.borderColor=\'#E2E8F0\';this.style.transform=\'translateY(0)\';this.style.boxShadow=\'0 2px 8px rgba(0,0,0,0.02)\';">
+					<div>
+						<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+							<div style="width: 40px; height: 40px; border-radius: 8px; background: #F0F6FA; display: flex; align-items: center; justify-content: center; color: #02426A;">
+								%s
+							</div>
+							<span style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #64748B;">%s</span>
+						</div>
+						<div style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #0B63F6; margin-bottom: 5px;">%s</div>
+						<h3 style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 18px; font-weight: 800; color: #0F172A; margin: 0 0 8px; line-height: 1.3;">%s</h3>
+						<p style="font-size: 14px; line-height: 1.6; color: #475569; margin: 0 0 16px;">%s</p>
+						<div style="display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 8px;">
+							%s
+						</div>
+					</div>
+					<div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid #F1F5F9; display: flex; align-items: center; justify-content: space-between;">
+						<a href="javascript:void(0);" onclick="scpSelectTrade(\'%s\')" style="text-decoration: none; font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 13px; font-weight: 800; color: #02426A; display: inline-flex; align-items: center; gap: 6px; transition: color 0.15s ease;" onmouseover="this.style.color=\'#0B63F6\';" onmouseout="this.style.color=\'#02426A\';">
+							Grow %s Leads →
+						</a>
+						<span style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 11px; color: #065F46; font-weight: 700; background: #ECFDF5; border: 1px solid #A7F3D0; padding: 3px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 5px;">
+							<span style="width: 6px; height: 6px; border-radius: 50%%; background: #059669; display: inline-block;"></span>%s
+						</span>
+					</div>
+				</div>',
+				esc_attr( $reveal_class ),
+				esc_attr( $delay ),
+				esc_attr( $t['category'] ),
+				$t['icon_svg'],
+				esc_html( $t['badge'] ),
+				esc_html( $t['pillar'] ),
+				esc_html( $t['title'] ),
+				esc_html( $t['description'] ),
+				$badge_html,
+				esc_attr( $t['title'] ),
+				esc_html( $t['title'] ),
+				esc_html( $city )
+			);
+		}
+
+		$html .= '</div>'; // End scp-trade-cards-grid
+
+		// Inline Script for filtering & trade selection
+		$html .= '<script>
+		if (typeof window.scpFilterTrades !== "function") {
+			window.scpFilterTrades = function(category, btn) {
+				var cards = document.querySelectorAll(".scp-trade-card");
+				cards.forEach(function(card) {
+					if (category === "all" || card.getAttribute("data-category") === category) {
+						card.style.display = "flex";
+					} else {
+						card.style.display = "none";
+					}
+				});
+				var btns = document.querySelectorAll(".scp-filter-btn");
+				btns.forEach(function(b) {
+					b.style.background = "transparent";
+					b.style.color = "#475569";
+					b.style.boxShadow = "none";
+				});
+				if (btn) {
+					btn.style.background = "#02426A";
+					btn.style.color = "#FFFFFF";
+					btn.style.boxShadow = "0 2px 8px rgba(2,66,106,0.2)";
+				}
+			};
+		}
+		if (typeof window.scpSelectTrade !== "function") {
+			window.scpSelectTrade = function(tradeName) {
+				var formCard = document.querySelector(".vispan-inquiry-card");
+				if (formCard) {
+					formCard.scrollIntoView({ behavior: "smooth", block: "center" });
+					var svcHidden = formCard.querySelector("input[name=\'service\']");
+					var svcVisible = formCard.querySelector(".vispan-search-input");
+					if (svcHidden) svcHidden.value = tradeName;
+					if (svcVisible) svcVisible.value = tradeName;
+					formCard.style.boxShadow = "0 0 0 3px #0B63F6, 0 20px 40px -15px rgba(2,66,106,0.2)";
+					setTimeout(function() {
+						formCard.style.boxShadow = "";
+					}, 1800);
+				} else {
+					window.location.href = "https://vispansolutions.com/contact-us/";
+				}
+			};
+		}
+		</script>';
+
+		$html .= '</div>'; // End container wrapper
 
 		return $html;
 	}
@@ -1018,79 +1625,7 @@ class Content_Context {
 	 * @return string HTML output.
 	 */
 	public static function render_signal_stack_html(): string {
-		$content = self::get_active_content();
-		$signals = $content['signal_stack'] ?? [];
-
-		if ( empty( $signals ) || ! is_array( $signals ) ) {
-			$signals = [
-				[ 'label' => 'Topical Depth & Submarket Relevance', 'percentage' => 35, 'description' => 'Granular landing content answering real buyer intent.' ],
-				[ 'label' => 'Local Citations & Proximity Signals', 'percentage' => 25, 'description' => 'NAP consistency and geo-authority signals across industry directories.' ],
-				[ 'label' => 'Technical Architecture & Schema Markup', 'percentage' => 20, 'description' => 'Fast loading, clean DOM hierarchy, and nested JSON-LD schema.' ],
-				[ 'label' => 'Google Map Pack & Review Authority', 'percentage' => 20, 'description' => 'Review velocity and Google Business Profile engagement.' ],
-			];
-		}
-
-		$colors = [ '#02426A', '#00a32a', '#0284c7', '#d97706' ];
-		$delays = [ 'vispan-delay-1', 'vispan-delay-2', 'vispan-delay-3', 'vispan-delay-4' ];
-		$cards_html = '<div style="display: flex; flex-direction: column; gap: 14px; font-family: \'DM Sans\', sans-serif;">';
-
-		foreach ( $signals as $idx => $s ) {
-			$label = esc_html( $s['label'] ?? '' );
-			$pct   = (int) ( $s['percentage'] ?? 25 );
-			$desc  = esc_html( $s['description'] ?? '' );
-			$col   = $colors[ $idx % count( $colors ) ];
-			$delay = $delays[ $idx % count( $delays ) ];
-
-			$cards_html .= sprintf(
-				'<div class="vispan-reveal-right %s vispan-hover-card" style="background: #FFFFFF; border: 1.5px solid #CCE0ED; border-left: 4px solid %s; border-radius: 12px; padding: 16px 18px;">
-					<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-						<span style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 14.5px; font-weight: 800; color: #121212;">%s</span>
-						<span style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 15px; font-weight: 900; color: %s;">%d%%</span>
-					</div>
-					<div style="background: #F0F6FA; border-radius: 10px; height: 6px; width: 100%%; overflow: hidden; margin-bottom: 6px;">
-						<div style="background: %s; height: 100%%; width: %d%%; border-radius: 10px;"></div>
-					</div>
-					<div style="font-size: 12.5px; color: #5D5756; line-height: 1.45;">%s</div>
-				</div>',
-				esc_attr( $delay ),
-				$col,
-				$label,
-				$col,
-				$pct,
-				$col,
-				$pct,
-				$desc
-			);
-		}
-		$cards_html .= '</div>';
-
-		// SVG Donut Visualization
-		$donut_svg = '<div class="vispan-reveal-left" style="background: #FFFFFF; border: 1.5px solid #CCE0ED; border-radius: 18px; padding: 28px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 10px 30px -15px rgba(2,66,106,0.08);">
-			<div style="position: relative; width: 160px; height: 160px; margin-bottom: 16px;">
-				<svg viewBox="0 0 100 100" width="160" height="160" style="transform: rotate(-90deg); border-radius: 50%;">
-					<circle cx="50" cy="50" r="38" fill="none" stroke="#F0F6FA" stroke-width="14" />
-					<circle cx="50" cy="50" r="38" fill="none" stroke="#02426A" stroke-width="14" stroke-dasharray="83.5 238.7" stroke-dashoffset="0" />
-					<circle cx="50" cy="50" r="38" fill="none" stroke="#00a32a" stroke-width="14" stroke-dasharray="59.7 238.7" stroke-dashoffset="-83.5" />
-					<circle cx="50" cy="50" r="38" fill="none" stroke="#0284c7" stroke-width="14" stroke-dasharray="47.7 238.7" stroke-dashoffset="-143.2" />
-					<circle cx="50" cy="50" r="38" fill="none" stroke="#d97706" stroke-width="14" stroke-dasharray="47.7 238.7" stroke-dashoffset="-190.9" />
-				</svg>
-				<div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none;">
-					<span style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 22px; font-weight: 900; color: #121212; line-height: 1;">100%</span>
-					<span style="font-family: \'DM Sans\', sans-serif; font-size: 10.5px; font-weight: 700; color: #02426A; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px;">Algorithmic</span>
-				</div>
-			</div>
-			<div style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 14.5px; font-weight: 800; color: #121212; margin-bottom: 4px;">Search Signal Weighting</div>
-			<div style="font-family: \'DM Sans\', sans-serif; font-size: 12px; color: #5D5756;">Tested across Google Local & Map Pack algorithms</div>
-		</div>';
-
-		return sprintf(
-			'<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%%, 280px), 1fr)); gap: 24px; align-items: center;">
-				%s
-				%s
-			</div>',
-			$donut_svg,
-			$cards_html
-		);
+		return '';
 	}
 
 	/**
@@ -1133,8 +1668,8 @@ class Content_Context {
 			$milestone_html .= sprintf(
 				'<div style="background: #FFFFFF; border: 1px solid #CCE0ED; border-radius: 12px; padding: 14px 18px;">
 					<div style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 10.5px; font-weight: 800; color: #02426A; letter-spacing: 0.1em; text-transform: uppercase;">%s</div>
-					<div style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 14.5px; font-weight: 800; color: #121212; margin: 2px 0 4px;">%s</div>
-					<div style="font-family: \'DM Sans\', sans-serif; font-size: 12.5px; color: #5D5756; line-height: 1.5;">%s</div>
+					<div style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 14.5px; font-weight: 800; color: #121212; margin: 2px 0 4px; letter-spacing: 0px !important; word-spacing: normal !important;">%s</div>
+					<div style="font-family: \'DM Sans\', sans-serif; font-size: 12.5px; color: #5D5756; line-height: 1.5; letter-spacing: 0px !important; word-spacing: normal !important;">%s</div>
 				</div>',
 				esc_html( $m['step'] ?? '' ),
 				esc_html( $m['title'] ?? '' ),
@@ -1147,17 +1682,17 @@ class Content_Context {
 			'<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%%, 280px), 1fr)); gap: 30px; align-items: start; font-family: \'DM Sans\', sans-serif;">
 				<div class="vispan-reveal-left">
 					<div style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 11.5px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: #02426A; margin-bottom: 8px;">EDITORIAL ANALYSIS</div>
-					<h2 style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: clamp(24px, 3vw, 36px); font-weight: 800; color: #121212; line-height: 1.25; margin: 0 0 16px;">%s</h2>
-					<div style="font-size: 15px; line-height: 1.75; color: #4A5568; margin-bottom: 20px;">%s</div>
+					<h2 style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: clamp(24px, 3vw, 36px); font-weight: 800; color: #121212; line-height: 1.25; margin: 0 0 16px; letter-spacing: 0px !important; word-spacing: normal !important;">%s</h2>
+					<div style="font-size: 15px; line-height: 1.75; color: #4A5568; margin-bottom: 20px; letter-spacing: 0px !important; word-spacing: normal !important;">%s</div>
 				</div>
 				<div class="vispan-reveal-right" style="background: #F0F6FA; border: 1.5px solid #CCE0ED; border-radius: 18px; padding: 24px 20px;">
 					<div style="height: 130px; margin: -24px -20px 18px; overflow: hidden; border-radius: 16px 16px 0 0; position: relative;">
 						<img src="%s" alt="1-on-1 Strategist Consultation" style="width: 100%%; height: 100%%; object-fit: cover;" />
-						<div style="position: absolute; bottom: 8px; left: 10px; background: rgba(2,66,106,0.85); padding: 3px 8px; border-radius: 20px; font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 10.5px; font-weight: 800; color: #FFFFFF;">
+						<div style="position: absolute; bottom: 8px; left: 10px; background: rgba(2,66,106,0.85); padding: 3px 8px; border-radius: 20px; font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 10.5px; font-weight: 800; color: #FFFFFF; letter-spacing: 0px !important; word-spacing: normal !important;">
 							🤝 Direct Senior Strategist Access
 						</div>
 					</div>
-					<h3 style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 16.5px; font-weight: 800; color: #121212; margin: 0 0 14px;">Execution Roadmap</h3>
+					<h3 style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 16.5px; font-weight: 800; color: #121212; margin: 0 0 14px; letter-spacing: 0px !important; word-spacing: normal !important;">Execution Roadmap</h3>
 					%s
 				</div>
 			</div>',
@@ -1411,8 +1946,26 @@ class Content_Context {
 			'CGI Services',
 		];
 
+		$is_home_services = (bool) preg_match( '/\b(home\s*services?|home\s*cleaning|contractors?|emergency\s*trades?)\b/i', (string) $current_svc );
+		if ( $is_home_services ) {
+			$service_options = array_merge(
+				[
+					'Home Services Digital Marketing',
+					'HVAC Marketing & SEO',
+					'Plumbing Services SEO',
+					'Electrical Contractor Marketing',
+					'Roofing & Siding Lead Gen',
+					'Handyman & Remodeling Marketing',
+					'Lawn Care & Landscaping SEO',
+					'Cleaning & Maid Services SEO',
+					'Pest Control Marketing',
+				],
+				$service_options
+			);
+		}
+
 		if ( ! empty( $current_svc ) ) {
-			// Check case-insensitive match or synonym mapping to one of the 10 standard services
+			// Check case-insensitive match or synonym mapping to one of the options
 			$matched_svc = '';
 			foreach ( $service_options as $s_opt ) {
 				if ( 0 === strcasecmp( $s_opt, (string) $current_svc ) ) {
@@ -1421,7 +1974,23 @@ class Content_Context {
 				}
 			}
 			if ( empty( $matched_svc ) ) {
-				if ( stripos( $current_svc, 'SEO' ) !== false || stripos( $current_svc, 'Search Engine' ) !== false ) {
+				if ( stripos( $current_svc, 'Home Services' ) !== false || stripos( $current_svc, 'Contractor' ) !== false || stripos( $current_svc, 'Cleaning' ) !== false ) {
+					$matched_svc = 'Home Services Digital Marketing';
+				} elseif ( stripos( $current_svc, 'HVAC' ) !== false ) {
+					$matched_svc = 'HVAC Marketing & SEO';
+				} elseif ( stripos( $current_svc, 'Plumb' ) !== false ) {
+					$matched_svc = 'Plumbing Services SEO';
+				} elseif ( stripos( $current_svc, 'Electric' ) !== false ) {
+					$matched_svc = 'Electrical Contractor Marketing';
+				} elseif ( stripos( $current_svc, 'Roof' ) !== false || stripos( $current_svc, 'Siding' ) !== false ) {
+					$matched_svc = 'Roofing & Siding Lead Gen';
+				} elseif ( stripos( $current_svc, 'Handyman' ) !== false ) {
+					$matched_svc = 'Handyman & Remodeling Marketing';
+				} elseif ( stripos( $current_svc, 'Lawn' ) !== false || stripos( $current_svc, 'Landscap' ) !== false ) {
+					$matched_svc = 'Lawn Care & Landscaping SEO';
+				} elseif ( stripos( $current_svc, 'Pest' ) !== false ) {
+					$matched_svc = 'Pest Control Marketing';
+				} elseif ( stripos( $current_svc, 'SEO' ) !== false || stripos( $current_svc, 'Search Engine' ) !== false ) {
 					$matched_svc = 'SEO';
 				} elseif ( stripos( $current_svc, 'Digital Marketing' ) !== false || stripos( $current_svc, 'DMA' ) !== false ) {
 					$matched_svc = 'Digital Marketing';
@@ -1855,5 +2424,394 @@ class Content_Context {
 			$full_span,
 			$full_span
 		);
+	}
+
+	/**
+	 * Render 6 Agency Growth Capabilities that Vispan Solutions provides for Home Service Contractors.
+	 *
+	 * @return string HTML output.
+	 */
+	public static function render_home_services_agency_capabilities_html(): string {
+		$city  = Page_Context::get_city();
+		$state = Page_Context::get_state();
+
+		$capabilities = [
+			[
+				'num'         => '01',
+				'tag'         => 'ORGANIC MAP PACK DOMINATION',
+				'title'       => 'Google Maps 3-Pack & Local SEO',
+				'description' => sprintf( 'We optimize your Google Business Profile, localized entity schema, and local neighborhood citations so your service trucks rank #1 across all target zip codes in %s.', esc_html( $city ) ),
+				'deliverable' => sprintf( 'Top 3-Pack rankings across %s service radius', esc_html( $city ) ),
+				'icon'        => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#02426A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>',
+			],
+			[
+				'num'         => '02',
+				'tag'         => 'TOP OF GOOGLE • PAY-PER-CALL',
+				'title'       => 'Google Guaranteed & Local Services Ads (LSA)',
+				'description' => 'Fast-track verification for Google\'s official green checkmark badge. Appear above all traditional search ads and pay strictly for qualified, inbound phone calls from local homeowners.',
+				'deliverable' => 'Google Guaranteed badge onboarding & dispute management',
+				'icon'        => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#02426A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>',
+			],
+			[
+				'num'         => '03',
+				'tag'         => 'MOBILE-FIRST DISPATCH ENGINE',
+				'title'       => 'High-Converting Contractor Web Funnels',
+				'description' => 'Ultra-fast, mobile-first websites designed for homeowners with urgent repair needs. Engineered with instant click-to-call bars, quote estimators, and frictionless booking flows.',
+				'deliverable' => 'Sub-second mobile speed & 24/7 call triggers',
+				'icon'        => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#02426A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>',
+			],
+			[
+				'num'         => '04',
+				'tag'         => 'REPUTATION ACCELERATOR',
+				'title'       => 'Automated 5-Star Review Generation',
+				'description' => 'Automated post-service SMS and WhatsApp review triggers sent to homeowners the moment your technician marks a job complete, building unbeatable local social proof.',
+				'deliverable' => 'Compound 5-star review velocity on Google',
+				'icon'        => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#02426A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+			],
+			[
+				'num'         => '05',
+				'tag'         => 'EMERGENCY CALL CAPTURE',
+				'title'       => 'High-Ticket Emergency PPC Campaigns',
+				'description' => 'Precision Google Search Ads targeting high-margin emergency jobs (burst pipes, blown AC compressors, roof storm damage, electrical panel failures) with zero wasted budget.',
+				'deliverable' => 'Negative keyword filtering & immediate dayparting',
+				'icon'        => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#02426A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+			],
+			[
+				'num'         => '06',
+				'tag'         => 'DISPATCH CRM INTEGRATION',
+				'title'       => 'Call Tracking & Dispatch CRM Sync',
+				'description' => 'Every inbound phone call is recorded, transcribed, and tagged with lead source data. We integrate seamlessly with ServiceTitan, Housecall Pro, Jobber, and FieldEdge for closed-loop ROI.',
+				'deliverable' => 'Full revenue attribution & CRM automation',
+				'icon'        => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#02426A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
+			],
+		];
+
+		// Tier 1: Primary Search Dominance (Engines 01 & 02)
+		$tier1_html = '';
+		for ( $i = 0; $i < 2; $i++ ) {
+			$c = $capabilities[ $i ];
+			$accent_border = ( 0 === $i ) ? 'border-top: 3.5px solid #02426A;' : 'border-top: 3.5px solid #0B63F6;';
+			$badge_bg      = ( 0 === $i ) ? 'background: #EBF3FB; color: #02426A; border: 1px solid #CCE0ED;' : 'background: #F0F6FF; color: #0B63F6; border: 1px solid #DBEAFE;';
+			$badge_label   = ( 0 === $i ) ? 'PRIMARY SEARCH FOUNDATION • ENGINE 01' : 'TOP OF GOOGLE • ENGINE 02';
+
+			$tier1_html .= sprintf(
+				'<div class="vispan-capability-card vispan-capability-featured" style="background: #FFFFFF; border: 1px solid #E2E8F0; %s border-radius: 16px; padding: 32px 28px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 16px rgba(2,66,106,0.04); transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;" onmouseover="this.style.transform=\'translateY(-3px)\';this.style.boxShadow=\'0 14px 32px -8px rgba(2,66,106,0.12)\';" onmouseout="this.style.transform=\'translateY(0)\';this.style.boxShadow=\'0 4px 16px rgba(2,66,106,0.04)\';">
+					<div>
+						<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+							<div style="width: 46px; height: 46px; border-radius: 10px; background: #F8FAFC; border: 1px solid #E2E8F0; display: flex; align-items: center; justify-content: center; color: #02426A;">
+								%s
+							</div>
+							<span style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 11.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 10px; border-radius: 6px; %s">%s</span>
+						</div>
+						<div style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 11.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #0B63F6; margin-bottom: 8px;">%s</div>
+						<h3 style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 20px; font-weight: 800; color: #0F172A; margin: 0 0 12px; line-height: 1.3;">%s</h3>
+						<p style="font-family: \'DM Sans\', sans-serif; font-size: 15px; line-height: 1.62; color: #475569; margin: 0 0 22px;">%s</p>
+					</div>
+					<div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-left: 3px solid #059669; border-radius: 8px; padding: 12px 16px; display: flex; align-items: center; gap: 10px;">
+						<span style="color: #059669; font-weight: 900; font-size: 15px; line-height: 1;">✓</span>
+						<span style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 13px; font-weight: 700; color: #02426A; line-height: 1.4;">%s</span>
+					</div>
+				</div>',
+				$accent_border,
+				$c['icon'],
+				$badge_bg,
+				esc_html( $badge_label ),
+				esc_html( $c['tag'] ),
+				esc_html( $c['title'] ),
+				esc_html( $c['description'] ),
+				esc_html( $c['deliverable'] )
+			);
+		}
+
+		// Tier 2: Conversion, Velocity & CRM Operations (Engines 03, 04, 05, 06)
+		$tier2_html = '';
+		for ( $i = 2; $i < 6; $i++ ) {
+			$c = $capabilities[ $i ];
+			$tier2_html .= sprintf(
+				'<div class="vispan-capability-card" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 26px 22px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.02); transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;" onmouseover="this.style.transform=\'translateY(-3px)\';this.style.boxShadow=\'0 12px 26px -8px rgba(2,66,106,0.1)\';this.style.borderColor=\'#02426A\';" onmouseout="this.style.transform=\'translateY(0)\';this.style.boxShadow=\'0 2px 8px rgba(0,0,0,0.02)\';this.style.borderColor=\'#E2E8F0\';">
+					<div>
+						<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+							<div style="width: 40px; height: 40px; border-radius: 8px; background: #F8FAFC; border: 1px solid #E2E8F0; display: flex; align-items: center; justify-content: center; color: #02426A;">
+								%s
+							</div>
+							<span style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #02426A; background: #F1F5F9; border: 1px solid #E2E8F0; padding: 3px 9px; border-radius: 5px;">ENGINE %s</span>
+						</div>
+						<div style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 11.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #0B63F6; margin-bottom: 6px;">%s</div>
+						<h3 style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 17.5px; font-weight: 800; color: #0F172A; margin: 0 0 8px; line-height: 1.3;">%s</h3>
+						<p style="font-family: \'DM Sans\', sans-serif; font-size: 14px; line-height: 1.6; color: #475569; margin: 0 0 18px;">%s</p>
+					</div>
+					<div style="padding-top: 14px; border-top: 1px solid #F1F5F9; display: flex; align-items: flex-start; gap: 8px;">
+						<span style="color: #059669; font-weight: 900; font-size: 14px; line-height: 1.3;">✓</span>
+						<span style="font-family: \'DM Sans\', sans-serif; font-size: 13px; font-weight: 700; color: #02426A; line-height: 1.4;">%s</span>
+					</div>
+				</div>',
+				$c['icon'],
+				esc_html( $c['num'] ),
+				esc_html( $c['tag'] ),
+				esc_html( $c['title'] ),
+				esc_html( $c['description'] ),
+				esc_html( $c['deliverable'] )
+			);
+		}
+
+		return sprintf(
+			'<div class="scp-agency-services-section" style="max-width: 1200px; margin: 0 auto; padding: 75px 20px;">
+				<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%%, 460px), 1fr)); gap: 24px 48px; align-items: flex-end; margin-bottom: 38px; padding-bottom: 24px; border-bottom: 1.5px solid #F1F5F9; font-family: \'Plus Jakarta Sans\', sans-serif;">
+					<div>
+						<div style="display: inline-flex; align-items: center; gap: 6px; background: #EBF3FB; border: 1px solid #CCE0ED; border-radius: 30px; padding: 5px 14px; margin-bottom: 14px;">
+							<span style="font-size: 11px; font-weight: 800; color: #02426A; letter-spacing: 0.14em; text-transform: uppercase;">WHAT WE DO FOR CONTRACTORS</span>
+						</div>
+						<h2 style="font-size: clamp(26px, 3.2vw, 38px); font-weight: 800; color: #0F172A; line-height: 1.25; margin: 0;">6 Growth Engines We Build to Keep Your Trucks Booked</h2>
+					</div>
+					<div>
+						<p style="font-family: \'DM Sans\', sans-serif; font-size: 15.5px; line-height: 1.65; color: #475569; margin: 0;">We don\'t do cookie-cutter marketing. Here is the exact performance infrastructure we deploy to scale residential contractors across %s.</p>
+					</div>
+				</div>
+
+				<!-- Tier 1: Search Dominance Anchors -->
+				<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%%, 460px), 1fr)); gap: 24px; margin-bottom: 28px;">
+					%s
+				</div>
+
+				<!-- Pipeline Connector Divider -->
+				<div style="display: flex; align-items: center; gap: 16px; margin: 32px 0 24px; font-family: \'Plus Jakarta Sans\', sans-serif;">
+					<span style="font-size: 11px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: #64748B;">CONVERSION, REPUTATION &amp; DISPATCH ATTRIBUTION PIPELINE</span>
+					<div style="flex: 1; height: 1px; background: #E2E8F0;"></div>
+				</div>
+
+				<!-- Tier 2: Operational Acceleration Grid -->
+				<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%%, 255px), 1fr)); gap: 20px;">
+					%s
+				</div>
+			</div>',
+			esc_html( $city ),
+			$tier1_html,
+			$tier2_html
+		);
+	}
+
+	/**
+	 * Render Vispan vs. Shared Lead Marketplaces (Angi, HomeAdvisor) Comparison Table.
+	 *
+	 * @return string HTML output.
+	 */
+	public static function render_home_services_comparison_html(): string {
+		$city = Page_Context::get_city();
+
+		$rows = [
+			[
+				'metric'      => 'Lead Exclusivity',
+				'marketplaces'=> 'Shared with 4 to 6 competing contractors simultaneously',
+				'vispan'      => '100% Exclusive — only your dispatch receives the call',
+			],
+			[
+				'metric'      => 'Customer Intent',
+				'marketplaces'=> 'Tire-kickers price shopping for the absolute cheapest bid',
+				'vispan'      => 'Motivated homeowners calling your brand directly with urgent repair needs',
+			],
+			[
+				'metric'      => 'Territory Protection',
+				'marketplaces'=> 'None — they sell identical leads to anyone with a credit card',
+				'vispan'      => sprintf( 'Guaranteed local territory exclusivity across %s', esc_html( $city ) ),
+			],
+			[
+				'metric'      => 'Asset Ownership',
+				'marketplaces'=> 'You rent access to their platform; your marketing builds their domain',
+				'vispan'      => 'You own 100% of your Google rankings, customer database, reviews, and digital equity',
+			],
+			[
+				'metric'      => 'Lead Delivery Format',
+				'marketplaces'=> 'SMS blast forcing you to race competitors to call back within 60 seconds',
+				'vispan'      => 'Direct inbound phone calls connected immediately to your technicians or dispatch team',
+			],
+		];
+
+		$tbody = '';
+		foreach ( $rows as $idx => $r ) {
+			$bg = ( $idx % 2 === 0 ) ? '#FFFFFF' : '#F8FAFC';
+			$tbody .= sprintf(
+				'<tr style="background: %s; border-bottom: 1px solid #E2E8F0;">
+					<td style="padding: 18px 22px; font-weight: 800; font-size: 14.5px; color: #0F172A; font-family: \'Plus Jakarta Sans\', sans-serif;">%s</td>
+					<td style="padding: 18px 22px; font-size: 14px; color: #64748B; font-family: \'DM Sans\', sans-serif; line-height: 1.5;">
+						<span style="color: #94A3B8; font-weight: 800; margin-right: 8px;">✕</span>%s
+					</td>
+					<td style="padding: 18px 22px; font-size: 14px; color: #02426A; font-weight: 700; font-family: \'DM Sans\', sans-serif; background: #F0F6FA; line-height: 1.5;">
+						<span style="color: #059669; font-weight: 900; margin-right: 8px;">✓</span>%s
+					</td>
+				</tr>',
+				esc_attr( $bg ),
+				esc_html( $r['metric'] ),
+				esc_html( $r['marketplaces'] ),
+				esc_html( $r['vispan'] )
+			);
+		}
+
+		return sprintf(
+			'<div class="scp-contractor-comparison-section" style="max-width: 1100px; margin: 0 auto; padding: 70px 20px;">
+				<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%%, 460px), 1fr)); gap: 24px 48px; align-items: flex-end; margin-bottom: 36px; padding-bottom: 24px; border-bottom: 1.5px solid #F1F5F9; font-family: \'Plus Jakarta Sans\', sans-serif;">
+					<div>
+						<div style="display: inline-flex; align-items: center; gap: 6px; background: #EBF3FB; border: 1px solid #CCE0ED; border-radius: 30px; padding: 5px 14px; margin-bottom: 14px;">
+							<span style="font-size: 11px; font-weight: 800; color: #02426A; letter-spacing: 0.14em; text-transform: uppercase;">PRIVATE TERRITORY VS. SHARED DIRECTORIES</span>
+						</div>
+						<h2 style="font-size: clamp(26px, 3.2vw, 38px); font-weight: 800; color: #0F172A; line-height: 1.25; margin: 0;">Why Contractors Ditch Angi &amp; HomeAdvisor for Vispan</h2>
+					</div>
+					<div>
+						<p style="font-family: \'DM Sans\', sans-serif; font-size: 15.5px; line-height: 1.65; color: #475569; margin: 0;">Shared lead platforms force you into a race-to-the-bottom price war. Here is how our private territory engine changes the game.</p>
+					</div>
+				</div>
+				<div class="vispan-comparison-table-wrapper" style="border: 1.5px solid #E2E8F0; border-radius: 16px; overflow-x: auto; -webkit-overflow-scrolling: touch; box-shadow: 0 10px 30px rgba(2,66,106,0.06); background: #FFFFFF;">
+					<table style="width: 100%%; min-width: 680px; border-collapse: collapse; text-align: left;">
+						<thead>
+							<tr style="background: #02426A; color: #FFFFFF; font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 13.5px; text-transform: uppercase; letter-spacing: 0.08em;">
+								<th style="padding: 18px 22px; width: 26%%;">Growth Metric</th>
+								<th style="padding: 18px 22px; width: 37%%; color: #CBD5E1; background: #002D52;">Shared Directories (Angi / Thumbtack)</th>
+								<th style="padding: 18px 22px; width: 37%%; background: #00223F;">
+									<div style="display: flex; align-items: center; justify-content: space-between;">
+										<span>Vispan Private Engine</span>
+										<span style="background: #059669; color: #FFFFFF; font-size: 10px; font-weight: 800; padding: 3px 9px; border-radius: 12px; letter-spacing: 0.05em;">100%% EXCLUSIVE</span>
+									</div>
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							%s
+						</tbody>
+					</table>
+				</div>
+			</div>',
+			$tbody
+		);
+	}
+
+	/**
+	 * Render Contractor-Specific Frequently Asked Questions Accordion.
+	 *
+	 * @return string HTML output.
+	 */
+	public static function render_home_services_faqs_html(): string {
+		$city  = Page_Context::get_city();
+		$state = Page_Context::get_state();
+
+		$faqs = [
+			[
+				'q' => sprintf( 'How does territory exclusivity work in %s?', esc_html( $city ) ),
+				'a' => sprintf( 'We operate under a strict non-compete territory policy. We partner with only ONE contractor per trade (e.g., 1 HVAC company, 1 Roofing company, 1 Plumber) in %s. All inbound calls and search rankings in your designated market are routed exclusively to your business.', esc_html( $city ) ),
+			],
+			[
+				'q' => 'Are these leads ever shared with or resold to another contractor?',
+				'a' => 'Never. Unlike Angi, Thumbtack, or HomeAdvisor, our leads are 100% exclusive direct phone calls from local homeowners in need of repair or installation. You will never compete with 5 other contractors rushing to undercut your price.',
+			],
+			[
+				'q' => 'How quickly can our Google Guaranteed (LSA) and Maps campaigns launch?',
+				'a' => 'Google Guaranteed (LSA) campaigns typically launch within 7 to 14 business days once background checks and insurance verifications are submitted. Local SEO and Google Maps optimization begins immediately on Day 1.',
+			],
+			[
+				'q' => 'Can this integrate with our dispatch software (ServiceTitan, Housecall Pro, Jobber)?',
+				'a' => 'Yes. Our call tracking and lead attribution systems integrate directly with major field service CRMs including ServiceTitan, Housecall Pro, Jobber, and FieldEdge. Every call is tagged and logged directly into your dispatch board.',
+			],
+			[
+				'q' => 'What is required from our team to get started?',
+				'a' => 'We need your service area zip codes, proof of license and insurance for Google Guaranteed verification, and access to your Google Business Profile. Our agency handles all technical setup, website optimization, tracking, and campaign launch.',
+			],
+		];
+
+		$items_html = '';
+		foreach ( $faqs as $idx => $f ) {
+			$items_html .= sprintf(
+				'<div class="vispan-faq-item" style="background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: 14px; margin-bottom: 14px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.02); transition: border-color 0.2s ease, box-shadow 0.2s ease;">
+					<details style="padding: 20px 24px; cursor: pointer;">
+						<summary style="font-family: \'Plus Jakarta Sans\', sans-serif; font-size: 16.5px; font-weight: 800; color: #0F172A; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 14px;">
+							<span>%s</span>
+							<span class="vispan-faq-icon" style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%%; background: #F0F6FA; color: #02426A; flex-shrink: 0; transition: transform 0.25s ease, background 0.25s ease;">
+								<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="vispan-faq-chevron"><polyline points="6 9 12 15 18 9"/></svg>
+							</span>
+						</summary>
+						<p style="font-family: \'DM Sans\', sans-serif; font-size: 15px; line-height: 1.65; color: #475569; margin: 16px 0 0; padding-top: 14px; border-top: 1px solid #F1F5F9;">%s</p>
+					</details>
+				</div>',
+				esc_html( $f['q'] ),
+				esc_html( $f['a'] )
+			);
+		}
+
+		return sprintf(
+			'<div class="scp-contractor-faqs-section" style="max-width: 920px; margin: 0 auto; padding: 70px 20px;">
+				<div style="margin-bottom: 36px; font-family: \'Plus Jakarta Sans\', sans-serif;">
+					<div style="display: inline-flex; align-items: center; gap: 6px; background: #EBF3FB; border: 1px solid #CCE0ED; border-radius: 30px; padding: 5px 14px; margin-bottom: 14px;">
+						<span style="font-size: 11px; font-weight: 800; color: #02426A; letter-spacing: 0.14em; text-transform: uppercase;">CONTRACTOR QUESTIONS ANSWERED</span>
+					</div>
+					<h2 style="font-size: clamp(26px, 3.2vw, 38px); font-weight: 800; color: #0F172A; margin: 0 0 10px;">Frequently Asked Questions in %s</h2>
+					<p style="font-family: \'DM Sans\', sans-serif; font-size: 15.5px; line-height: 1.6; color: #475569; margin: 0; max-width: 720px;">Everything you need to know about our territory exclusivity, lead quality, and onboarding process.</p>
+				</div>
+				<div>
+					%s
+				</div>
+			</div>',
+			esc_html( $city ),
+			$items_html
+		);
+	}
+
+	/**
+	 * Render the complete, developer-crafted Home Services Multi-Trade Landing Page.
+	 *
+	 * Uses the official Vispan Solutions master template with Tailwind CSS styling,
+	 * 10 official Vispan agency services, 6 residential trade pillars, verified reviews,
+	 * global offices, and AJAX-connected lead forms.
+	 *
+	 * @return string Complete high-converting HTML layout.
+	 */
+	public static function render_home_services_full_page_html(): string {
+		$city    = Page_Context::get_city();
+		if ( empty( $city ) ) {
+			$city = 'Rajkot';
+		}
+		$state   = Page_Context::get_state();
+		$country = Page_Context::get_country();
+		$service = Page_Context::get_service();
+		if ( empty( $service ) ) {
+			$service = 'Home Services';
+		}
+
+		$state_display = ! empty( $state ) ? $state : '';
+
+		// Dynamic submarket string
+		$content_data = self::get_active_content();
+		$submarkets   = $content_data['submarkets'] ?? [];
+		$cities_list  = [];
+		if ( ! empty( $submarkets ) && is_array( $submarkets ) ) {
+			foreach ( array_slice( $submarkets, 0, 3 ) as $sm ) {
+			if ( ! empty( $sm['name'] ) ) {
+				$cities_list[] = $sm['name'];
+			}
+		}
+		}
+		if ( ! empty( $cities_list ) ) {
+			if ( count( $cities_list ) === 1 ) {
+				$cities_str = $cities_list[0];
+			} elseif ( count( $cities_list ) === 2 ) {
+				$cities_str = $cities_list[0] . ' & ' . $cities_list[1];
+			} else {
+				$cities_str = $cities_list[0] . ', ' . $cities_list[1] . ' & ' . $cities_list[2];
+			}
+		} else {
+			$cities_str = sprintf( 'key neighborhoods across %s', $city );
+		}
+
+		$nonce = function_exists( 'wp_create_nonce' ) ? wp_create_nonce( 'vispan_marketing_inquiry' ) : 'vispan_inquiry_nonce';
+
+		// Load pre-rendered services and trades partials
+		$tpl_dir       = __DIR__ . '/templates';
+		$services_html = file_exists( $tpl_dir . '/services-grid.html' ) ? (string) file_get_contents( $tpl_dir . '/services-grid.html' ) : '';
+		$trades_html   = file_exists( $tpl_dir . '/trades-container.html' ) ? (string) file_get_contents( $tpl_dir . '/trades-container.html' ) : '';
+
+		$template_file = $tpl_dir . '/home-services-master-template.php';
+		if ( file_exists( $template_file ) ) {
+			ob_start();
+			include $template_file;
+			return (string) ob_get_clean();
+		}
+
+		return '<!-- Vispan Home Services template missing -->';
 	}
 }

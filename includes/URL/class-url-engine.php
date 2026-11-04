@@ -23,16 +23,22 @@ class URL_Engine {
 	/**
 	 * Default fallback URL structure pattern.
 	 */
-	public const DEFAULT_PATTERN = '/{service}/{city}/';
+	public const DEFAULT_PATTERN = '/{country_code}/best-digital-marketing-agency-for-{service}-in-{city}/';
 
 	/**
 	 * Supported replacement tokens.
 	 */
 	public const SUPPORTED_TOKENS = [
 		'{country}',
+		'{country_code}',
 		'{state}',
+		'{state_code}',
 		'{city}',
+		'{county}',
 		'{service}',
+		'{topic}',
+		'{agency_service}',
+		'{framing}',
 	];
 
 	/**
@@ -42,9 +48,13 @@ class URL_Engine {
 	 */
 	public static function get_pattern(): string {
 		$settings = get_option( Settings::OPTION_NAME, [] );
-		$pattern  = $settings['url_pattern'] ?? self::DEFAULT_PATTERN;
+		$pattern  = $settings['url_pattern'] ?? '';
 
-		return ! empty( $pattern ) ? (string) $pattern : self::DEFAULT_PATTERN;
+		if ( empty( $pattern ) || '/{service}/{city}/' === $pattern ) {
+			return self::DEFAULT_PATTERN;
+		}
+
+		return (string) $pattern;
 	}
 
 	/**
@@ -78,7 +88,7 @@ class URL_Engine {
 		if ( empty( $found_tokens ) ) {
 			return [
 				'valid' => false,
-				'error' => __( 'URL pattern must contain at least one dynamic token such as {city} and {service}.', 'seo-city-pages' ),
+				'error' => __( 'URL pattern must contain at least one dynamic token such as {city}, {service}, or {country_code}.', 'seo-city-pages' ),
 			];
 		}
 
@@ -88,7 +98,7 @@ class URL_Engine {
 					'valid' => false,
 					'error' => sprintf(
 						/* translators: %s: Invalid token */
-						__( 'Unsupported token "%s". Only {country}, {state}, {city}, and {service} are supported.', 'seo-city-pages' ),
+						__( 'Unsupported token "%s". Supported tokens are: {country}, {country_code}, {state}, {state_code}, {city}, {county}, {service}, and {topic}.', 'seo-city-pages' ),
 						esc_html( $tok )
 					),
 				];
@@ -110,11 +120,13 @@ class URL_Engine {
 	 * @param object|array $service  Service record.
 	 * @param string       $custom_slug Optional custom slug override.
 	 * @param string       $pattern_override Optional pattern override.
-	 * @return string Normalized relative path e.g. "/seo-agency/rajkot/"
+	 * @return string Normalized relative path e.g. "/us/top-law-firm-in-kitsap-washington/"
 	 */
 	public static function build_path( $country, $state, $city, $service, string $custom_slug = '', string $pattern_override = '' ): string {
 		$country_slug = self::extract_slug( $country, 'country' );
+		$country_code = self::extract_code( $country, $country_slug );
 		$state_slug   = self::extract_slug( $state, 'state' );
+		$state_code   = self::extract_code( $state, $state_slug );
 		$city_slug    = self::extract_slug( $city, 'city' );
 		$service_slug = self::extract_slug( $service, 'service' );
 
@@ -126,9 +138,11 @@ class URL_Engine {
 
 		$pattern = ! empty( $pattern_override ) ? $pattern_override : self::get_pattern();
 
+		$framing_slug = 'best-digital-marketing-agency';
+
 		$path = str_replace(
-			[ '{country}', '{state}', '{city}', '{service}' ],
-			[ $country_slug, $state_slug, $city_slug, $service_slug ],
+			[ '{country}', '{country_code}', '{state}', '{state_code}', '{city}', '{county}', '{service}', '{topic}', '{agency_service}', '{framing}' ],
+			[ $country_slug, $country_code, $state_slug, $state_code, $city_slug, $city_slug, $service_slug, $service_slug, $framing_slug, $framing_slug ],
 			$pattern
 		);
 
@@ -136,6 +150,27 @@ class URL_Engine {
 		$path = '/' . trim( preg_replace( '#/+#', '/', $path ), '/' ) . '/';
 
 		return strtolower( $path );
+	}
+
+	/**
+	 * Helper to extract short code from object or array (e.g. US, WA).
+	 *
+	 * @param object|array $entity Entity record.
+	 * @param string       $default Default code or slug.
+	 * @return string
+	 */
+	private static function extract_code( $entity, string $default ): string {
+		if ( is_object( $entity ) && ! empty( $entity->code ) ) {
+			return strtolower( sanitize_title( (string) $entity->code ) );
+		}
+		if ( is_array( $entity ) && ! empty( $entity['code'] ) ) {
+			return strtolower( sanitize_title( (string) $entity['code'] ) );
+		}
+		$extracted = self::extract_slug( $entity, $default );
+		if ( 'country' === $default || empty( $extracted ) || 'united-states' === $extracted ) {
+			return 'us';
+		}
+		return strtolower( $extracted );
 	}
 
 	/**

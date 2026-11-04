@@ -123,15 +123,19 @@ class AI_Context {
 		$target_keywords = ! empty( $page->target_keywords ) ? sanitize_textarea_field( $page->target_keywords ) : '';
 
 		// If no page-specific keywords set, query the uploaded Global Keyword Bank.
-		if ( empty( $primary_keyword ) && empty( $target_keywords ) && class_exists( '\\SeoCityPages\\Database\\Keyword_Repository' ) ) {
+		if ( ( empty( $primary_keyword ) || empty( $target_keywords ) ) && class_exists( '\\SeoCityPages\\Database\\Keyword_Repository' ) ) {
 			$bank_kws = \SeoCityPages\Database\Keyword_Repository::get_relevant_for_service(
 				$page->service_name ?? '',
 				$page->city_name ?? '',
 				10
 			);
 			if ( ! empty( $bank_kws ) ) {
-				$primary_keyword = array_shift( $bank_kws );
-				$target_keywords = implode( ', ', $bank_kws );
+				if ( empty( $primary_keyword ) ) {
+					$primary_keyword = array_shift( $bank_kws );
+				}
+				if ( empty( $target_keywords ) ) {
+					$target_keywords = implode( ', ', $bank_kws );
+				}
 			}
 		}
 

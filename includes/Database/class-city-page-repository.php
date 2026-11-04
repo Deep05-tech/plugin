@@ -156,21 +156,33 @@ class City_Page_Repository {
 			if ( ! empty( $page->title_override ) ) {
 				return $page->title_override;
 			}
+			if ( ! empty( $page->primary_keyword ) ) {
+				return $page->primary_keyword;
+			}
 			$service = $page->service_name ?? 'Service';
 			$city    = $page->city_name ?? 'City';
-			return sprintf( '%s in %s', $service, $city );
+			if ( preg_match( '/\b(agency|marketing|seo|services|solutions|consulting)\b/i', $service ) ) {
+				return sprintf( '%s in %s', $service, $city );
+			}
+			return sprintf( 'Best Digital Marketing Agency for %s in %s', $service, $city );
 		}
 
 		if ( is_array( $page ) ) {
 			if ( ! empty( $page['title_override'] ) ) {
 				return $page['title_override'];
 			}
+			if ( ! empty( $page['primary_keyword'] ) ) {
+				return $page['primary_keyword'];
+			}
 			$service = $page['service_name'] ?? 'Service';
 			$city    = $page['city_name'] ?? 'City';
-			return sprintf( '%s in %s', $service, $city );
+			if ( preg_match( '/\b(agency|marketing|seo|services|solutions|consulting)\b/i', $service ) ) {
+				return sprintf( '%s in %s', $service, $city );
+			}
+			return sprintf( 'Best Digital Marketing Agency for %s in %s', $service, $city );
 		}
 
-		return __( 'SEO City Page', 'seo-city-pages' );
+		return __( 'Best Digital Marketing Agency', 'seo-city-pages' );
 	}
 
 	/**
@@ -203,12 +215,15 @@ class City_Page_Repository {
 		$city    = City_Repository::get( $city_id );
 		$service = Service_Repository::get( $service_id );
 
-		$slug = sanitize_title( "{$service->slug}-{$city->slug}" );
-		$url_path = URL_Engine::build_path( $country, $state, $city, $service );
+		$svc_name = $service->name ?? 'Service';
+		$city_name = $city->name ?? 'City';
+		$primary_keyword = ! empty( $data['primary_keyword'] ) ? sanitize_text_field( $data['primary_keyword'] ) : ( preg_match( '/\b(agency|marketing|seo|services|solutions)\b/i', $svc_name ) ? sprintf( '%s in %s', $svc_name, $city_name ) : sprintf( 'Best Digital Marketing Agency for %s in %s', $svc_name, $city_name ) );
+		$title_override  = ! empty( $data['title_override'] ) ? sanitize_text_field( $data['title_override'] ) : $primary_keyword;
+		$slug            = ! empty( $data['slug'] ) ? sanitize_title( $data['slug'] ) : sanitize_title( "best-digital-marketing-agency-for-{$service->slug}-in-{$city->slug}" );
+		$url_path        = URL_Engine::build_path( $country, $state, $city, $service );
 
 		$status          = sanitize_text_field( $data['status'] ?? self::STATUS_DRAFT );
 		$import_job_id   = ! empty( $data['import_job_id'] ) ? sanitize_text_field( $data['import_job_id'] ) : null;
-		$primary_keyword = ! empty( $data['primary_keyword'] ) ? sanitize_text_field( $data['primary_keyword'] ) : null;
 		$target_keywords = ! empty( $data['target_keywords'] ) ? sanitize_textarea_field( $data['target_keywords'] ) : ( ! empty( $data['keywords'] ) ? sanitize_textarea_field( $data['keywords'] ) : null );
 		$now             = current_time( 'mysql', true );
 
@@ -222,7 +237,7 @@ class City_Page_Repository {
 				'slug'            => $slug,
 				'custom_slug'     => null,
 				'url_path'        => $url_path,
-				'title_override'  => null,
+				'title_override'  => $title_override,
 				'status'          => $status,
 				'import_job_id'   => $import_job_id,
 				'primary_keyword' => $primary_keyword,
@@ -315,6 +330,16 @@ class City_Page_Repository {
 
 		if ( isset( $data['title_override'] ) ) {
 			$update_data['title_override'] = ! empty( $data['title_override'] ) ? sanitize_text_field( $data['title_override'] ) : null;
+			$formats[] = '%s';
+		}
+
+		if ( array_key_exists( 'slug', $data ) ) {
+			$update_data['slug'] = sanitize_title( (string) $data['slug'] );
+			$formats[] = '%s';
+		}
+
+		if ( array_key_exists( 'url_path', $data ) ) {
+			$update_data['url_path'] = '/' . trim( (string) $data['url_path'], '/' ) . '/';
 			$formats[] = '%s';
 		}
 
@@ -1064,5 +1089,84 @@ class City_Page_Repository {
 		global $wpdb;
 		$table = Schema::get_table_name( Schema::TABLE_CITY_PAGES );
 		return $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table} WHERE import_job_id = %s", $job_id ) ) ?: [];
+	}
+
+	/**
+	 * Rebuild url_path for all pages in database using current or specified URL pattern.
+	 *
+	 * @param string $pattern Optional pattern override.
+	 * @return int Number of updated pages.
+	 */
+	public static function rebuild_all_url_paths( string $pattern = '' ): int {
+		global $wpdb;
+		$pages_table     = Schema::get_table_name( Schema::TABLE_CITY_PAGES );
+		$countries_table = Schema::get_table_name( Schema::TABLE_COUNTRIES );
+		$states_table    = Schema::get_table_name( Schema::TABLE_STATES );
+		$cities_table    = Schema::get_table_name( Schema::TABLE_CITIES );
+		$services_table  = Schema::get_table_name( Schema::TABLE_SERVICES );
+
+		$sql = "
+			SELECT p.id, p.custom_slug, p.wp_post_id,
+				co.name AS country_name, co.code AS country_code, co.slug AS country_slug,
+				st.name AS state_name, st.code AS state_code, st.slug AS state_slug,
+				ci.name AS city_name, ci.slug AS city_slug,
+				sv.name AS service_name, sv.slug AS service_slug
+			FROM {$pages_table} p
+			LEFT JOIN {$countries_table} co ON p.country_id = co.id
+			LEFT JOIN {$states_table} st ON p.state_id = st.id
+			LEFT JOIN {$cities_table} ci ON p.city_id = ci.id
+			LEFT JOIN {$services_table} sv ON p.service_id = sv.id
+		";
+
+		$rows = $wpdb->get_results( $sql );
+		if ( empty( $rows ) ) {
+			return 0;
+		}
+
+		$updated_count = 0;
+		foreach ( $rows as $row ) {
+			$country = (object) [
+				'slug' => $row->country_slug ?? '',
+				'code' => $row->country_code ?? 'US',
+				'name' => $row->country_name ?? '',
+			];
+			$state   = (object) [
+				'slug' => $row->state_slug ?? '',
+				'code' => $row->state_code ?? '',
+				'name' => $row->state_name ?? '',
+			];
+			$city    = (object) [
+				'slug' => $row->city_slug ?? '',
+				'name' => $row->city_name ?? '',
+			];
+			$service = (object) [
+				'slug' => $row->service_slug ?? '',
+				'name' => $row->service_name ?? '',
+			];
+
+			$custom_slug  = (string) ( $row->custom_slug ?? '' );
+			$new_url_path = URL_Engine::build_path( $country, $state, $city, $service, $custom_slug, $pattern );
+
+			$wpdb->update(
+				$pages_table,
+				[
+					'url_path'   => $new_url_path,
+					'updated_at' => current_time( 'mysql', true ),
+				],
+				[ 'id' => (int) $row->id ],
+				[ '%s', '%s' ],
+				[ '%d' ]
+			);
+
+			// If synced to a WordPress post, update post meta
+			$post_id = (int) ( $row->wp_post_id ?? 0 );
+			if ( $post_id > 0 && function_exists( 'update_post_meta' ) ) {
+				update_post_meta( $post_id, \SeoCityPages\Integration\Post_Sync::META_URL_PATH, $new_url_path );
+			}
+
+			$updated_count++;
+		}
+
+		return $updated_count;
 	}
 }

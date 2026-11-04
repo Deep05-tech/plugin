@@ -353,14 +353,14 @@ class Page_Context {
 
 		// Fallback sample data for editor visual preview.
 		return [
-			'country'      => 'India',
-			'country_code' => 'IN',
-			'state'        => 'Gujarat',
-			'state_code'   => 'GJ',
-			'city'         => 'Rajkot',
-			'service'      => 'SEO Agency',
-			'title'        => 'SEO Agency in Rajkot',
-			'url'          => URL_Engine::build_full_url( '/seo-agency/rajkot/' ),
+			'country'      => 'United States',
+			'country_code' => 'US',
+			'state'        => 'California',
+			'state_code'   => 'CA',
+			'city'         => 'Los Angeles',
+			'service'      => 'Dental Clinic',
+			'title'        => 'Best Digital Marketing Agency for Dental Clinic in Los Angeles, CA',
+			'url'          => URL_Engine::build_full_url( '/us/best-digital-marketing-agency-for-dental-clinic-in-los-angeles/' ),
 			'status'       => 'published',
 		];
 	}

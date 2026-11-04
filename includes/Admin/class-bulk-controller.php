@@ -48,6 +48,7 @@ class Bulk_Controller {
 		add_action( 'wp_ajax_seo_city_pages_bulk_job_poll', [ $this, 'ajax_job_poll' ] );
 		add_action( 'wp_ajax_seo_city_pages_bulk_job_control', [ $this, 'ajax_job_control' ] );
 		add_action( 'wp_ajax_seo_city_pages_bulk_export_download', [ $this, 'ajax_export_download' ] );
+		add_action( 'wp_ajax_seo_city_pages_cleanup_duplicates', [ $this, 'ajax_cleanup_duplicates' ] );
 	}
 
 	/**
@@ -472,5 +473,24 @@ class Bulk_Controller {
 
 		CSV_Exporter::export( $export_type, $filters, 'stream' );
 		exit;
+	}
+
+	/**
+	 * AJAX Handler: One-Click Duplicate WordPress Page Cleaner.
+	 *
+	 * Scans for duplicate WP posts sharing the same city page ID and permanently deletes extras.
+	 *
+	 * @return void
+	 */
+	public function ajax_cleanup_duplicates(): void {
+		Security::verify_nonce_or_abort( self::NONCE_ACTION );
+		Security::enforce_capability( Capabilities::MANAGE );
+
+		if ( ! class_exists( '\\SeoCityPages\\Integration\\Post_Sync' ) ) {
+			wp_send_json_error( [ 'message' => __( 'Post Synchronization component is not available.', 'seo-city-pages' ) ] );
+		}
+
+		$result = \SeoCityPages\Integration\Post_Sync::cleanup_duplicate_posts();
+		wp_send_json_success( $result );
 	}
 }

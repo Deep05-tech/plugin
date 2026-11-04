@@ -995,5 +995,42 @@
 				}
 			});
 		});
+
+		// 8. One-click Rebuild All Permalinks in Settings
+		$('#scp-rebuild-permalinks-btn').on('click', function(e) {
+			e.preventDefault();
+			var $btn = $(this);
+			var $status = $('#scp-rebuild-permalinks-status');
+			var patternVal = $('#seo_city_pages_url_pattern').val();
+			var ajaxUrl = window.seoCityPagesAdmin ? window.seoCityPagesAdmin.ajaxUrl : (typeof ajaxurl !== 'undefined' ? ajaxurl : '/wp-admin/admin-ajax.php');
+			var nonce = window.seoCityPagesAdmin ? window.seoCityPagesAdmin.nonce : '';
+
+			$btn.prop('disabled', true);
+			$status.css('color', '#2271b1').html('<span class="dashicons dashicons-update spin" style="margin-top: 3px;"></span> Rebuilding permalinks for all pages...');
+
+			$.ajax({
+				url: ajaxUrl,
+				type: 'POST',
+				dataType: 'json',
+				data: {
+					action: 'seo_city_pages_rebuild_permalinks',
+					nonce: nonce,
+					url_pattern: patternVal
+				},
+				success: function(res) {
+					$btn.prop('disabled', false);
+					if (res && res.success) {
+						$status.css('color', '#007017').html('<span class="dashicons dashicons-yes" style="margin-top: 3px;"></span> ' + (res.data.message || 'Permalinks rebuilt successfully!'));
+					} else {
+						var msg = (res.data && res.data.message) ? res.data.message : 'Failed to rebuild permalinks.';
+						$status.css('color', '#d63638').html('<span class="dashicons dashicons-no" style="margin-top: 3px;"></span> ' + msg);
+					}
+				},
+				error: function(xhr, status, error) {
+					$btn.prop('disabled', false);
+					$status.css('color', '#d63638').html('<span class="dashicons dashicons-no" style="margin-top: 3px;"></span> Error: ' + error);
+				}
+			});
+		});
 	});
 })(jQuery);

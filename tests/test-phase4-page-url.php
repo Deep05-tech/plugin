@@ -622,15 +622,15 @@ class Phase4_Test_Runner {
 		$page = \SeoCityPages\Database\City_Page_Repository::get( $page_id );
 		$this->assert( 'City Page retrieved successfully', ! empty( $page ) );
 		$this->assert( 'Default status is draft', 'draft' === $page->status );
-		$this->assert( 'Auto-generated url_path is /seo-agency/rajkot/', '/seo-agency/rajkot/' === $page->url_path );
+		$this->assert( 'Auto-generated url_path is /in/best-digital-marketing-agency-for-seo-agency-in-rajkot/', '/in/best-digital-marketing-agency-for-seo-agency-in-rajkot/' === $page->url_path );
 
 		// Derived title
 		$derived_title = \SeoCityPages\Database\City_Page_Repository::get_derived_title( $page );
 		$this->assert( 'Derived title is "SEO Agency in Rajkot"', 'SEO Agency in Rajkot' === $derived_title );
 
 		// Get by URL path
-		$by_path = \SeoCityPages\Database\City_Page_Repository::get_by_url_path( '/seo-agency/rajkot/' );
-		$this->assert( 'Lookup by url_path returns correct page ID', (int) $by_path->id === $page_id );
+		$by_path = \SeoCityPages\Database\City_Page_Repository::get_by_url_path( '/in/best-digital-marketing-agency-for-seo-agency-in-rajkot/' );
+		$this->assert( 'Lookup by url_path returns correct page ID', ! empty( $by_path ) && (int) $by_path->id === $page_id );
 
 		// Update
 		\SeoCityPages\Database\City_Page_Repository::update( $page_id, [
@@ -660,6 +660,16 @@ class Phase4_Test_Runner {
 		\SeoCityPages\Database\City_Page_Repository::bulk_set_status( [ $page_id ], 'draft' );
 		$draft_page = \SeoCityPages\Database\City_Page_Repository::get( $page_id );
 		$this->assert( 'Bulk status change updated page back to draft', 'draft' === $draft_page->status );
+
+		// Test rebuild_all_url_paths with new country-coded pattern
+		$rebuilt_count = \SeoCityPages\Database\City_Page_Repository::rebuild_all_url_paths( '/{country_code}/top-{topic}-in-{county}-{state}/' );
+		$this->assert( 'rebuild_all_url_paths returned positive updated count', $rebuilt_count >= 1 );
+
+		$rebuilt_page = \SeoCityPages\Database\City_Page_Repository::get( $page_id );
+		$this->assert( 'rebuild_all_url_paths updated url_path to /in/top-seo-agency-in-rajkot-gujarat/', '/in/top-seo-agency-in-rajkot-gujarat/' === $rebuilt_page->url_path );
+
+		// Restore default pattern for subsequent test assertions
+		\SeoCityPages\Database\City_Page_Repository::rebuild_all_url_paths( \SeoCityPages\URL\URL_Engine::DEFAULT_PATTERN );
 	}
 
 	private function test_cascade_deletion_protection(): void {
@@ -725,11 +735,11 @@ class Phase4_Test_Runner {
 
 		// Verify 5 distinct URL paths exist
 		$expected_urls = [
-			'/seo-agency/rajkot/',
-			'/seo-agency/ahmedabad/',
-			'/seo-agency/surat/',
-			'/digital-marketing-agency/mumbai/',
-			'/web-development/rajkot/',
+			'/in/best-digital-marketing-agency-for-seo-agency-in-rajkot/',
+			'/in/best-digital-marketing-agency-for-seo-agency-in-ahmedabad/',
+			'/in/best-digital-marketing-agency-for-seo-agency-in-surat/',
+			'/in/best-digital-marketing-agency-for-digital-marketing-agency-in-mumbai/',
+			'/in/best-digital-marketing-agency-for-web-development-in-rajkot/',
 		];
 
 		foreach ( $expected_urls as $expected_url ) {
@@ -762,8 +772,8 @@ class Phase4_Test_Runner {
 		$this->assert( 'Current page is null for non-SEO URL', null === \SeoCityPages\URL\Request_Resolver::get_current_page() );
 
 		// Case B: Draft SEO page requested anonymously -> 404 response
-		$draft_page = \SeoCityPages\Database\City_Page_Repository::get_by_url_path( '/seo-agency/ahmedabad/' );
-		$_SERVER['REQUEST_URI'] = '/seo-agency/ahmedabad/';
+		$draft_page = \SeoCityPages\Database\City_Page_Repository::get_by_url_path( '/in/best-digital-marketing-agency-for-seo-agency-in-ahmedabad/' );
+		$_SERVER['REQUEST_URI'] = '/in/best-digital-marketing-agency-for-seo-agency-in-ahmedabad/';
 		$resolver->resolve_request();
 		$this->assert( 'Draft page returns 404 to anonymous crawler', true === $wp_query->is_404 );
 		$this->assert( 'Status header set to 404 for draft page', 404 === $mock_status_header );
@@ -785,8 +795,8 @@ class Phase4_Test_Runner {
 
 		global $wp_query, $mock_current_user_can;
 
-		$page = \SeoCityPages\Database\City_Page_Repository::get_by_url_path( '/web-development/rajkot/' );
-		$this->assert( 'Test page is in draft state', 'draft' === $page->status );
+		$page = \SeoCityPages\Database\City_Page_Repository::get_by_url_path( '/in/best-digital-marketing-agency-for-web-development-in-rajkot/' );
+		$this->assert( 'Test page is in draft state', ! empty( $page ) && 'draft' === $page->status );
 
 		$valid_nonce = \SeoCityPages\Security\Security::create_nonce( 'scp_preview_' . $page->id );
 		$preview_url = \SeoCityPages\URL\URL_Engine::build_preview_url( (int) $page->id );

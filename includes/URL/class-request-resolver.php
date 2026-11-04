@@ -77,6 +77,17 @@ class Request_Resolver {
 		echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' . "\n";
 		echo '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">' . "\n";
 		echo '<style id="vispan-head-theme-isolation">
+			/* Universal Typography Spacing Override */
+			.elementor-kit-3 h1, .elementor-kit-3 h2, .elementor-kit-3 h3, .elementor-kit-3 h4, .elementor-kit-3 h5, .elementor-kit-3 h6,
+			.elementor-kit-3 p, .elementor-kit-3 a, .elementor-kit-3 span, .elementor-kit-3 div,
+			.elementor-widget-text-editor h1, .elementor-widget-text-editor h2, .elementor-widget-text-editor h3, .elementor-widget-text-editor h4,
+			.vispan-reveal-left, .vispan-reveal-right, .vispan-reveal-up, .vispan-reveal-fade,
+			.vispan-reveal-left *, .vispan-reveal-right *, .vispan-reveal-up *, .vispan-reveal-fade *,
+			.vispan-hover-card, .vispan-hover-card * {
+				letter-spacing: 0px !important;
+				word-spacing: normal !important;
+			}
+
 			#preloader, .preloader, .arolax-preloader, #loading, .page-loader, .loading-screen, .arolax-page-loading, .preloader-wrap {
 				display: none !important;
 				opacity: 0 !important;
@@ -538,6 +549,19 @@ class Request_Resolver {
 		$service = \SeoCityPages\Elementor\Page_Context::get_service();
 		$url     = \SeoCityPages\Elementor\Page_Context::get_url();
 
+		$is_home_services = (bool) preg_match( '/\b(home\s*services?|home\s*cleaning|contractors?|emergency\s*trades?)\b/i', (string) $service );
+		if ( $is_home_services ) {
+			echo \SeoCityPages\Elementor\Elementor_Integration::get_animation_assets(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo \SeoCityPages\Elementor\Content_Context::render_home_services_full_page_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			if ( function_exists( 'get_footer' ) ) {
+				get_footer();
+			}
+			if ( ! defined( 'SEO_CITY_PAGES_TESTING' ) ) {
+				exit;
+			}
+			return;
+		}
+
 		echo \SeoCityPages\Elementor\Elementor_Integration::get_animation_assets(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		?>
 		<main id="primary" class="site-main seo-city-page-container" style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e1e1e; line-height: 1.6; background: #ffffff;">
@@ -557,7 +581,7 @@ class Request_Resolver {
 							<span style="display: inline-flex; align-items: center; gap: 6px;"><span style="color: #02426A; font-weight: 900;">✓</span> Submarket Targeting</span>
 						</div>
 						<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 18px;">
-							<a href="<?php echo esc_url( $url ); ?>" class="vispan-btn-glow" style="display: inline-block; background: #02426A; color: #FFFFFF; font-weight: 700; font-size: 14px; letter-spacing: 0.04em; text-transform: uppercase; padding: 16px 36px; border-radius: 100px; text-decoration: none; box-shadow: 0 12px 28px -10px rgba(2,66,106,0.5);"><?php echo esc_html( $hero_cta ); ?></a>
+							<a href="https://vispansolutions.com/contact-us/" class="vispan-btn-glow" style="display: inline-block; background: #02426A; color: #FFFFFF; font-weight: 700; font-size: 14px; letter-spacing: 0.04em; text-transform: uppercase; padding: 16px 36px; border-radius: 100px; text-decoration: none; box-shadow: 0 12px 28px -10px rgba(2,66,106,0.5);"><?php echo esc_html( $hero_cta ); ?></a>
 							<a href="tel:+918485986860" style="font-size: 14.5px; font-weight: 700; color: #02426A; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">📞 +91 84859 86860</a>
 						</div>
 					</div>
@@ -654,36 +678,20 @@ class Request_Resolver {
 				</div>
 			</section>
 
-			<!-- 7. SIGNAL STACK & RANKING FACTOR FORMULA -->
-			<section style="padding: 85px 24px; background: #FFFFFF;">
-				<div style="max-width: 1140px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 48px; align-items: center;">
-					<div class="vispan-reveal-left">
-						<div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: #02426A; margin-bottom: 10px;">AUTHORITY WEIGHTING</div>
-						<h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(26px, 3.2vw, 38px); font-weight: 800; color: #121212; line-height: 1.25; margin: 0 0 18px;">The Local Ranking Signal Stack</h2>
-						<p style="font-size: 16px; line-height: 1.65; color: #5D5756; margin: 0 0 20px;">Search algorithms evaluate multi-layered authority signals before ranking a business in the top 3 Map Pack positions in <?php echo esc_html( $city ); ?>.</p>
-						<p style="font-size: 16px; line-height: 1.65; color: #5D5756; margin: 0 0 24px;">Our proprietary execution engine balances on-page topical completeness with off-page geographic verification to ensure sustained visibility.</p>
-						<a href="<?php echo esc_url( $url ); ?>" class="vispan-btn-glow" style="display: inline-block; background: #02426A; color: #FFFFFF; font-weight: 700; font-size: 13.5px; letter-spacing: 0.04em; text-transform: uppercase; padding: 14px 28px; border-radius: 100px; text-decoration: none;">Get Free Strategy Audit →</a>
-					</div>
-					<div class="vispan-reveal-right vispan-delay-1">
-						<?php echo \SeoCityPages\Elementor\Content_Context::render_signal_stack_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-					</div>
-				</div>
-			</section>
-
-			<!-- 8. LONG-FORM AUTHORITY ESSAY -->
+			<!-- 7. LONG-FORM AUTHORITY ESSAY -->
 			<section style="padding: 85px 24px; background: #F8FAFC;">
 				<div style="max-width: 1140px; margin: 0 auto;">
 					<?php echo \SeoCityPages\Elementor\Content_Context::render_essay_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</div>
 			</section>
 
-			<!-- 9. INDUSTRY VERTICAL SPECIALIZATION -->
+			<!-- 8. ALL AGENCY SERVICES (10 Core Capabilities Cards) -->
 			<section style="padding: 85px 24px; background: #FFFFFF;">
 				<div style="max-width: 1140px; margin: 0 auto;">
-					<div class="vispan-reveal-up" style="text-align: center; max-width: 760px; margin: 0 auto 48px;">
-						<div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: #02426A; margin-bottom: 10px;">TARGETED INDUSTRY HUBS</div>
-						<h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(28px, 3.4vw, 42px); font-weight: 800; color: #121212; margin: 0 0 12px;">Industry-Specific Search Strategies in <?php echo esc_html( $city ); ?></h2>
-						<p style="font-size: 16.5px; color: #5D5756; margin: 0 auto;">Every commercial sector in the metro region requires tailored entity schema and buyer conversion funnels.</p>
+					<div class="vispan-reveal-up" style="text-align: center; max-width: 820px; margin: 0 auto 48px;">
+						<div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: #02426A; margin-bottom: 10px;">OUR COMPREHENSIVE SUITE</div>
+						<h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(28px, 3.4vw, 42px); font-weight: 800; color: #121212; margin: 0 0 12px; letter-spacing: 0px !important; word-spacing: normal !important;">Our Full Suite of Digital Marketing & Creative Services for <?php echo esc_html( ! empty( $service ) ? $service : 'Your Business' ); ?></h2>
+						<p style="font-size: 16.5px; color: #5D5756; margin: 0 auto; letter-spacing: 0px !important; word-spacing: normal !important;">From high-intent search campaigns to world-class 3D visuals, explore all 10 specialized services engineered to scale your <?php echo esc_html( ! empty( $service ) ? $service : 'brand' ); ?> practice in <?php echo esc_html( $city ); ?>.</p>
 					</div>
 					<?php echo \SeoCityPages\Elementor\Content_Context::render_industry_verticals_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				</div>
