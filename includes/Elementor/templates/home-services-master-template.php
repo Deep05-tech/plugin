@@ -182,8 +182,8 @@ if ( ! defined( 'ABSPATH' ) ) {
             </a>
           </div>
 
-          <!-- Verified Stats Row (Dynamic AI Metro Stats or Defaults) -->
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-5 pt-5 border-t border-white/15">
+          <!-- Verified Stats Row (Dynamic AI Metro Stats or Defaults: 2x2 Layout) -->
+          <div class="grid grid-cols-2 gap-5 pt-5 border-t border-white/15 max-w-lg">
             <?php if ( ! empty( $ai_metro_stats ) && is_array( $ai_metro_stats ) ) : ?>
               <?php foreach ( array_slice( $ai_metro_stats, 0, 4 ) as $st ) : ?>
                 <div>
@@ -365,8 +365,8 @@ if ( ! defined( 'ABSPATH' ) ) {
         </div>
       </div>
 
-      <!-- Bottom 4-Column Photo Benefit Grid (Dynamic AI Benefits or Defaults) -->
-      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-7">
+      <!-- 2x2 Photo Benefit Grid (2 Boxes Per Line on Tablet & Desktop) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-7">
         <?php if ( ! empty( $ai_benefits ) && is_array( $ai_benefits ) ) : ?>
           <?php
           $benefit_imgs = [
@@ -462,8 +462,8 @@ if ( ! defined( 'ABSPATH' ) ) {
         </p>
       </div>
 
-      <!-- 3-Column Boxed Grid (3 Per Row on Desktop, Official Vispan Copy) -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7" id="official-services-grid"><?php echo $services_html; ?></div>
+      <!-- 2-Column Boxed Grid (2 Boxes Per Line, Official Vispan Services) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-7" id="official-services-grid"><?php echo $services_html; ?></div>
 
     </div>
   </section>
@@ -744,7 +744,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         </h2>
       </div>
 
-      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-7">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-7">
         <?php if ( ! empty( $ai_process ) && is_array( $ai_process ) ) : ?>
           <?php
           $icons = [ 'fa-magnifying-glass-chart', 'fa-compass-drafting', 'fa-rocket', 'fa-chart-pie' ];
@@ -1441,7 +1441,7 @@ if ( ! defined( 'ABSPATH' ) ) {
       let html = '';
 
       categoriesData.forEach(cat => {
-        const gridCols = cat.services.length === 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3';
+        const gridCols = cat.services.length === 4 ? 'lg:grid-cols-2' : 'lg:grid-cols-3';
 
         html += `
           <div class="bg-vispan-surface rounded-3xl p-6 sm:p-9 border border-slate-200">

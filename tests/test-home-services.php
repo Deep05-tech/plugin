@@ -246,7 +246,8 @@ Page_Context::set_context( $page, $country, $state, $city, $svc_home );
 
 // 6a. Default fallback rendering when AI content is empty
 $default_page_html = Content_Context::render_home_services_full_page_html();
-$assert( strpos( $default_page_html, "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7" ) !== false, "Grid layout: 3 columns on desktop (lg:grid-cols-3)" );
+$assert( strpos( $default_page_html, 'grid grid-cols-1 md:grid-cols-2 gap-7" id="official-services-grid"' ) !== false, "Services layout: 2 boxes per line (md:grid-cols-2)" );
+$assert( strpos( $default_page_html, "2x2 Photo Benefit Grid" ) !== false, "Benefits layout: 2 boxes per line (2x2)" );
 $assert( strpos( $default_page_html, "Get A Free Consultation" ) !== false, "Fallback: default hero CTA rendered" );
 $assert( strpos( $default_page_html, "Vispan Solutions has delivered 150+ projects" ) !== false, "Fallback: default FAQ rendered" );
 
