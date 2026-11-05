@@ -73,8 +73,12 @@ CRITICAL NON-NEGOTIABLE GENERATION RULES:
    - Market Accordion: 4 distinct strategic pillars (The searches we target — and why; Mapping search demand across submarkets; Sizing strategy to local competition; Entity schema & AI search readiness).
    - Submarket Clusters: 4 to 6 distinct commercial districts / corridors with Category tag, specific Target Intent note, and a detailed 50-80 word paragraph per zone.
    - Ranking Signal Stack: 4 weighted algorithmic pillars (Topical Depth & Submarket Relevance 35%, Map Pack Geo-Proximity & Review Velocity 25%, Geo-Entity Graph & Schema 20%, Commercial Lead Tracking & ROI Attribution 20%) with deep rationales.
-   - Editorial Essay & Milestones: Minimum 250 words of drop-cap editorial prose explaining search mechanics and entity authority, accompanied by a 4-phase sequential execution roadmap.
-   - FAQs: 5 to 6 realistic, deeply informative questions and direct, comprehensive answers addressing marketing ROI, ranking timelines, Map Pack proximity, and lead attribution.
+   - FAQs: 5 to 6 realistic, deeply informative questions and direct, comprehensive answers.
+     * MANDATORY FIRST 3 FAQ QUESTIONS (STRICT ORDER & TOPICS):
+       1. Question 1 MUST be related to Vispan's services: What digital marketing, Google Ads, SEO, and full-suite agency services Vispan Solutions provides for {Niche} in {City/County}.
+       2. Question 2 MUST be about the need for digital marketing: What is the need for digital marketing services for {Niche} businesses in {City/County} (why local search visibility, Google Maps 3-Pack, and targeted lead generation are essential to win clients over competitors).
+       3. Question 3 MUST be about why you have to contact us for these services: Why {Niche} companies must contact and partner with Vispan Solutions specifically (established since 2012, 150+ completed projects, 99% success rate, 4.8★ reviews, territory exclusivity, dedicated in-house team, transparent ROI tracking).
+     * Subsequent questions (4 to 6) may cover ranking timelines, Google Guaranteed / LSA onboarding, CRM integration, and lead attribution.
 
 6. MANDATORY DIGITAL MARKETING KEYWORDS & MULTI-CHANNEL FOCUS:
    - You MUST actively incorporate high-intent digital marketing keywords into the page content across headings, paragraphs, and FAQs:
@@ -190,6 +194,10 @@ CRITICAL NON-NEGOTIABLE GENERATION RULES:
 		$prompt .= sprintf( "- Primary Target Keyword: %s\n", $primary_kw );
 		$prompt .= sprintf( "- Secondary / LSI Keyword Clusters: %s\n", $target_kws );
 		$prompt .= "- Integration Rule: Naturally weave these target keywords (including 'Google Ads', 'Google', 'Ads', 'Meta Ads', 'PPC', 'SEO', and agency services) into the H1 headline, Service Overview, Submarket Clusters, FAQs, and Meta Descriptions without robotic repetition, while strictly adhering to the 1.5% - 3.0% keyword density limits.\n";
+		$prompt .= "- Mandatory FAQ Structure Rule: The first 3 FAQ questions must strictly follow this exact 3-question sequence:\n";
+		$prompt .= "  1. Vispan's Services: What digital marketing, SEO, Google Ads, and in-house capabilities Vispan Solutions provides for " . $niche_topic . " in " . $city_county . ".\n";
+		$prompt .= "  2. Need for Digital Marketing: What is the need for digital marketing services for " . $niche_topic . " businesses in " . $city_county . " (why local digital visibility and search dominance are crucial).\n";
+		$prompt .= "  3. Why Contact Vispan Solutions: Why companies must contact and partner with Vispan Solutions specifically for these services (12+ years experience since 2012, 150+ projects, 99% success rate, territory exclusivity, dedicated in-house team).\n";
 		$prompt .= "- Formatting Rule: All body fields must be written in engaging, complete editorial prose paragraphs. Do NOT generate raw markdown bullet points or hyphens like '- **Keyword:**'; describe deliverables and agency capabilities as natural narrative paragraphs.\n\n";
 
 		$prompt .= "=== SECURITY & INTEGRITY NOTICE ===\n";

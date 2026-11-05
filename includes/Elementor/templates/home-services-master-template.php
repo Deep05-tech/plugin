@@ -933,31 +933,31 @@ if ( ! defined( 'ABSPATH' ) ) {
         <?php else : ?>
           <details class="group bg-white rounded-2xl border border-slate-200 p-6" open>
             <summary class="flex items-center justify-between cursor-pointer font-display font-bold text-base sm:text-lg text-vispan-dark list-none">
-              <span>Do you provide digital marketing for specialized services like Plumbing &amp; Hydro Jetting or Home Decor, Blinds, Shades &amp; Shutters?</span>
+              <span>What digital marketing services does Vispan Solutions provide for home service contractors in <span class="county-name"><?php echo esc_html( $city ); ?></span>?</span>
               <i class="fa-solid fa-chevron-down text-vispan-ocean group-open:rotate-180 transition"></i>
             </summary>
             <p class="text-sm sm:text-base text-slate-600 mt-3 leading-relaxed">
-              Yes. Whether your company specializes in emergency trades like <strong>Plumbing &amp; Hydro Jetting</strong>, <strong>HVAC</strong>, and <strong>Electrical</strong>, or scheduled interior upgrades like <strong>Home Decor, Blinds, Shades &amp; Shutters</strong>, Vispan Solutions delivers tailored SEO, Google Ads, Web Development, Branding, and Video/CGI campaigns for every home service you offer.
+              We provide a complete 360° digital solution in-house: <strong>Digital Marketing</strong>, <strong>Google Ads</strong>, <strong>Branding Services</strong>, <strong>SEO</strong>, <strong>Web Development</strong>, <strong>Social Media Management</strong>, <strong>Online Reputation Management</strong>, <strong>Video Production</strong>, <strong>VFX</strong>, and <strong>CGI Services</strong>. Whether your company specializes in emergency trades like <strong>Plumbing &amp; Hydro Jetting</strong>, <strong>HVAC</strong>, and <strong>Electrical</strong>, or scheduled interior upgrades like <strong>Home Decor, Blinds, Shades &amp; Shutters</strong>, Vispan Solutions delivers tailored campaigns for every home service you offer.
             </p>
           </details>
 
           <details class="group bg-white rounded-2xl border border-slate-200 p-6">
             <summary class="flex items-center justify-between cursor-pointer font-display font-bold text-base sm:text-lg text-vispan-dark list-none">
-              <span>What digital marketing services does Vispan Solutions provide in-house?</span>
+              <span>Why do home service businesses in <span class="county-name"><?php echo esc_html( $city ); ?></span> need professional digital marketing?</span>
               <i class="fa-solid fa-chevron-down text-vispan-ocean group-open:rotate-180 transition"></i>
             </summary>
             <p class="text-sm sm:text-base text-slate-600 mt-3 leading-relaxed">
-              We provide a complete 360° digital solution in-house: <strong>Digital Marketing</strong>, <strong>Google Ads</strong>, <strong>Branding Services</strong>, <strong>SEO</strong>, <strong>Web Development</strong>, <strong>Social Media Management</strong>, <strong>Online Reputation Management</strong>, <strong>Video Production</strong>, <strong>VFX</strong>, and <strong>CGI Services</strong>.
+              Over 85% of homeowners in <span class="county-name"><?php echo esc_html( $city ); ?></span> turn directly to Google Search and Google Maps when hiring contractors for urgent repairs or scheduled renovations. Relying solely on word-of-mouth or paying high fees to shared-lead aggregators leaves your business vulnerable to competitors. Targeted digital marketing, localized SEO, and high-ROI Google Ads ensure your phones ring with exclusive high-ticket customer calls every single week.
             </p>
           </details>
 
           <details class="group bg-white rounded-2xl border border-slate-200 p-6">
             <summary class="flex items-center justify-between cursor-pointer font-display font-bold text-base sm:text-lg text-vispan-dark list-none">
-              <span>Why choose Vispan Solutions as your digital marketing partner?</span>
+              <span>Why should you contact and partner with Vispan Solutions for these services?</span>
               <i class="fa-solid fa-chevron-down text-vispan-ocean group-open:rotate-180 transition"></i>
             </summary>
             <p class="text-sm sm:text-base text-slate-600 mt-3 leading-relaxed">
-              Empowering brands since 2012, Vispan Solutions has delivered 150+ projects with a 99% success rate, earned a 4.8★ rating across 140+ client reviews, and won 12+ industry awards including the IT-ITeS-Excellence Awards 2023 &amp; 2024 for Best SEO and Digital Marketer.
+              Empowering brands since 2012, Vispan Solutions has delivered 150+ projects with a 99% success rate, earned a 4.8★ rating across 140+ client reviews, and won 12+ industry awards including the IT-ITeS-Excellence Awards 2023 &amp; 2024 for Best SEO and Digital Marketer. We offer strict territory exclusivity (we only partner with one contractor per trade in your market), 100% exclusive inbound leads, and dedicated in-house account management with transparent ROI reporting.
             </p>
           </details>
         <?php endif; ?>

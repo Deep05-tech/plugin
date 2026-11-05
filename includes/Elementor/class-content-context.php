@@ -577,12 +577,12 @@ class Content_Context {
 			$state   = Page_Context::get_state();
 			$service = Page_Context::get_service();
 			$faqs = [
+				[ 'question' => sprintf( 'What digital marketing services does Vispan Solutions provide for %s in %s?', $service, $city ), 'answer' => sprintf( 'Vispan Solutions provides a complete in-house digital marketing engine for %s in %s, including high-ROI Google Ads campaigns, Meta Ads (Facebook & Instagram), Search Engine Optimization (SEO), Google Maps 3-Pack domination, high-converting web funnels, online reputation management, and commercial video/CGI production.', $service, $city ) ],
+				[ 'question' => sprintf( 'Why do %s businesses in %s need professional digital marketing?', $service, $city ), 'answer' => sprintf( 'Modern prospective clients in %s search online via mobile devices and Google Maps when seeking professional %s providers. Relying on traditional word-of-mouth leaves your market share open to aggressive competitors and national directory aggregators. Targeted digital marketing ensures your practice captures high-intent local inquiries at the exact moment of decision.', $city, $service ) ],
+				[ 'question' => 'Why should you contact and partner with Vispan Solutions for these services?', 'answer' => 'Empowering brands since 2012, Vispan Solutions has delivered 150+ successful projects with a 99% client success rate, a 4.8★ rating across 140+ verified reviews, and 12+ industry awards (including Best SEO and Digital Marketer). We provide strict territory exclusivity, 100% exclusive inbound lead generation, and dedicated in-house execution with transparent weekly ROI tracking.' ],
 				[ 'question' => sprintf( 'Can an independent local business in %s outrank established national aggregators?', $city ), 'answer' => sprintf( 'Absolutely. Google’s localized ranking algorithms heavily reward proximity, topical completeness, and verified geographic schema over thin national directory pages. By targeting granular submarket commercial queries, local businesses in %s consistently capture top 3 Map Pack rankings.', $city ) ],
 				[ 'question' => sprintf( 'How long does it take to see measurable search rank improvements in %s?', $city ), 'answer' => 'Most localized campaigns begin demonstrating keyword movement and Google Map Pack impression growth within 60 to 90 days. As citation velocity, entity authority, and submarket landing nodes mature, compounding inbound lead volume accelerates over 6 to 12 months.' ],
-				[ 'question' => sprintf( 'How do you engineer submarket targeting without creating doorway pages in %s?', $city ), 'answer' => sprintf( 'We develop unique, value-dense landing nodes tailored to real commercial districts in %s with distinct local intent data, neighborhood case studies, and hyper-local entity schema that fully complies with Google’s Helpful Content Guidelines.', $city ) ],
-				[ 'question' => sprintf( 'What makes %s in %s different from generic national SEO campaigns?', $service, $city ), 'answer' => sprintf( 'Generic SEO focuses on broad national keywords with high competition and low commercial conversion. Our %s strategy in %s concentrates strictly on high-intent regional buyer queries, Google 3-Pack proximity signals, and direct inbound phone inquiries.', $service, $city ) ],
 				[ 'question' => 'How do you measure and report ROI on our local search campaign?', 'answer' => 'We deploy dedicated dynamic call tracking, form submission event tagging, and Google Analytics 4 lead attribution. Every month, you receive a transparent video executive report detailing closed revenue pipeline, lead volume, and keyword growth.' ],
-				[ 'question' => 'Are there long-term contracts or retainer lock-ins?', 'answer' => 'No. We operate on flexible, transparent month-to-month and quarterly performance agreements. We earn your partnership every single month through measurable organic growth and direct partner communication.' ],
 			];
 		}
 
@@ -2694,6 +2694,18 @@ class Content_Context {
 
 		$faqs = [
 			[
+				'q' => sprintf( 'What digital marketing services does Vispan Solutions provide for home service contractors in %s?', esc_html( $city ) ),
+				'a' => 'We provide a complete 360° digital solution in-house: Digital Marketing, Google Ads, Branding Services, SEO, Web Development, Social Media Management, Online Reputation Management, Video Production, VFX, and CGI Services tailored for home service contractors.',
+			],
+			[
+				'q' => sprintf( 'Why do home service companies in %s need professional digital marketing?', esc_html( $city ) ),
+				'a' => sprintf( 'Over 85%% of homeowners in %s turn directly to Google Search and Google Maps when hiring contractors for urgent repairs or renovations. Localized SEO and high-ROI Google Ads protect your business from losing high-ticket jobs to national directory aggregators.', esc_html( $city ) ),
+			],
+			[
+				'q' => 'Why should you contact and partner with Vispan Solutions for these services?',
+				'a' => 'Empowering brands since 2012, Vispan Solutions has delivered 150+ projects with a 99% success rate, a 4.8★ rating across 140+ reviews, and 12+ industry awards including Best SEO and Digital Marketer. We offer strict territory exclusivity (one contractor per trade), 100% exclusive inbound calls, and dedicated in-house campaign management with transparent ROI tracking.',
+			],
+			[
 				'q' => sprintf( 'How does territory exclusivity work in %s?', esc_html( $city ) ),
 				'a' => sprintf( 'We operate under a strict non-compete territory policy. We partner with only ONE contractor per trade (e.g., 1 HVAC company, 1 Roofing company, 1 Plumber) in %s. All inbound calls and search rankings in your designated market are routed exclusively to your business.', esc_html( $city ) ),
 			],
@@ -2704,14 +2716,6 @@ class Content_Context {
 			[
 				'q' => 'How quickly can our Google Guaranteed (LSA) and Maps campaigns launch?',
 				'a' => 'Google Guaranteed (LSA) campaigns typically launch within 7 to 14 business days once background checks and insurance verifications are submitted. Local SEO and Google Maps optimization begins immediately on Day 1.',
-			],
-			[
-				'q' => 'Can this integrate with our dispatch software (ServiceTitan, Housecall Pro, Jobber)?',
-				'a' => 'Yes. Our call tracking and lead attribution systems integrate directly with major field service CRMs including ServiceTitan, Housecall Pro, Jobber, and FieldEdge. Every call is tagged and logged directly into your dispatch board.',
-			],
-			[
-				'q' => 'What is required from our team to get started?',
-				'a' => 'We need your service area zip codes, proof of license and insurance for Google Guaranteed verification, and access to your Google Business Profile. Our agency handles all technical setup, website optimization, tracking, and campaign launch.',
 			],
 		];
 
