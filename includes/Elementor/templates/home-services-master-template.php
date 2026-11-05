@@ -310,6 +310,66 @@ if ( ! defined( 'ABSPATH' ) ) {
     #preloader, .preloader, .arolax-preloader {
       display: none !important;
     }
+
+    /* 13. High-Contrast Legibility & Dark Text (Matches Image-2 Reference) */
+    .vispan-home-services-page p,
+    .vispan-home-services-page .text-slate-600,
+    .vispan-home-services-page .text-slate-500,
+    .vispan-home-services-page .text-slate-700 {
+      color: #1E293B !important;
+      font-weight: 450 !important;
+    }
+    .vispan-home-services-page .text-slate-400 {
+      color: #475569 !important;
+    }
+    .vispan-home-services-page h1,
+    .vispan-home-services-page h2,
+    .vispan-home-services-page h3,
+    .vispan-home-services-page h4 {
+      color: #0F172A !important;
+    }
+    /* Exclude dark themed sections from dark font override */
+    #top h1,
+    .vispan-hero-bg h1,
+    #hero h1 {
+      color: #FFFFFF !important;
+    }
+    #top p,
+    .vispan-hero-bg p,
+    #hero p {
+      color: #E2E8F0 !important;
+    }
+    #top .text-slate-400,
+    .vispan-hero-bg .text-slate-400,
+    #hero .text-slate-400 {
+      color: #94A3B8 !important;
+    }
+    #top .text-slate-300,
+    .vispan-hero-bg .text-slate-300,
+    #hero .text-slate-300 {
+      color: #CBD5E1 !important;
+    }
+    #mid-contact h2,
+    #mid-contact h3,
+    .bg-\[\#0A1120\] h2,
+    .bg-\[\#0A1120\] h3 {
+      color: #FFFFFF !important;
+    }
+    #mid-contact p,
+    #mid-contact .text-slate-300,
+    #mid-contact .text-slate-400,
+    .bg-\[\#0A1120\] p,
+    .bg-\[\#0A1120\] .text-slate-300,
+    .bg-\[\#0A1120\] .text-slate-400 {
+      color: #E2E8F0 !important;
+    }
+    .vispan-home-services-page .bg-\[\#070C17\],
+    .vispan-home-services-page .bg-\[\#070C17\] * {
+      color: inherit;
+    }
+    footer, footer * {
+      color: inherit;
+    }
   </style>
 
   <!-- ===================================================================== -->
@@ -430,7 +490,7 @@ if ( ! defined( 'ABSPATH' ) ) {
           </div>
 
           <!-- Single Verified Vispan Solutions Track Record Bar (Or AI Metro Stats) -->
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-8 mt-4 border-t border-slate-800">
+          <div class="grid grid-cols-2 sm:grid-cols-2 gap-6 pt-8 mt-4 border-t border-slate-800 max-w-md">
             <?php if ( ! empty( $ai_metro_stats ) && is_array( $ai_metro_stats ) ) : ?>
               <?php foreach ( array_slice( $ai_metro_stats, 0, 4 ) as $st ) : ?>
                 <div>
@@ -889,20 +949,83 @@ if ( ! defined( 'ABSPATH' ) ) {
       <?php endif; ?>
 
       <?php if ( ! empty( $ai_essay ) ) : ?>
-        <div class="max-w-4xl mx-auto bg-white rounded-lg p-8 sm:p-12 border border-slate-200 shadow-sm">
-          <h3 class="font-display font-extrabold text-2xl sm:text-3xl text-slate-900 mb-6">
+        <div class="max-w-4xl mx-auto bg-white rounded-lg p-8 sm:p-10 border border-slate-200 shadow-sm">
+          <div class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-[#0B6599] mb-3">
+            <span class="w-6 h-0.5 bg-[#0B6599]"></span>
+            <span>Strategic Search Blueprint</span>
+          </div>
+          <h3 class="font-display font-extrabold text-2xl sm:text-3xl text-slate-900 leading-tight mb-8">
             <?php echo esc_html( $ai_essay['heading'] ?? 'Editorial: The Architecture of Local Dominance' ); ?>
           </h3>
-          <div class="prose max-w-none text-slate-700 text-base leading-relaxed space-y-4">
-            <?php echo function_exists( 'wp_kses_post' ) ? wp_kses_post( $ai_essay['body'] ?? '' ) : esc_html( $ai_essay['body'] ?? '' ); ?>
+
+          <!-- 2-Column Split: Image on Left + Summarized Copy & Core Keywords on Right -->
+          <div class="grid lg:grid-cols-12 gap-8 items-center mb-8">
+            <!-- Strategic Marketing Image -->
+            <div class="lg:col-span-5">
+              <div class="relative rounded-lg overflow-hidden border border-slate-200 shadow-md group">
+                <img
+                  src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80"
+                  alt="Digital Marketing Strategy & Lead Architecture"
+                  onerror="this.src='https://placehold.co/800x550/0B6599/FFFFFF?text=Digital+Marketing+Strategy'"
+                  class="w-full h-[280px] sm:h-[320px] object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div class="absolute bottom-3 left-3 bg-[#0A1120]/90 text-white text-xs font-bold px-3 py-1.5 rounded backdrop-blur-sm border border-slate-700 flex items-center gap-2">
+                  <i class="fa-solid fa-chart-line text-[#38BDF8]"></i>
+                  <span>Proven Lead Architecture</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Summarized Narrative & Keyword Badges -->
+            <div class="lg:col-span-7 space-y-4">
+              <div class="text-slate-800 text-sm sm:text-base leading-relaxed space-y-3 font-normal">
+                <?php
+                $essay_raw = $ai_essay['body'] ?? '';
+                // If body is a single dense block, split into 2 punchy summarized paragraphs
+                if ( ! empty( $essay_raw ) && strpos( $essay_raw, '<p>' ) === false && strpos( $essay_raw, "\n\n" ) === false ) {
+                  $sentences = preg_split( '/(?<=[.?!])\s+/', trim( $essay_raw ), -1, PREG_SPLIT_NO_EMPTY );
+                  if ( is_array( $sentences ) && count( $sentences ) >= 4 ) {
+                    $mid = (int) ceil( count( $sentences ) / 2 );
+                    $p1 = implode( ' ', array_slice( $sentences, 0, $mid ) );
+                    $p2 = implode( ' ', array_slice( $sentences, $mid ) );
+                    echo '<p>' . esc_html( $p1 ) . '</p><p>' . esc_html( $p2 ) . '</p>';
+                  } else {
+                    echo '<p>' . esc_html( $essay_raw ) . '</p>';
+                  }
+                } else {
+                  echo function_exists( 'wpautop' ) ? wpautop( wp_kses_post( $essay_raw ) ) : nl2br( esc_html( $essay_raw ) );
+                }
+                ?>
+              </div>
+
+              <!-- Core Strategy Keywords -->
+              <div class="pt-4 border-t border-slate-100">
+                <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Core Strategic Pillars:</div>
+                <div class="flex flex-wrap gap-2">
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#EFF6FF] text-[#0B6599] border border-blue-100">
+                    <i class="fa-solid fa-location-dot text-[10px]"></i> Local SEO &amp; Google Map 3-Pack
+                  </span>
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#F0FDF4] text-[#166534] border border-green-100">
+                    <i class="fa-solid fa-shield-halved text-[10px]"></i> Google Guaranteed / LSA Ads
+                  </span>
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#F8FAFC] text-slate-800 border border-slate-200">
+                    <i class="fa-solid fa-filter text-[10px]"></i> High-Converting Lead Funnels
+                  </span>
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#FEF3C7] text-[#92400E] border border-amber-200">
+                    <i class="fa-solid fa-phone-volume text-[10px]"></i> Exclusive Dispatch Calls
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
+
           <?php if ( ! empty( $ai_essay['milestones'] ) && is_array( $ai_essay['milestones'] ) ) : ?>
-            <div class="grid sm:grid-cols-2 gap-4 mt-8 pt-6 border-t border-slate-200">
+            <div class="grid sm:grid-cols-2 gap-4 pt-6 border-t border-slate-200">
               <?php foreach ( $ai_essay['milestones'] as $ms ) : ?>
                 <div class="p-4 rounded-lg bg-[#F5F8FC] border border-slate-200">
                   <div class="text-xs font-bold text-[#0B6599] uppercase tracking-wider"><?php echo esc_html( $ms['step'] ?? 'Phase' ); ?></div>
                   <div class="font-display font-bold text-sm text-slate-900 mt-1"><?php echo esc_html( $ms['title'] ?? '' ); ?></div>
-                  <div class="text-xs text-slate-600 mt-1"><?php echo esc_html( $ms['summary'] ?? '' ); ?></div>
+                  <div class="text-xs text-slate-700 font-medium mt-1"><?php echo esc_html( $ms['summary'] ?? '' ); ?></div>
                 </div>
               <?php endforeach; ?>
             </div>
@@ -929,7 +1052,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         </h2>
       </div>
 
-      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
         <?php if ( ! empty( $ai_process ) && is_array( $ai_process ) ) : ?>
           <?php
           $process_icons = [

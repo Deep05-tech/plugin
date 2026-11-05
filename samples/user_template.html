@@ -239,6 +239,60 @@
     .county-pill:hover {
       transform: translateY(-1px);
     }
+
+    /* High-Contrast Legibility & Dark Text (Matches Image-2 Reference) */
+    p, .text-slate-600, .text-slate-500, .text-slate-700 {
+      color: #1E293B !important;
+      font-weight: 450 !important;
+    }
+    .text-slate-400 {
+      color: #475569 !important;
+    }
+    h1, h2, h3, h4 {
+      color: #0F172A !important;
+    }
+    /* Exclude dark themed sections from dark font override */
+    #top h1,
+    .vispan-hero-bg h1,
+    #hero h1 {
+      color: #FFFFFF !important;
+    }
+    #top p,
+    .vispan-hero-bg p,
+    #hero p {
+      color: #E2E8F0 !important;
+    }
+    #top .text-slate-400,
+    .vispan-hero-bg .text-slate-400,
+    #hero .text-slate-400 {
+      color: #94A3B8 !important;
+    }
+    #top .text-slate-300,
+    .vispan-hero-bg .text-slate-300,
+    #hero .text-slate-300 {
+      color: #CBD5E1 !important;
+    }
+    #mid-contact h2,
+    #mid-contact h3,
+    .bg-\[\#0A1120\] h2,
+    .bg-\[\#0A1120\] h3 {
+      color: #FFFFFF !important;
+    }
+    #mid-contact p,
+    #mid-contact .text-slate-300,
+    #mid-contact .text-slate-400,
+    .bg-\[\#0A1120\] p,
+    .bg-\[\#0A1120\] .text-slate-300,
+    .bg-\[\#0A1120\] .text-slate-400 {
+      color: #E2E8F0 !important;
+    }
+    .bg-\[\#070C17\],
+    .bg-\[\#070C17\] * {
+      color: inherit;
+    }
+    footer, footer * {
+      color: inherit;
+    }
   </style>
 </head>
 
@@ -354,7 +408,7 @@
           </div>
 
           <!-- Single Verified Vispan Solutions Track Record Bar (Not Duplicated on the Right) -->
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-8 mt-4 border-t border-slate-800">
+          <div class="grid grid-cols-2 sm:grid-cols-2 gap-6 pt-8 mt-4 border-t border-slate-800 max-w-md">
             <div>
               <div class="font-display text-2xl sm:text-3xl font-extrabold text-white">2012</div>
               <div class="text-xs text-slate-400 mt-1">Year Founded</div>
@@ -474,9 +528,9 @@
         </div>
       </div>
 
-      <!-- Bottom 4-Column Benefit Grid -->
-      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-8 border-t border-slate-200">
-        <div class="bg-white rounded-lg overflow-hidden border border-slate-200 flex flex-col">
+      <!-- Bottom 2x2 Photo Benefit Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-8 border-t border-slate-200">
+        <div class="benefit-card bg-white rounded-lg overflow-hidden border border-slate-200 flex flex-col">
           <img src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80" alt="More Local Leads" onerror="this.src='https://placehold.co/600x360/0B6599/FFFFFF?text=More+Local+Leads'" class="w-full h-40 object-cover" />
           <div class="p-5 flex-1">
             <h3 class="font-display font-bold text-base text-[#0B6599]">More Local Leads</h3>
@@ -486,7 +540,7 @@
           </div>
         </div>
 
-        <div class="bg-white rounded-lg overflow-hidden border border-slate-200 flex flex-col">
+        <div class="benefit-card bg-white rounded-lg overflow-hidden border border-slate-200 flex flex-col">
           <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80" alt="Lower Advertising Costs" onerror="this.src='https://placehold.co/600x360/0B6599/FFFFFF?text=Lower+Ad+Costs'" class="w-full h-40 object-cover" />
           <div class="p-5 flex-1">
             <h3 class="font-display font-bold text-base text-[#0B6599]">Lower Advertising Costs</h3>
@@ -496,7 +550,7 @@
           </div>
         </div>
 
-        <div class="bg-white rounded-lg overflow-hidden border border-slate-200 flex flex-col">
+        <div class="benefit-card bg-white rounded-lg overflow-hidden border border-slate-200 flex flex-col">
           <img src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=600&q=80" alt="Beat Competitors Online" onerror="this.src='https://placehold.co/600x360/0B6599/FFFFFF?text=Beat+Competitors'" class="w-full h-40 object-cover" />
           <div class="p-5 flex-1">
             <h3 class="font-display font-bold text-base text-[#0B6599]">Beat Competitors Online</h3>
@@ -506,7 +560,7 @@
           </div>
         </div>
 
-        <div class="bg-white rounded-lg overflow-hidden border border-slate-200 flex flex-col">
+        <div class="benefit-card bg-white rounded-lg overflow-hidden border border-slate-200 flex flex-col">
           <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=600&q=80" alt="Build Brand Trust" onerror="this.src='https://placehold.co/600x360/0B6599/FFFFFF?text=Build+Brand+Trust'" class="w-full h-40 object-cover" />
           <div class="p-5 flex-1">
             <h3 class="font-display font-bold text-base text-[#0B6599]">Build Brand Trust</h3>
@@ -670,8 +724,8 @@
         </h2>
       </div>
 
-      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="bg-white p-6 rounded-lg border border-slate-200">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+        <div class="process-card bg-white p-6 rounded-lg border border-slate-200">
           <div class="w-10 h-10 rounded-lg bg-[#EFF6FF] text-[#0B6599] flex items-center justify-center mb-4">
             <i class="fa-solid fa-magnifying-glass-chart"></i>
           </div>
@@ -681,7 +735,7 @@
           </p>
         </div>
 
-        <div class="bg-white p-6 rounded-lg border border-slate-200">
+        <div class="process-card bg-white p-6 rounded-lg border border-slate-200">
           <div class="w-10 h-10 rounded-lg bg-[#EFF6FF] text-[#0B6599] flex items-center justify-center mb-4">
             <i class="fa-solid fa-compass-drafting"></i>
           </div>
@@ -691,7 +745,7 @@
           </p>
         </div>
 
-        <div class="bg-white p-6 rounded-lg border border-slate-200">
+        <div class="process-card bg-white p-6 rounded-lg border border-slate-200">
           <div class="w-10 h-10 rounded-lg bg-[#EFF6FF] text-[#0B6599] flex items-center justify-center mb-4">
             <i class="fa-solid fa-laptop-code"></i>
           </div>
@@ -701,7 +755,7 @@
           </p>
         </div>
 
-        <div class="bg-white p-6 rounded-lg border border-slate-200">
+        <div class="process-card bg-white p-6 rounded-lg border border-slate-200">
           <div class="w-10 h-10 rounded-lg bg-[#EFF6FF] text-[#0B6599] flex items-center justify-center mb-4">
             <i class="fa-solid fa-chart-line"></i>
           </div>
@@ -1119,7 +1173,7 @@
       }
     }
 
-    // Home Services Categories & Services (Zero Numbers, Clean Editorial Split Layout)
+    // Home Services Categories & Services (Zero Numbers, Clean Editorial Split Layout, 26 Trades Even Counts)
     const categoriesData = [
       {
         title: 'Core Systems & Emergency Trades',
@@ -1139,6 +1193,11 @@
             name: 'Electrical Services',
             desc: 'Residential rewiring, breaker panel upgrades, lighting installations, EV charger setups, and smart home hardwiring.',
             img: 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=600&q=80'
+          },
+          {
+            name: 'Water Heater & Boiler Services',
+            desc: 'Tankless and standard water heater installations, boiler repairs, system flushes, and emergency hot water restorations.',
+            img: 'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=600&q=80'
           }
         ]
       },
@@ -1176,6 +1235,11 @@
             name: 'General Handyman Work',
             desc: 'Drywall patching, furniture assembly, mounting, fixture swaps, and minor odd jobs.',
             img: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=600&q=80'
+          },
+          {
+            name: 'Kitchen & Bathroom Remodeling',
+            desc: 'Full-scope kitchen overhauls, tile work, custom vanities, walk-in shower conversions, and luxury fixtures.',
+            img: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=600&q=80'
           },
           {
             name: 'Interior & Exterior Painting',
@@ -1235,6 +1299,11 @@
             img: 'https://images.unsplash.com/photo-1581578017093-cd30fce4eeb7?auto=format&fit=crop&w=600&q=80'
           },
           {
+            name: 'Carpet & Upholstery Deep Cleaning',
+            desc: 'Steam extraction, pet stain removal, fiber sanitization, and odor elimination.',
+            img: 'https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?auto=format&fit=crop&w=600&q=80'
+          },
+          {
             name: 'Junk Removal & Hauling',
             desc: 'Post-renovation cleanup, estate clear-outs, and large appliance disposal.',
             img: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=600&q=80'
@@ -1264,6 +1333,11 @@
             name: 'Solar Power & Energy Management',
             desc: 'Solar panel placement, backup home batteries, and energy-efficiency retrofits.',
             img: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=600&q=80'
+          },
+          {
+            name: 'Smart Home Automation & Generators',
+            desc: 'Whole-home backup generators, automated lighting panels, smart thermostats, and integrated home control hubs.',
+            img: 'https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=600&q=80'
           }
         ]
       }

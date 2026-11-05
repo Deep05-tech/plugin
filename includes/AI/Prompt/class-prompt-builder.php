@@ -95,6 +95,7 @@ CRITICAL NON-NEGOTIABLE GENERATION RULES:
 
 8. EDITORIAL PROSE FORMATTING (NO RAW BULLET LISTS IN BODY FIELDS):
    - All narrative body fields (introduction.body, service_overview.body, local_relevance.body, essay.body) MUST be written as cohesive, high-converting editorial narrative paragraphs.
+   - For essay.body specifically: MUST be concise and summarized into exactly 2 punchy, highly readable paragraphs (under 130 words total). Emphasize core strategic keywords: 'Local SEO & Google Map 3-Pack', 'Google Guaranteed (LSA)', 'High-Converting Web Funnels', and 'Targeted Lead Generation'. NEVER output one massive monolithic wall of text.
    - Do NOT output raw markdown bullet lists or hyphens like '- **Keyword:**' inside body fields. Weave agency capabilities into flowing, authoritative prose.
 
 9. STRUCTURED OUTPUT:
