@@ -36,6 +36,9 @@ if ( ! defined( 'ABSPATH' ) ) {
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
+  <!-- Lenis Modern Smooth Scroll Engine -->
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+
   <script>
     tailwind.config = {
       theme: {
@@ -370,6 +373,129 @@ if ( ! defined( 'ABSPATH' ) ) {
     footer, footer * {
       color: inherit;
     }
+
+    /* 9. Lenis Smooth Scroll Core Styles */
+    html.lenis, html.lenis body {
+      height: auto;
+    }
+    .lenis.lenis-smooth {
+      scroll-behavior: auto !important;
+    }
+    .lenis.lenis-smooth [data-lenis-prevent] {
+      overscroll-behavior: contain;
+    }
+    .lenis.lenis-stopped {
+      overflow: hidden;
+    }
+    .lenis.lenis-smooth iframe {
+      pointer-events: none;
+    }
+
+    /* 10. Hardware-Accelerated Scroll Entrance Animations */
+    @media (prefers-reduced-motion: no-preference) {
+      html.js-animations [data-animate] {
+        opacity: 0;
+        transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+                    transform 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+                    filter 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+        will-change: opacity, transform;
+      }
+
+      html.js-animations [data-animate="fade-up"] {
+        transform: translate3d(0, 32px, 0);
+      }
+      html.js-animations [data-animate="fade-down"] {
+        transform: translate3d(0, -28px, 0);
+      }
+      html.js-animations [data-animate="fade-left"] {
+        transform: translate3d(36px, 0, 0);
+      }
+      html.js-animations [data-animate="fade-right"] {
+        transform: translate3d(-36px, 0, 0);
+      }
+      html.js-animations [data-animate="zoom-in"] {
+        transform: scale3d(0.92, 0.92, 1);
+      }
+      html.js-animations [data-animate="flip-up"] {
+        transform: perspective(1000px) rotateX(15deg) translate3d(0, 24px, 0);
+      }
+
+      /* Stagger Delays */
+      html.js-animations [data-delay="75"]  { transition-delay: 75ms; }
+      html.js-animations [data-delay="100"] { transition-delay: 100ms; }
+      html.js-animations [data-delay="150"] { transition-delay: 150ms; }
+      html.js-animations [data-delay="200"] { transition-delay: 200ms; }
+      html.js-animations [data-delay="250"] { transition-delay: 250ms; }
+      html.js-animations [data-delay="300"] { transition-delay: 300ms; }
+      html.js-animations [data-delay="350"] { transition-delay: 350ms; }
+      html.js-animations [data-delay="400"] { transition-delay: 400ms; }
+      html.js-animations [data-delay="450"] { transition-delay: 450ms; }
+      html.js-animations [data-delay="500"] { transition-delay: 500ms; }
+      html.js-animations [data-delay="600"] { transition-delay: 600ms; }
+
+      /* In-View Activated State */
+      html.js-animations [data-animate].is-animated {
+        opacity: 1 !important;
+        transform: translate3d(0, 0, 0) scale3d(1, 1, 1) rotateX(0) !important;
+      }
+    }
+
+    /* 11. Official Services & Trade Cards Micro-Interactions */
+    .official-service-box {
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.25s ease !important;
+      cursor: pointer;
+    }
+    .official-service-box:hover {
+      transform: translateY(-4px) !important;
+      border-color: #0B6599 !important;
+      box-shadow: 0 16px 30px -8px rgba(11, 101, 153, 0.15) !important;
+    }
+    .official-service-box:hover .service-svg {
+      transform: scale(1.1) rotate(2deg);
+      color: #0B6599;
+      transition: transform 0.25s ease, color 0.25s ease;
+    }
+
+    /* Floating Back to Top Button */
+    #back-to-top-btn {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 50;
+      width: 2.75rem;
+      height: 2.75rem;
+      border-radius: 9999px;
+      background: #0B6599;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 25px -5px rgba(11, 101, 153, 0.4);
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transform: translate3d(0, 16px, 0);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #back-to-top-btn.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translate3d(0, 0, 0);
+    }
+    #back-to-top-btn:hover {
+      background: #084b72;
+      transform: translate3d(0, -3px, 0);
+      box-shadow: 0 14px 30px -4px rgba(11, 101, 153, 0.5);
+    }
+
+    /* Button Glow Pulse */
+    @keyframes button-glow-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(11, 101, 153, 0.4); }
+      50% { box-shadow: 0 0 0 8px rgba(11, 101, 153, 0); }
+    }
+    .animate-btn-pulse:hover {
+      animation: button-glow-pulse 1.8s infinite;
+    }
   </style>
 
   <!-- ===================================================================== -->
@@ -454,7 +580,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         
         <!-- Left Column: Agency Copy & Single Verified Stats Bar -->
         <div class="lg:col-span-7 space-y-6">
-          <h1 class="font-display text-4xl sm:text-5xl lg:text-[50px] font-extrabold tracking-tight leading-[1.15] text-white">
+          <h1 data-animate="fade-up" class="font-display text-4xl sm:text-5xl lg:text-[50px] font-extrabold tracking-tight leading-[1.15] text-white">
             <?php if ( ! empty( $is_ai_hero_title ) ) : ?>
               <?php echo esc_html( $hero_title ); ?>
             <?php else : ?>
@@ -462,7 +588,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             <?php endif; ?>
           </h1>
 
-          <p class="text-slate-300 text-base sm:text-lg leading-relaxed max-w-2xl">
+          <p data-animate="fade-up" data-delay="100" class="text-slate-300 text-base sm:text-lg leading-relaxed max-w-2xl">
             <?php if ( ! empty( $is_ai_hero_desc ) ) : ?>
               <?php echo function_exists( 'wp_kses_post' ) ? wp_kses_post( $hero_description ) : esc_html( $hero_description ); ?>
             <?php else : ?>
@@ -470,44 +596,44 @@ if ( ! defined( 'ABSPATH' ) ) {
             <?php endif; ?>
           </p>
 
-          <p class="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl">
+          <p data-animate="fade-up" data-delay="150" class="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl">
             Whether your crews specialize in emergency <strong>Plumbing &amp; Hydro Jetting</strong>, <strong>HVAC</strong>, and <strong>Roofing</strong>, or interior upgrades like <strong>Home Decor, Blinds, Shades &amp; Shutters</strong>, we manage your entire digital presence in-house.
           </p>
 
           <!-- Clean Action Buttons -->
-          <div class="flex flex-wrap items-center gap-4 pt-2">
-            <a href="#mid-contact" class="inline-flex items-center gap-2.5 px-7 py-4 rounded-lg bg-[#0B6599] hover:bg-[#09527d] text-white font-bold text-sm sm:text-base transition">
+          <div data-animate="fade-up" data-delay="200" class="flex flex-wrap items-center gap-4 pt-2">
+            <a href="#mid-contact" class="inline-flex items-center gap-2.5 px-7 py-4 rounded-lg bg-[#0B6599] hover:bg-[#09527d] text-white font-bold text-sm sm:text-base transition animate-btn-pulse">
               <span><?php echo esc_html( ! empty( $hero_cta ) ? $hero_cta : 'Get A Free Consultation' ); ?></span>
             </a>
-            <a href="#our-services" class="inline-flex items-center gap-2 px-6 py-4 rounded-lg border border-slate-600 hover:border-slate-400 text-white font-semibold text-sm sm:text-base transition">
+            <a href="#our-services" class="inline-flex items-center gap-2 px-6 py-4 rounded-lg border border-slate-600 hover:border-slate-400 text-white font-semibold text-sm sm:text-base transition hover:-translate-y-0.5">
               <span>View Our Services</span>
             </a>
           </div>
 
           <!-- Single Verified Vispan Solutions Track Record Bar (Or AI Metro Stats) -->
-          <div class="grid grid-cols-2 sm:grid-cols-2 gap-6 pt-8 mt-4 border-t border-slate-800 max-w-md">
+          <div data-animate="fade-up" data-delay="250" class="grid grid-cols-2 sm:grid-cols-2 gap-6 pt-8 mt-4 border-t border-slate-800 max-w-md">
             <?php if ( ! empty( $ai_metro_stats ) && is_array( $ai_metro_stats ) ) : ?>
               <?php foreach ( array_slice( $ai_metro_stats, 0, 4 ) as $st ) : ?>
                 <div>
-                  <div class="font-display text-2xl sm:text-3xl font-extrabold text-white"><?php echo esc_html( $st['value'] ?? '' ); ?></div>
+                  <div class="font-display text-2xl sm:text-3xl font-extrabold text-white stat-counter"><?php echo esc_html( $st['value'] ?? '' ); ?></div>
                   <div class="text-xs text-slate-400 mt-1"><?php echo esc_html( $st['label'] ?? '' ); ?></div>
                 </div>
               <?php endforeach; ?>
             <?php else : ?>
               <div>
-                <div class="font-display text-2xl sm:text-3xl font-extrabold text-white">2012</div>
+                <div class="font-display text-2xl sm:text-3xl font-extrabold text-white stat-counter">2012</div>
                 <div class="text-xs text-slate-400 mt-1">Year Founded</div>
               </div>
               <div>
-                <div class="font-display text-2xl sm:text-3xl font-extrabold text-white">150+</div>
+                <div class="font-display text-2xl sm:text-3xl font-extrabold text-white stat-counter">150+</div>
                 <div class="text-xs text-slate-400 mt-1">Projects (99% Success)</div>
               </div>
               <div>
-                <div class="font-display text-2xl sm:text-3xl font-extrabold text-white">4.8 / 5</div>
+                <div class="font-display text-2xl sm:text-3xl font-extrabold text-white stat-counter">4.8 / 5</div>
                 <div class="text-xs text-slate-400 mt-1">140+ Client Reviews</div>
               </div>
               <div>
-                <div class="font-display text-2xl sm:text-3xl font-extrabold text-white">12+</div>
+                <div class="font-display text-2xl sm:text-3xl font-extrabold text-white stat-counter">12+</div>
                 <div class="text-xs text-slate-400 mt-1">Industry Awards Won</div>
               </div>
             <?php endif; ?>
@@ -516,33 +642,33 @@ if ( ! defined( 'ABSPATH' ) ) {
 
         <!-- Right Column: HUMAN-ART-DIRECTED EDITORIAL PHOTO COMPOSITION -->
         <div class="lg:col-span-5">
-          <div class="relative mx-auto max-w-md lg:max-w-none pl-4 pb-8">
+          <div data-animate="fade-left" data-delay="150" class="relative mx-auto max-w-md lg:max-w-none pl-4 pb-8">
             
             <!-- Solid Architectural Offset Frame Accent -->
             <div class="absolute top-4 -right-3 bottom-4 left-8 rounded-lg bg-[#0B6599]/35 border border-[#0B6599]/60 pointer-events-none"></div>
 
             <!-- Main Contractor & Homeowner Photograph -->
-            <div class="relative rounded-lg overflow-hidden border border-slate-700 shadow-2xl bg-slate-900">
+            <div class="relative rounded-lg overflow-hidden border border-slate-700 shadow-2xl bg-slate-900 group">
               <img
                 src="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=1000&q=85"
                 alt="Home Service Technician Consulting with Homeowner"
                 onerror="this.src='https://placehold.co/900x700/0B6599/FFFFFF?text=Vispan+Solutions'"
-                class="w-full h-[400px] sm:h-[440px] object-cover"
+                class="w-full h-[400px] sm:h-[440px] object-cover transition-transform duration-700 group-hover:scale-105"
               />
             </div>
 
             <!-- Overlapping Secondary Field Photo (Bottom Left) -->
-            <div class="hidden sm:block absolute -bottom-2 -left-2 w-48 h-32 rounded-lg overflow-hidden border-4 border-[#0A1120] shadow-xl bg-slate-900">
+            <div data-animate="fade-up" data-delay="250" class="hidden sm:block absolute -bottom-2 -left-2 w-48 h-32 rounded-lg overflow-hidden border-4 border-[#0A1120] shadow-xl bg-slate-900 group">
               <img
                 src="https://images.unsplash.com/photo-1632759145351-1d592919f522?auto=format&fit=crop&w=500&q=80"
                 alt="Exterior and Roofing Contractor on Site"
                 onerror="this.src='https://placehold.co/400x260/0B6599/FFFFFF?text=Field+Service'"
-                class="w-full h-full object-cover"
+                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
             </div>
 
             <!-- Single Clean Architectural Award Plaque (Bottom Right) -->
-            <div class="relative sm:absolute sm:-bottom-4 sm:right-4 mt-4 sm:mt-0 bg-white text-slate-900 rounded-lg p-4 shadow-xl border border-slate-200 max-w-xs">
+            <div data-animate="zoom-in" data-delay="300" class="relative sm:absolute sm:-bottom-4 sm:right-4 mt-4 sm:mt-0 bg-white text-slate-900 rounded-lg p-4 shadow-xl border border-slate-200 max-w-xs hover:-translate-y-1 transition-transform">
               <div class="flex items-start gap-3">
                 <div class="w-9 h-9 rounded bg-[#0B6599] text-white flex items-center justify-center shrink-0 mt-0.5">
                   <i class="fa-solid fa-trophy text-sm"></i>
@@ -574,7 +700,7 @@ if ( ! defined( 'ABSPATH' ) ) {
       <!-- Top 2-Column Editorial Split -->
       <div class="grid lg:grid-cols-12 gap-12 items-center mb-16">
         <!-- Left Photo -->
-        <div class="lg:col-span-6">
+        <div class="lg:col-span-6" data-animate="fade-right">
           <div class="rounded-lg overflow-hidden border border-slate-200 shadow-md">
             <img
               src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1000&q=80"
@@ -586,7 +712,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         </div>
 
         <!-- Right Copy + Single Contact Us Button -->
-        <div class="lg:col-span-6 space-y-5">
+        <div class="lg:col-span-6 space-y-5" data-animate="fade-left">
           <div class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-[#0B6599]">
             <span class="w-6 h-0.5 bg-[#0B6599]"></span>
             <span>Why Digital Marketing Matters</span>
@@ -639,7 +765,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             $img_src = $benefit_images[ $b_idx % count( $benefit_images ) ];
             $icon    = $b['icon'] ?? $benefit_icons[ $b_idx % count( $benefit_icons ) ];
           ?>
-            <div class="benefit-card bg-white rounded-xl overflow-hidden border border-slate-200 flex flex-col sm:flex-row shadow-sm hover:shadow-md transition">
+            <div class="benefit-card bg-white rounded-xl overflow-hidden border border-slate-200 flex flex-col sm:flex-row shadow-sm hover:shadow-md transition" data-animate="fade-up" data-delay="<?php echo esc_attr( ( $b_idx + 1 ) * 100 ); ?>">
               <div class="sm:w-5/12 h-52 sm:h-auto min-h-[190px] relative overflow-hidden bg-slate-100 shrink-0">
                 <img src="<?php echo esc_url( $img_src ); ?>" alt="<?php echo esc_attr( $b['title'] ?? '' ); ?>" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
               </div>
@@ -655,7 +781,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             </div>
           <?php endforeach; ?>
         <?php else : ?>
-          <div class="benefit-card bg-white rounded-xl overflow-hidden border border-slate-200 flex flex-col sm:flex-row shadow-sm hover:shadow-md transition">
+          <div class="benefit-card bg-white rounded-xl overflow-hidden border border-slate-200 flex flex-col sm:flex-row shadow-sm hover:shadow-md transition" data-animate="fade-up" data-delay="100">
             <div class="sm:w-5/12 h-52 sm:h-auto min-h-[190px] relative overflow-hidden bg-slate-100 shrink-0">
               <img src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80" alt="More Local Leads" onerror="this.src='https://placehold.co/600x360/0B6599/FFFFFF?text=More+Local+Leads'" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
             </div>
@@ -670,7 +796,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             </div>
           </div>
 
-          <div class="benefit-card bg-white rounded-xl overflow-hidden border border-slate-200 flex flex-col sm:flex-row shadow-sm hover:shadow-md transition">
+          <div class="benefit-card bg-white rounded-xl overflow-hidden border border-slate-200 flex flex-col sm:flex-row shadow-sm hover:shadow-md transition" data-animate="fade-up" data-delay="200">
             <div class="sm:w-5/12 h-52 sm:h-auto min-h-[190px] relative overflow-hidden bg-slate-100 shrink-0">
               <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80" alt="Lower Advertising Costs" onerror="this.src='https://placehold.co/600x360/0B6599/FFFFFF?text=Lower+Ad+Costs'" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
             </div>
@@ -685,7 +811,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             </div>
           </div>
 
-          <div class="benefit-card bg-white rounded-xl overflow-hidden border border-slate-200 flex flex-col sm:flex-row shadow-sm hover:shadow-md transition">
+          <div class="benefit-card bg-white rounded-xl overflow-hidden border border-slate-200 flex flex-col sm:flex-row shadow-sm hover:shadow-md transition" data-animate="fade-up" data-delay="300">
             <div class="sm:w-5/12 h-52 sm:h-auto min-h-[190px] relative overflow-hidden bg-slate-100 shrink-0">
               <img src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=600&q=80" alt="Beat Competitors Online" onerror="this.src='https://placehold.co/600x360/0B6599/FFFFFF?text=Beat+Competitors'" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
             </div>
@@ -700,7 +826,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             </div>
           </div>
 
-          <div class="benefit-card bg-white rounded-xl overflow-hidden border border-slate-200 flex flex-col sm:flex-row shadow-sm hover:shadow-md transition">
+          <div class="benefit-card bg-white rounded-xl overflow-hidden border border-slate-200 flex flex-col sm:flex-row shadow-sm hover:shadow-md transition" data-animate="fade-up" data-delay="400">
             <div class="sm:w-5/12 h-52 sm:h-auto min-h-[190px] relative overflow-hidden bg-slate-100 shrink-0">
               <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=600&q=80" alt="Build Brand Trust" onerror="this.src='https://placehold.co/600x360/0B6599/FFFFFF?text=Build+Brand+Trust'" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
             </div>
@@ -729,7 +855,7 @@ if ( ! defined( 'ABSPATH' ) ) {
       
       <!-- Section Heading (2-Column Grid eliminating empty right side) -->
       <div class="grid lg:grid-cols-12 gap-8 items-end mb-14">
-        <div class="lg:col-span-6">
+        <div class="lg:col-span-6" data-animate="fade-right">
           <div class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-[#0B6599] mb-3">
             <span class="w-6 h-0.5 bg-[#0B6599]"></span>
             <span>What We Do · Official Services</span>
@@ -738,7 +864,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             <?php echo esc_html( ! empty( $service_overview_h ) ? $service_overview_h : '360° Digital Marketing Solution for Your Business' ); ?>
           </h2>
         </div>
-        <div class="lg:col-span-6">
+        <div class="lg:col-span-6" data-animate="fade-left">
           <p class="text-slate-700 text-base sm:text-lg leading-relaxed font-normal">
             <?php if ( ! empty( $service_overview_b ) ) : ?>
               <?php echo function_exists( 'wp_kses_post' ) ? wp_kses_post( $service_overview_b ) : esc_html( $service_overview_b ); ?>
@@ -764,7 +890,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
       
       <!-- Section Heading -->
-      <div class="max-w-3xl mb-16">
+      <div class="max-w-3xl mb-16" data-animate="fade-up">
         <div class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-[#0B6599] mb-3">
           <span class="w-6 h-0.5 bg-[#0B6599]"></span>
           <span>Industries &amp; Trades We Serve</span>
@@ -785,11 +911,11 @@ if ( ! defined( 'ABSPATH' ) ) {
       <!-- ================================================================= -->
       <!-- FORM #1 (MID-PAGE): DEDICATED CONTACT SECTION AFTER HOME SERVICES -->
       <!-- ================================================================= -->
-      <div id="mid-contact" class="mt-16 bg-[#0A1120] rounded-lg p-8 sm:p-12 text-white border border-slate-800">
+      <div id="mid-contact" class="mt-16 bg-[#0A1120] rounded-lg p-8 sm:p-12 text-white border border-slate-800" data-animate="fade-up">
         <div class="grid lg:grid-cols-12 gap-10 items-center">
           
           <!-- Left Copy -->
-          <div class="lg:col-span-5 space-y-4">
+          <div class="lg:col-span-5 space-y-4" data-animate="fade-right" data-delay="100">
             <div class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-[#38BDF8]">
               <span class="w-6 h-0.5 bg-[#38BDF8]"></span>
               <span>One Partner For Every Trade</span>
@@ -808,7 +934,7 @@ if ( ! defined( 'ABSPATH' ) ) {
           </div>
 
           <!-- Right Form #1 -->
-          <div class="lg:col-span-7">
+          <div class="lg:col-span-7" data-animate="fade-left" data-delay="150">
             <form onsubmit="submitFormToast(event, 'midFormToast')" class="bg-white text-slate-900 rounded-lg p-6 sm:p-8 space-y-4">
               <input type="hidden" name="action" value="scp_submit_lead" />
               <input type="hidden" name="security" value="<?php echo esc_attr( $nonce ); ?>" />
@@ -879,7 +1005,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
       
       <?php if ( ! empty( $ai_market_anatomy ) ) : ?>
-        <div class="max-w-4xl mx-auto mb-16 bg-white rounded-lg p-8 sm:p-10 border border-slate-200 shadow-sm">
+        <div class="max-w-4xl mx-auto mb-16 bg-white rounded-lg p-8 sm:p-10 border border-slate-200 shadow-sm" data-animate="fade-up">
           <div class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-[#0B6599] mb-3">
             <span class="w-6 h-0.5 bg-[#0B6599]"></span>
             <span><?php echo esc_html( $ai_market_anatomy['kicker'] ?? 'Search Intent Analytics' ); ?></span>
@@ -895,12 +1021,12 @@ if ( ! defined( 'ABSPATH' ) ) {
       <?php endif; ?>
 
       <?php if ( ! empty( $ai_market_accordion ) && is_array( $ai_market_accordion ) ) : ?>
-        <div class="max-w-4xl mx-auto mb-16 space-y-4">
+        <div class="max-w-4xl mx-auto mb-16 space-y-4" data-animate="fade-up">
           <h3 class="font-display font-extrabold text-xl sm:text-2xl text-slate-900 mb-6 text-center">
             Strategic Pillars for Dominating Search in <?php echo esc_html( $city ); ?>
           </h3>
           <?php foreach ( $ai_market_accordion as $acc_idx => $acc ) : ?>
-            <details class="group bg-white rounded-lg border border-slate-200 p-6" <?php echo 0 === $acc_idx ? 'open' : ''; ?>>
+            <details class="group bg-white rounded-lg border border-slate-200 p-6" <?php echo 0 === $acc_idx ? 'open' : ''; ?> data-animate="fade-up" data-delay="<?php echo esc_attr( ( $acc_idx + 1 ) * 75 ); ?>">
               <summary class="flex items-center justify-between cursor-pointer font-display font-bold text-base text-slate-900 list-none">
                 <span><?php echo esc_html( $acc['title'] ?? '' ); ?></span>
                 <i class="fa-solid fa-chevron-down text-xs text-[#0B6599] group-open:rotate-180 transition"></i>
@@ -915,7 +1041,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
       <?php if ( ! empty( $ai_submarkets ) && is_array( $ai_submarkets ) ) : ?>
         <div class="mb-16">
-          <div class="max-w-3xl mb-10">
+          <div class="max-w-3xl mb-10" data-animate="fade-up">
             <div class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-[#0B6599] mb-2">
               <span class="w-6 h-0.5 bg-[#0B6599]"></span>
               <span>Submarket Target Clusters</span>
@@ -925,8 +1051,8 @@ if ( ! defined( 'ABSPATH' ) ) {
             </h3>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <?php foreach ( $ai_submarkets as $sub ) : ?>
-              <div class="bg-white rounded-lg p-6 border border-slate-200 flex flex-col justify-between shadow-sm">
+            <?php foreach ( $ai_submarkets as $sub_idx => $sub ) : ?>
+              <div class="bg-white rounded-lg p-6 border border-slate-200 flex flex-col justify-between shadow-sm" data-animate="fade-up" data-delay="<?php echo esc_attr( ( ( $sub_idx % 4 ) + 1 ) * 100 ); ?>">
                 <div>
                   <span class="inline-block px-2.5 py-1 rounded bg-[#EFF6FF] text-[#0B6599] text-xs font-bold uppercase tracking-wider mb-3">
                     <?php echo esc_html( $sub['type_tag'] ?? 'Service Area' ); ?>
@@ -950,7 +1076,7 @@ if ( ! defined( 'ABSPATH' ) ) {
       <?php endif; ?>
 
       <?php if ( ! empty( $ai_case_proof ) ) : ?>
-        <div class="max-w-4xl mx-auto mb-16 bg-[#0A1120] text-white rounded-lg p-8 sm:p-10 border border-slate-800 shadow-xl">
+        <div class="max-w-4xl mx-auto mb-16 bg-[#0A1120] text-white rounded-lg p-8 sm:p-10 border border-slate-800 shadow-xl" data-animate="zoom-in">
           <div class="text-xs font-bold uppercase tracking-widest text-[#38BDF8] mb-2">
             <?php echo esc_html( $ai_case_proof['tagline'] ?? 'Verified Case Proof' ); ?>
           </div>
@@ -964,7 +1090,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-6 pt-6 mt-6 border-t border-slate-800">
               <?php foreach ( $ai_case_proof['highlights'] as $hi ) : ?>
                 <div>
-                  <div class="font-display text-2xl sm:text-3xl font-extrabold text-[#38BDF8]"><?php echo esc_html( $hi['metric'] ?? '' ); ?></div>
+                  <div class="font-display text-2xl sm:text-3xl font-extrabold text-[#38BDF8] stat-counter"><?php echo esc_html( $hi['metric'] ?? '' ); ?></div>
                   <div class="text-xs text-slate-400 mt-1"><?php echo esc_html( $hi['label'] ?? '' ); ?></div>
                 </div>
               <?php endforeach; ?>
@@ -974,7 +1100,7 @@ if ( ! defined( 'ABSPATH' ) ) {
       <?php endif; ?>
 
       <?php if ( ! empty( $ai_essay ) ) : ?>
-        <div class="max-w-4xl mx-auto bg-white rounded-lg p-8 sm:p-10 border border-slate-200 shadow-sm">
+        <div class="max-w-4xl mx-auto bg-white rounded-lg p-8 sm:p-10 border border-slate-200 shadow-sm" data-animate="fade-up">
           <div class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-[#0B6599] mb-3">
             <span class="w-6 h-0.5 bg-[#0B6599]"></span>
             <span>Strategic Search Blueprint</span>
@@ -986,7 +1112,7 @@ if ( ! defined( 'ABSPATH' ) ) {
           <!-- 2-Column Split: Image on Left + Summarized Copy & Core Keywords on Right -->
           <div class="grid lg:grid-cols-12 gap-8 items-center mb-8">
             <!-- Strategic Marketing Image -->
-            <div class="lg:col-span-5">
+            <div class="lg:col-span-5" data-animate="fade-right" data-delay="100">
               <div class="relative rounded-lg overflow-hidden border border-slate-200 shadow-md group">
                 <img
                   src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80"
@@ -1002,7 +1128,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             </div>
 
             <!-- Summarized Narrative & Keyword Badges -->
-            <div class="lg:col-span-7 space-y-4">
+            <div class="lg:col-span-7 space-y-4" data-animate="fade-left" data-delay="150">
               <div class="text-slate-800 text-sm sm:text-base leading-relaxed space-y-3 font-normal">
                 <?php
                 $essay_raw = $ai_essay['body'] ?? '';
@@ -1046,8 +1172,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
           <?php if ( ! empty( $ai_essay['milestones'] ) && is_array( $ai_essay['milestones'] ) ) : ?>
             <div class="grid sm:grid-cols-2 gap-4 pt-6 border-t border-slate-200">
-              <?php foreach ( $ai_essay['milestones'] as $ms ) : ?>
-                <div class="p-4 rounded-lg bg-[#F5F8FC] border border-slate-200">
+              <?php foreach ( $ai_essay['milestones'] as $ms_idx => $ms ) : ?>
+                <div class="p-4 rounded-lg bg-[#F5F8FC] border border-slate-200" data-animate="fade-up" data-delay="<?php echo esc_attr( ( ( $ms_idx % 4 ) + 1 ) * 100 ); ?>">
                   <div class="text-xs font-bold text-[#0B6599] uppercase tracking-wider"><?php echo esc_html( $ms['step'] ?? 'Phase' ); ?></div>
                   <div class="font-display font-bold text-sm text-slate-900 mt-1"><?php echo esc_html( $ms['title'] ?? '' ); ?></div>
                   <div class="text-xs text-slate-700 font-medium mt-1"><?php echo esc_html( $ms['summary'] ?? '' ); ?></div>
@@ -1067,7 +1193,7 @@ if ( ! defined( 'ABSPATH' ) ) {
   <!-- ===================================================================== -->
   <section id="process" class="py-20 bg-[#F5F8FC] border-t border-slate-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
-      <div class="max-w-3xl mb-12">
+      <div class="max-w-3xl mb-12" data-animate="fade-up">
         <div class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-[#0B6599] mb-3">
           <span class="w-6 h-0.5 bg-[#0B6599]"></span>
           <span>How We Work</span>
@@ -1089,7 +1215,7 @@ if ( ! defined( 'ABSPATH' ) ) {
           foreach ( array_slice( $ai_process, 0, 4 ) as $p_idx => $step ) :
             $icon = $process_icons[ $p_idx % count( $process_icons ) ];
           ?>
-            <div class="process-card bg-white p-6 rounded-lg border border-slate-200">
+            <div class="process-card bg-white p-6 rounded-lg border border-slate-200" data-animate="fade-up" data-delay="<?php echo esc_attr( ( $p_idx + 1 ) * 100 ); ?>">
               <div class="w-10 h-10 rounded-lg bg-[#EFF6FF] text-[#0B6599] flex items-center justify-center mb-4">
                 <i class="fa-solid <?php echo esc_attr( $icon ); ?>"></i>
               </div>
@@ -1100,7 +1226,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             </div>
           <?php endforeach; ?>
         <?php else : ?>
-          <div class="process-card bg-white p-6 rounded-lg border border-slate-200">
+          <div class="process-card bg-white p-6 rounded-lg border border-slate-200" data-animate="fade-up" data-delay="100">
             <div class="w-10 h-10 rounded-lg bg-[#EFF6FF] text-[#0B6599] flex items-center justify-center mb-4">
               <i class="fa-solid fa-magnifying-glass-chart"></i>
             </div>
@@ -1110,7 +1236,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             </p>
           </div>
 
-          <div class="process-card bg-white p-6 rounded-lg border border-slate-200">
+          <div class="process-card bg-white p-6 rounded-lg border border-slate-200" data-animate="fade-up" data-delay="200">
             <div class="w-10 h-10 rounded-lg bg-[#EFF6FF] text-[#0B6599] flex items-center justify-center mb-4">
               <i class="fa-solid fa-compass-drafting"></i>
             </div>
@@ -1120,7 +1246,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             </p>
           </div>
 
-          <div class="process-card bg-white p-6 rounded-lg border border-slate-200">
+          <div class="process-card bg-white p-6 rounded-lg border border-slate-200" data-animate="fade-up" data-delay="300">
             <div class="w-10 h-10 rounded-lg bg-[#EFF6FF] text-[#0B6599] flex items-center justify-center mb-4">
               <i class="fa-solid fa-laptop-code"></i>
             </div>
@@ -1130,7 +1256,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             </p>
           </div>
 
-          <div class="process-card bg-white p-6 rounded-lg border border-slate-200">
+          <div class="process-card bg-white p-6 rounded-lg border border-slate-200" data-animate="fade-up" data-delay="400">
             <div class="w-10 h-10 rounded-lg bg-[#EFF6FF] text-[#0B6599] flex items-center justify-center mb-4">
               <i class="fa-solid fa-chart-line"></i>
             </div>
@@ -1149,7 +1275,7 @@ if ( ! defined( 'ABSPATH' ) ) {
   <!-- ===================================================================== -->
   <section id="testimonials" class="py-20 bg-white border-t border-slate-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
-      <div class="max-w-3xl mb-12">
+      <div class="max-w-3xl mb-12" data-animate="fade-up">
         <div class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-[#0B6599] mb-3">
           <span class="w-6 h-0.5 bg-[#0B6599]"></span>
           <span>4.8 / 5 Rating · 140+ Verified Reviews</span>
@@ -1161,8 +1287,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
       <div class="grid md:grid-cols-3 gap-6">
         <?php if ( ! empty( $ai_testimonials ) && is_array( $ai_testimonials ) ) : ?>
-          <?php foreach ( array_slice( $ai_testimonials, 0, 3 ) as $t ) : ?>
-            <div class="testimonial-card bg-[#F5F8FC] p-7 rounded-lg border border-slate-200 flex flex-col justify-between">
+          <?php foreach ( array_slice( $ai_testimonials, 0, 3 ) as $t_idx => $t ) : ?>
+            <div class="testimonial-card bg-[#F5F8FC] p-7 rounded-lg border border-slate-200 flex flex-col justify-between" data-animate="fade-up" data-delay="<?php echo esc_attr( ( $t_idx + 1 ) * 100 ); ?>">
               <div>
                 <div class="flex items-center gap-1 text-[#0B6599] text-xs mb-4">
                   <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
@@ -1179,7 +1305,7 @@ if ( ! defined( 'ABSPATH' ) ) {
           <?php endforeach; ?>
         <?php else : ?>
           <!-- Verified Review 1: Hristo Gaydarski -->
-          <div class="testimonial-card bg-[#F5F8FC] p-7 rounded-lg border border-slate-200 flex flex-col justify-between">
+          <div class="testimonial-card bg-[#F5F8FC] p-7 rounded-lg border border-slate-200 flex flex-col justify-between" data-animate="fade-up" data-delay="100">
             <div>
               <div class="flex items-center gap-1 text-[#0B6599] text-xs mb-4">
                 <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
@@ -1195,7 +1321,7 @@ if ( ! defined( 'ABSPATH' ) ) {
           </div>
 
           <!-- Verified Review 2: Christina Brauer -->
-          <div class="testimonial-card bg-[#F5F8FC] p-7 rounded-lg border border-slate-200 flex flex-col justify-between">
+          <div class="testimonial-card bg-[#F5F8FC] p-7 rounded-lg border border-slate-200 flex flex-col justify-between" data-animate="fade-up" data-delay="200">
             <div>
               <div class="flex items-center gap-1 text-[#0B6599] text-xs mb-4">
                 <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
@@ -1211,7 +1337,7 @@ if ( ! defined( 'ABSPATH' ) ) {
           </div>
 
           <!-- Verified Review 3: William Sage -->
-          <div class="testimonial-card bg-[#F5F8FC] p-7 rounded-lg border border-slate-200 flex flex-col justify-between">
+          <div class="testimonial-card bg-[#F5F8FC] p-7 rounded-lg border border-slate-200 flex flex-col justify-between" data-animate="fade-up" data-delay="300">
             <div>
               <div class="flex items-center gap-1 text-[#0B6599] text-xs mb-4">
                 <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
@@ -1235,7 +1361,7 @@ if ( ! defined( 'ABSPATH' ) ) {
   <!-- ===================================================================== -->
   <section id="faq" class="py-20 bg-[#F5F8FC] border-t border-slate-200">
     <div class="max-w-4xl mx-auto px-4 sm:px-6">
-      <div class="mb-10">
+      <div class="mb-10" data-animate="fade-up">
         <div class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-[#0B6599] mb-3">
           <span class="w-6 h-0.5 bg-[#0B6599]"></span>
           <span>Common Questions</span>
@@ -1248,7 +1374,7 @@ if ( ! defined( 'ABSPATH' ) ) {
       <div class="space-y-3">
         <?php if ( ! empty( $ai_faqs ) && is_array( $ai_faqs ) ) : ?>
           <?php foreach ( $ai_faqs as $f_idx => $faq ) : ?>
-            <details class="group bg-white rounded-lg border border-slate-200 p-6" <?php echo 0 === $f_idx ? 'open' : ''; ?>>
+            <details class="group bg-white rounded-lg border border-slate-200 p-6" <?php echo 0 === $f_idx ? 'open' : ''; ?> data-animate="fade-up" data-delay="<?php echo esc_attr( ( $f_idx + 1 ) * 100 ); ?>">
               <summary class="flex items-center justify-between cursor-pointer font-display font-bold text-base text-slate-900 list-none">
                 <span><?php echo esc_html( $faq['question'] ?? '' ); ?></span>
                 <i class="fa-solid fa-chevron-down text-xs text-[#0B6599] group-open:rotate-180 transition"></i>
@@ -1259,7 +1385,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             </details>
           <?php endforeach; ?>
         <?php else : ?>
-          <details class="group bg-white rounded-lg border border-slate-200 p-6" open>
+          <details class="group bg-white rounded-lg border border-slate-200 p-6" open data-animate="fade-up" data-delay="100">
             <summary class="flex items-center justify-between cursor-pointer font-display font-bold text-base text-slate-900 list-none">
               <span>What digital marketing services does Vispan Solutions provide for home service contractors in <span class="county-name"><?php echo esc_html( $city ); ?></span>?</span>
               <i class="fa-solid fa-chevron-down text-xs text-[#0B6599] group-open:rotate-180 transition"></i>
@@ -1269,7 +1395,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             </p>
           </details>
 
-          <details class="group bg-white rounded-lg border border-slate-200 p-6">
+          <details class="group bg-white rounded-lg border border-slate-200 p-6" data-animate="fade-up" data-delay="200">
             <summary class="flex items-center justify-between cursor-pointer font-display font-bold text-base text-slate-900 list-none">
               <span>Why do home service businesses in <span class="county-name"><?php echo esc_html( $city ); ?></span> need professional digital marketing?</span>
               <i class="fa-solid fa-chevron-down text-xs text-[#0B6599] group-open:rotate-180 transition"></i>
@@ -1279,7 +1405,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             </p>
           </details>
 
-          <details class="group bg-white rounded-lg border border-slate-200 p-6">
+          <details class="group bg-white rounded-lg border border-slate-200 p-6" data-animate="fade-up" data-delay="300">
             <summary class="flex items-center justify-between cursor-pointer font-display font-bold text-base text-slate-900 list-none">
               <span>Why should you contact and partner with Vispan Solutions for these services?</span>
               <i class="fa-solid fa-chevron-down text-xs text-[#0B6599] group-open:rotate-180 transition"></i>
@@ -1301,7 +1427,7 @@ if ( ! defined( 'ABSPATH' ) ) {
       <div class="grid lg:grid-cols-12 gap-12 items-start">
         
         <!-- Left Column: Verified Vispan India HQ (Rajkot) Contact Information -->
-        <div class="lg:col-span-5 space-y-5">
+        <div class="lg:col-span-5 space-y-5" data-animate="fade-right">
           <div class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-[#38BDF8]">
             <span class="w-6 h-0.5 bg-[#38BDF8]"></span>
             <span>Contact Vispan Solutions</span>
@@ -1324,7 +1450,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         </div>
 
         <!-- Right Form Column (Bottom Contact Form) -->
-        <div class="lg:col-span-7">
+        <div class="lg:col-span-7" data-animate="fade-left">
           <form onsubmit="submitFormToast(event, 'proposalToast')" class="space-y-4 bg-white text-slate-900 p-7 sm:p-10 rounded-lg border border-slate-200 shadow-xl">
             <input type="hidden" name="action" value="scp_submit_lead" />
             <input type="hidden" name="security" value="<?php echo esc_attr( $nonce ); ?>" />
@@ -1401,7 +1527,7 @@ if ( ! defined( 'ABSPATH' ) ) {
   </section>
 
   <!-- FOOTER -->
-  <footer class="bg-[#070C17] text-slate-400 py-8 border-t border-slate-800/80 text-xs">
+  <footer class="bg-[#070C17] text-slate-400 py-8 border-t border-slate-800/80 text-xs" data-animate="fade-up">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
       <div class="flex items-center gap-3">
         <div class="w-7 h-7 rounded bg-[#0B6599] text-white font-display font-extrabold flex items-center justify-center">V</div>
@@ -1593,8 +1719,139 @@ if ( ! defined( 'ABSPATH' ) ) {
       }).catch(err => console.log('Lead submitted locally'));
     }
 
+    // =========================================================================
+    // MODERN ANIMATIONS & LENIS SMOOTH SCROLL CONTROLLER
+    // =========================================================================
+    function initAnimations() {
+      // 1. Mark root element for progressive enhancement (no CSS flash / safe for SEO)
+      document.documentElement.classList.add('js-animations');
+
+      // 2. Initialize Lenis Smooth Scroll Engine
+      if (typeof Lenis !== 'undefined') {
+        try {
+          const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            smoothWheel: true,
+            touchMultiplier: 1.3,
+          });
+          window.lenis = lenis;
+
+          function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+          }
+          requestAnimationFrame(raf);
+
+          // Connect Lenis to internal anchor links for buttery-smooth section jumps
+          document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+              const targetId = this.getAttribute('href');
+              if (!targetId || targetId === '#') return;
+              const target = document.querySelector(targetId);
+              if (target) {
+                e.preventDefault();
+                lenis.scrollTo(target, { offset: -70, duration: 1.15 });
+              }
+            });
+          });
+        } catch (err) {
+          console.warn('Lenis initialized with native fallback', err);
+        }
+      }
+
+      // 3. Hardware-Accelerated Scroll Entrance Observer
+      if ('IntersectionObserver' in window) {
+        const animObserver = new IntersectionObserver((entries, observer) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-animated');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, {
+          threshold: 0.08,
+          rootMargin: '0px 0px -40px 0px'
+        });
+
+        document.querySelectorAll('[data-animate]').forEach(el => {
+          animObserver.observe(el);
+        });
+
+        // 4. Interactive Numeric Stat Counters Observer
+        const counterObserver = new IntersectionObserver((entries, observer) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              animateCounter(entry.target);
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.25 });
+
+        document.querySelectorAll('.stat-counter').forEach(el => {
+          counterObserver.observe(el);
+        });
+      } else {
+        // Fallback for browsers without IntersectionObserver
+        document.querySelectorAll('[data-animate]').forEach(el => el.classList.add('is-animated'));
+      }
+
+      // 5. Floating Back to Top Button
+      const btt = document.getElementById('back-to-top-btn');
+      if (btt) {
+        window.addEventListener('scroll', () => {
+          if (window.scrollY > 400) {
+            btt.classList.add('visible');
+          } else {
+            btt.classList.remove('visible');
+          }
+        }, { passive: true });
+
+        btt.addEventListener('click', () => {
+          if (window.lenis) {
+            window.lenis.scrollTo(0, { duration: 1.2 });
+          } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        });
+      }
+    }
+
+    function animateCounter(el) {
+      const rawTarget = el.getAttribute('data-target') || el.textContent.trim();
+      const match = rawTarget.match(/([\d\.]+)/);
+      if (!match) return;
+      const targetNum = parseFloat(match[1]);
+      const prefix = rawTarget.slice(0, match.index);
+      const suffix = rawTarget.slice(match.index + match[1].length);
+      const isDecimal = match[1].includes('.');
+      const duration = 1600;
+      const start = performance.now();
+
+      function update(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        // Exponential ease-out
+        const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+        const current = targetNum * ease;
+        el.textContent = prefix + (isDecimal ? current.toFixed(1) : Math.floor(current)) + suffix;
+        if (progress < 1) {
+          requestAnimationFrame(update);
+        } else {
+          el.textContent = rawTarget;
+        }
+      }
+      requestAnimationFrame(update);
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       renderOfficialServices();
+      initAnimations();
     });
   </script>
+
+  <!-- Floating Back to Top Action Button -->
+  <button id="back-to-top-btn" aria-label="Scroll back to top">
+    <i class="fa-solid fa-arrow-up text-sm"></i>
+  </button>
 </div>
