@@ -65,11 +65,11 @@ if ( ! defined( 'ABSPATH' ) ) {
   </script>
 
   <style>
+    /* 1. Base Typography & Resets */
     body {
       font-family: 'Inter', sans-serif;
       color: #0F172A;
       background-color: #FFFFFF;
-      overflow-x: hidden;
     }
     h1, h2, h3, h4, .font-display {
       font-family: 'Plus Jakarta Sans', sans-serif;
@@ -78,40 +78,223 @@ if ( ! defined( 'ABSPATH' ) ) {
       background-color: #0A1120;
       background-image: radial-gradient(circle at 85% 20%, rgba(11, 101, 153, 0.32) 0%, transparent 55%);
     }
-    .vispan-primary-btn {
-      background-color: #0B6599;
-      transition: background-color 0.2s ease, transform 0.15s ease;
+
+    /* 2. Critical Sticky Fix for WordPress Themes & Containers */
+    /* Prevents overflow:hidden from disabling position:sticky across all modern browsers */
+    html, body, #page, .wp-site-blocks, .vispan-home-services-page {
+      overflow-x: clip !important;
+      overflow-y: visible !important;
     }
-    .vispan-primary-btn:hover {
-      background-color: #09527d;
+
+    /* Sticky Sidebar Navigation (Section 4 Categories) */
+    @media (min-width: 1024px) {
+      .lg\:sticky {
+        position: -webkit-sticky !important;
+        position: sticky !important;
+        top: 7rem !important;
+        align-self: flex-start !important;
+        z-index: 20 !important;
+      }
+      body.admin-bar .lg\:sticky,
+      .admin-bar .lg\:sticky {
+        top: calc(7rem + 32px) !important;
+      }
     }
+    @media screen and (max-width: 782px) {
+      body.admin-bar .lg\:sticky,
+      .admin-bar .lg\:sticky {
+        top: calc(7rem + 46px) !important;
+      }
+    }
+
+    /* Sticky Header */
+    header.sticky {
+      position: -webkit-sticky !important;
+      position: sticky !important;
+      top: 0 !important;
+      z-index: 40 !important;
+      background-color: #FFFFFF !important;
+    }
+    body.admin-bar header.sticky,
+    .admin-bar header.sticky {
+      top: 32px !important;
+    }
+    @media screen and (max-width: 782px) {
+      body.admin-bar header.sticky,
+      .admin-bar header.sticky {
+        top: 46px !important;
+      }
+    }
+
+    /* 3. Trade Cards Interactive Animations (Section 4) */
+    .trade-card,
+    .scp-trade-card {
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.25s ease !important;
+      cursor: pointer;
+      position: relative;
+      will-change: transform, box-shadow;
+    }
+    .trade-card:hover,
+    .scp-trade-card:hover {
+      transform: translateY(-6px) !important;
+      border-color: #0B6599 !important;
+      box-shadow: 0 18px 32px -8px rgba(11, 101, 153, 0.16), 0 4px 12px -2px rgba(15, 23, 42, 0.08) !important;
+    }
+    .trade-card .h-44,
+    .scp-trade-card .h-44 {
+      overflow: hidden !important;
+    }
+    .trade-card .h-44 img,
+    .scp-trade-card .h-44 img {
+      transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      will-change: transform;
+    }
+    .trade-card:hover .h-44 img,
+    .scp-trade-card:hover .h-44 img {
+      transform: scale(1.08) !important;
+    }
+    .trade-card h4,
+    .scp-trade-card h4 {
+      transition: color 0.2s ease !important;
+    }
+    .trade-card:hover h4,
+    .scp-trade-card:hover h4 {
+      color: #0284C7 !important;
+    }
+
+    /* 4. Official Services Box Animations (Section 3) */
     .official-service-box {
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.25s ease !important;
+      cursor: pointer;
+      will-change: transform, box-shadow;
     }
     .official-service-box:hover {
-      border-color: #0B6599;
-      box-shadow: 0 12px 28px -10px rgba(11, 101, 153, 0.12);
+      transform: translateY(-4px) !important;
+      border-color: #0B6599 !important;
+      box-shadow: 0 14px 28px -6px rgba(11, 101, 153, 0.15) !important;
+    }
+    .official-service-box .service-svg {
+      transition: stroke 0.25s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      will-change: transform;
     }
     .official-service-box:hover .service-svg {
-      stroke: #0B6599;
+      stroke: #0B6599 !important;
+      transform: scale(1.1) !important;
     }
-    .service-svg {
-      transition: stroke 0.2s ease;
+    .official-service-box h3 {
+      transition: color 0.2s ease !important;
     }
-    .trade-card {
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    .official-service-box:hover h3 {
+      color: #0284C7 !important;
     }
-    .trade-card:hover {
-      border-color: #0B6599;
-      box-shadow: 0 10px 24px -8px rgba(15, 23, 42, 0.08);
+
+    /* 5. Why Marketing Photo Benefit Cards Animations (Section 2) */
+    .benefit-card {
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.25s ease !important;
+      cursor: pointer;
+      will-change: transform, box-shadow;
+    }
+    .benefit-card:hover {
+      transform: translateY(-5px) !important;
+      border-color: #0B6599 !important;
+      box-shadow: 0 16px 28px -8px rgba(11, 101, 153, 0.14) !important;
+    }
+    .benefit-card img {
+      transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      will-change: transform;
+    }
+    .benefit-card:hover img {
+      transform: scale(1.06) !important;
+    }
+    .benefit-card h3 {
+      transition: color 0.2s ease !important;
+    }
+    .benefit-card:hover h3 {
+      color: #0284C7 !important;
+    }
+
+    /* 6. Process Step Cards Animations (Section 5) */
+    .process-card {
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.25s ease !important;
+      will-change: transform, box-shadow;
+    }
+    .process-card:hover {
+      transform: translateY(-4px) !important;
+      border-color: #0B6599 !important;
+      box-shadow: 0 14px 28px -6px rgba(11, 101, 153, 0.12) !important;
+    }
+    .process-card:hover i {
+      transform: scale(1.15) !important;
+      transition: transform 0.25s ease !important;
+    }
+
+    /* 7. Testimonials Cards Animations (Section 6) */
+    .testimonial-card {
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.25s ease !important;
+      will-change: transform, box-shadow;
+    }
+    .testimonial-card:hover {
+      transform: translateY(-4px) !important;
+      border-color: #0B6599 !important;
+      box-shadow: 0 14px 28px -6px rgba(11, 101, 153, 0.1) !important;
+    }
+
+    /* 8. Primary Buttons & CTAs */
+    .vispan-primary-btn {
+      background-color: #0B6599 !important;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      will-change: transform, box-shadow;
+    }
+    .vispan-primary-btn:hover {
+      background-color: #09527d !important;
+      transform: translateY(-2px) !important;
+      box-shadow: 0 6px 18px -2px rgba(11, 101, 153, 0.4) !important;
+    }
+    .vispan-primary-btn:active {
+      transform: translateY(0) !important;
+    }
+
+    /* 9. Header Mega-Menu Smooth Dropdown */
+    .mega-menu-dropdown {
+      transform: translateX(-50%) translateY(8px);
+      transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.2s ease !important;
+    }
+    .group:hover .mega-menu-dropdown {
+      opacity: 1 !important;
+      visibility: visible !important;
+      transform: translateX(-50%) translateY(0) !important;
+    }
+
+    /* 10. FAQ Accordions (<details>) */
+    details summary {
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+    }
+    details summary::-webkit-details-marker {
+      display: none;
+    }
+    details summary i {
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    details[open] summary i {
+      transform: rotate(180deg) !important;
+    }
+
+    /* 11. Interactive County Switcher Pills */
+    .county-pill {
+      cursor: pointer;
+      transition: all 0.15s ease !important;
+    }
+    .county-pill:hover {
+      transform: translateY(-1px);
     }
     
-    /* WordPress & Isolation Overrides */
+    /* 12. WordPress & Isolation Overrides */
     .vispan-home-services-page {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       color: #0F172A;
       background-color: #FFFFFF;
-      overflow-x: hidden;
       width: 100%;
     }
     .vispan-home-services-page h1,
@@ -400,7 +583,7 @@ if ( ! defined( 'ABSPATH' ) ) {
           foreach ( array_slice( $ai_benefits, 0, 4 ) as $b_idx => $b ) :
             $img_src = $benefit_images[ $b_idx % count( $benefit_images ) ];
           ?>
-            <div class="bg-white rounded-lg overflow-hidden border border-slate-200 flex flex-col">
+            <div class="benefit-card bg-white rounded-lg overflow-hidden border border-slate-200 flex flex-col">
               <img src="<?php echo esc_url( $img_src ); ?>" alt="<?php echo esc_attr( $b['title'] ?? '' ); ?>" class="w-full h-40 object-cover" />
               <div class="p-5 flex-1">
                 <h3 class="font-display font-bold text-base text-[#0B6599]"><?php echo esc_html( $b['title'] ?? '' ); ?></h3>
@@ -411,7 +594,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             </div>
           <?php endforeach; ?>
         <?php else : ?>
-          <div class="bg-white rounded-lg overflow-hidden border border-slate-200 flex flex-col">
+          <div class="benefit-card bg-white rounded-lg overflow-hidden border border-slate-200 flex flex-col">
             <img src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80" alt="More Local Leads" onerror="this.src='https://placehold.co/600x360/0B6599/FFFFFF?text=More+Local+Leads'" class="w-full h-40 object-cover" />
             <div class="p-5 flex-1">
               <h3 class="font-display font-bold text-base text-[#0B6599]">More Local Leads</h3>
@@ -421,7 +604,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             </div>
           </div>
 
-          <div class="bg-white rounded-lg overflow-hidden border border-slate-200 flex flex-col">
+          <div class="benefit-card bg-white rounded-lg overflow-hidden border border-slate-200 flex flex-col">
             <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80" alt="Lower Advertising Costs" onerror="this.src='https://placehold.co/600x360/0B6599/FFFFFF?text=Lower+Ad+Costs'" class="w-full h-40 object-cover" />
             <div class="p-5 flex-1">
               <h3 class="font-display font-bold text-base text-[#0B6599]">Lower Advertising Costs</h3>
@@ -431,7 +614,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             </div>
           </div>
 
-          <div class="bg-white rounded-lg overflow-hidden border border-slate-200 flex flex-col">
+          <div class="benefit-card bg-white rounded-lg overflow-hidden border border-slate-200 flex flex-col">
             <img src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=600&q=80" alt="Beat Competitors Online" onerror="this.src='https://placehold.co/600x360/0B6599/FFFFFF?text=Beat+Competitors'" class="w-full h-40 object-cover" />
             <div class="p-5 flex-1">
               <h3 class="font-display font-bold text-base text-[#0B6599]">Beat Competitors Online</h3>
@@ -441,7 +624,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             </div>
           </div>
 
-          <div class="bg-white rounded-lg overflow-hidden border border-slate-200 flex flex-col">
+          <div class="benefit-card bg-white rounded-lg overflow-hidden border border-slate-200 flex flex-col">
             <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=600&q=80" alt="Build Brand Trust" onerror="this.src='https://placehold.co/600x360/0B6599/FFFFFF?text=Build+Brand+Trust'" class="w-full h-40 object-cover" />
             <div class="p-5 flex-1">
               <h3 class="font-display font-bold text-base text-[#0B6599]">Build Brand Trust</h3>
@@ -758,7 +941,7 @@ if ( ! defined( 'ABSPATH' ) ) {
           foreach ( array_slice( $ai_process, 0, 4 ) as $p_idx => $step ) :
             $icon = $process_icons[ $p_idx % count( $process_icons ) ];
           ?>
-            <div class="bg-white p-6 rounded-lg border border-slate-200">
+            <div class="process-card bg-white p-6 rounded-lg border border-slate-200">
               <div class="w-10 h-10 rounded-lg bg-[#EFF6FF] text-[#0B6599] flex items-center justify-center mb-4">
                 <i class="fa-solid <?php echo esc_attr( $icon ); ?>"></i>
               </div>
@@ -769,7 +952,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             </div>
           <?php endforeach; ?>
         <?php else : ?>
-          <div class="bg-white p-6 rounded-lg border border-slate-200">
+          <div class="process-card bg-white p-6 rounded-lg border border-slate-200">
             <div class="w-10 h-10 rounded-lg bg-[#EFF6FF] text-[#0B6599] flex items-center justify-center mb-4">
               <i class="fa-solid fa-magnifying-glass-chart"></i>
             </div>
@@ -779,7 +962,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             </p>
           </div>
 
-          <div class="bg-white p-6 rounded-lg border border-slate-200">
+          <div class="process-card bg-white p-6 rounded-lg border border-slate-200">
             <div class="w-10 h-10 rounded-lg bg-[#EFF6FF] text-[#0B6599] flex items-center justify-center mb-4">
               <i class="fa-solid fa-compass-drafting"></i>
             </div>
@@ -789,7 +972,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             </p>
           </div>
 
-          <div class="bg-white p-6 rounded-lg border border-slate-200">
+          <div class="process-card bg-white p-6 rounded-lg border border-slate-200">
             <div class="w-10 h-10 rounded-lg bg-[#EFF6FF] text-[#0B6599] flex items-center justify-center mb-4">
               <i class="fa-solid fa-laptop-code"></i>
             </div>
@@ -799,7 +982,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             </p>
           </div>
 
-          <div class="bg-white p-6 rounded-lg border border-slate-200">
+          <div class="process-card bg-white p-6 rounded-lg border border-slate-200">
             <div class="w-10 h-10 rounded-lg bg-[#EFF6FF] text-[#0B6599] flex items-center justify-center mb-4">
               <i class="fa-solid fa-chart-line"></i>
             </div>
@@ -831,7 +1014,7 @@ if ( ! defined( 'ABSPATH' ) ) {
       <div class="grid md:grid-cols-3 gap-6">
         <?php if ( ! empty( $ai_testimonials ) && is_array( $ai_testimonials ) ) : ?>
           <?php foreach ( array_slice( $ai_testimonials, 0, 3 ) as $t ) : ?>
-            <div class="bg-[#F5F8FC] p-7 rounded-lg border border-slate-200 flex flex-col justify-between">
+            <div class="testimonial-card bg-[#F5F8FC] p-7 rounded-lg border border-slate-200 flex flex-col justify-between">
               <div>
                 <div class="flex items-center gap-1 text-[#0B6599] text-xs mb-4">
                   <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
@@ -848,7 +1031,7 @@ if ( ! defined( 'ABSPATH' ) ) {
           <?php endforeach; ?>
         <?php else : ?>
           <!-- Verified Review 1: Hristo Gaydarski -->
-          <div class="bg-[#F5F8FC] p-7 rounded-lg border border-slate-200 flex flex-col justify-between">
+          <div class="testimonial-card bg-[#F5F8FC] p-7 rounded-lg border border-slate-200 flex flex-col justify-between">
             <div>
               <div class="flex items-center gap-1 text-[#0B6599] text-xs mb-4">
                 <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
@@ -864,7 +1047,7 @@ if ( ! defined( 'ABSPATH' ) ) {
           </div>
 
           <!-- Verified Review 2: Christina Brauer -->
-          <div class="bg-[#F5F8FC] p-7 rounded-lg border border-slate-200 flex flex-col justify-between">
+          <div class="testimonial-card bg-[#F5F8FC] p-7 rounded-lg border border-slate-200 flex flex-col justify-between">
             <div>
               <div class="flex items-center gap-1 text-[#0B6599] text-xs mb-4">
                 <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
@@ -880,7 +1063,7 @@ if ( ! defined( 'ABSPATH' ) ) {
           </div>
 
           <!-- Verified Review 3: William Sage -->
-          <div class="bg-[#F5F8FC] p-7 rounded-lg border border-slate-200 flex flex-col justify-between">
+          <div class="testimonial-card bg-[#F5F8FC] p-7 rounded-lg border border-slate-200 flex flex-col justify-between">
             <div>
               <div class="flex items-center gap-1 text-[#0B6599] text-xs mb-4">
                 <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>

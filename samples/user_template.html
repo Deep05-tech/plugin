@@ -55,32 +55,189 @@
       background-color: #0A1120;
       background-image: radial-gradient(circle at 85% 20%, rgba(11, 101, 153, 0.32) 0%, transparent 55%);
     }
+
+    /* Sticky Sidebar Navigation (Section 4 Categories) */
+    @media (min-width: 1024px) {
+      .lg\:sticky {
+        position: -webkit-sticky !important;
+        position: sticky !important;
+        top: 7rem !important;
+        align-self: flex-start !important;
+        z-index: 20 !important;
+      }
+    }
+
+    /* Sticky Header */
+    header.sticky {
+      position: -webkit-sticky !important;
+      position: sticky !important;
+      top: 0 !important;
+      z-index: 40 !important;
+      background-color: #FFFFFF !important;
+    }
+
+    /* Primary Buttons */
     .vispan-primary-btn {
-      background-color: #0B6599;
-      transition: background-color 0.2s ease, transform 0.15s ease;
+      background-color: #0B6599 !important;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      will-change: transform, box-shadow;
     }
     .vispan-primary-btn:hover {
-      background-color: #09527d;
+      background-color: #09527d !important;
+      transform: translateY(-2px) !important;
+      box-shadow: 0 6px 18px -2px rgba(11, 101, 153, 0.4) !important;
     }
+    .vispan-primary-btn:active {
+      transform: translateY(0) !important;
+    }
+
+    /* Official Services Box Animations (Section 3) */
     .official-service-box {
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.25s ease !important;
+      cursor: pointer;
+      will-change: transform, box-shadow;
     }
     .official-service-box:hover {
-      border-color: #0B6599;
-      box-shadow: 0 12px 28px -10px rgba(11, 101, 153, 0.12);
+      transform: translateY(-4px) !important;
+      border-color: #0B6599 !important;
+      box-shadow: 0 14px 28px -6px rgba(11, 101, 153, 0.15) !important;
+    }
+    .official-service-box .service-svg {
+      transition: stroke 0.25s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      will-change: transform;
     }
     .official-service-box:hover .service-svg {
-      stroke: #0B6599;
+      stroke: #0B6599 !important;
+      transform: scale(1.1) !important;
     }
-    .service-svg {
-      transition: stroke 0.2s ease;
+    .official-service-box h3 {
+      transition: color 0.2s ease !important;
     }
-    .trade-card {
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    .official-service-box:hover h3 {
+      color: #0284C7 !important;
     }
-    .trade-card:hover {
-      border-color: #0B6599;
-      box-shadow: 0 10px 24px -8px rgba(15, 23, 42, 0.08);
+
+    /* Trade Cards Interactive Animations (Section 4) */
+    .trade-card,
+    .scp-trade-card {
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.25s ease !important;
+      cursor: pointer;
+      position: relative;
+      will-change: transform, box-shadow;
+    }
+    .trade-card:hover,
+    .scp-trade-card:hover {
+      transform: translateY(-6px) !important;
+      border-color: #0B6599 !important;
+      box-shadow: 0 18px 32px -8px rgba(11, 101, 153, 0.16), 0 4px 12px -2px rgba(15, 23, 42, 0.08) !important;
+    }
+    .trade-card .h-44,
+    .scp-trade-card .h-44 {
+      overflow: hidden !important;
+    }
+    .trade-card .h-44 img,
+    .scp-trade-card .h-44 img {
+      transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      will-change: transform;
+    }
+    .trade-card:hover .h-44 img,
+    .scp-trade-card:hover .h-44 img {
+      transform: scale(1.08) !important;
+    }
+    .trade-card h4,
+    .scp-trade-card h4 {
+      transition: color 0.2s ease !important;
+    }
+    .trade-card:hover h4,
+    .scp-trade-card:hover h4 {
+      color: #0284C7 !important;
+    }
+
+    /* Why Marketing Photo Benefit Cards Animations (Section 2) */
+    .benefit-card {
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.25s ease !important;
+      cursor: pointer;
+      will-change: transform, box-shadow;
+    }
+    .benefit-card:hover {
+      transform: translateY(-5px) !important;
+      border-color: #0B6599 !important;
+      box-shadow: 0 16px 28px -8px rgba(11, 101, 153, 0.14) !important;
+    }
+    .benefit-card img {
+      transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      will-change: transform;
+    }
+    .benefit-card:hover img {
+      transform: scale(1.06) !important;
+    }
+    .benefit-card h3 {
+      transition: color 0.2s ease !important;
+    }
+    .benefit-card:hover h3 {
+      color: #0284C7 !important;
+    }
+
+    /* Process Step Cards Animations (Section 5) */
+    .process-card {
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.25s ease !important;
+      will-change: transform, box-shadow;
+    }
+    .process-card:hover {
+      transform: translateY(-4px) !important;
+      border-color: #0B6599 !important;
+      box-shadow: 0 14px 28px -6px rgba(11, 101, 153, 0.12) !important;
+    }
+    .process-card:hover i {
+      transform: scale(1.15) !important;
+      transition: transform 0.25s ease !important;
+    }
+
+    /* Testimonials Cards Animations (Section 6) */
+    .testimonial-card {
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.25s ease !important;
+      will-change: transform, box-shadow;
+    }
+    .testimonial-card:hover {
+      transform: translateY(-4px) !important;
+      border-color: #0B6599 !important;
+      box-shadow: 0 14px 28px -6px rgba(11, 101, 153, 0.1) !important;
+    }
+
+    /* Header Mega-Menu Smooth Dropdown */
+    .mega-menu-dropdown {
+      transform: translateX(-50%) translateY(8px);
+      transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.2s ease !important;
+    }
+    .group:hover .mega-menu-dropdown {
+      opacity: 1 !important;
+      visibility: visible !important;
+      transform: translateX(-50%) translateY(0) !important;
+    }
+
+    /* FAQ Accordions (<details>) */
+    details summary {
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+    }
+    details summary::-webkit-details-marker {
+      display: none;
+    }
+    details summary i {
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    details[open] summary i {
+      transform: rotate(180deg) !important;
+    }
+
+    /* Interactive County Switcher Pills */
+    .county-pill {
+      cursor: pointer;
+      transition: all 0.15s ease !important;
+    }
+    .county-pill:hover {
+      transform: translateY(-1px);
     }
   </style>
 </head>
