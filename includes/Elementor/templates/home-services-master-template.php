@@ -4,6 +4,7 @@
  *
  * Fully responsive, high-converting Tailwind layout featuring 10 official Vispan
  * agency services, 6 residential trade pillars, verified reviews, and dual AJAX lead forms.
+ * Sourced directly from official Vispan Solutions design architecture.
  *
  * @package SeoCityPages\Elementor
  *
@@ -23,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 <div class="vispan-home-services-page font-sans text-slate-900 bg-white selection:bg-vispan-ocean selection:text-white">
-<meta charset="UTF-8" />
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <!-- Tailwind CSS -->
@@ -53,10 +54,9 @@ if ( ! defined( 'ABSPATH' ) ) {
               blue: '#0B6599',
               bright: '#2563EB',
               sky: '#38BDF8',
-              light: '#60A5FA',
               ice: '#EFF6FF',
-              surface: '#F7F9FC',
-              border: '#DCE6F2'
+              surface: '#F5F8FC',
+              border: '#E2E8F0'
             }
           }
         }
@@ -75,37 +75,38 @@ if ( ! defined( 'ABSPATH' ) ) {
       font-family: 'Plus Jakarta Sans', sans-serif;
     }
     .vispan-hero-bg {
-      background: linear-gradient(135deg, #0A1120 0%, #0F172A 45%, #0B6599 100%);
+      background-color: #0A1120;
+      background-image: radial-gradient(circle at 85% 20%, rgba(11, 101, 153, 0.32) 0%, transparent 55%);
     }
-    .vispan-blue-btn {
-      background: linear-gradient(135deg, #0B6599 0%, #1D4ED8 100%);
+    .vispan-primary-btn {
+      background-color: #0B6599;
+      transition: background-color 0.2s ease, transform 0.15s ease;
     }
-    .vispan-card-hover {
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .vispan-card-hover:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 20px 40px -14px rgba(11, 101, 153, 0.16);
-      border-color: #0B6599;
+    .vispan-primary-btn:hover {
+      background-color: #09527d;
     }
     .official-service-box {
-      transition: all 0.25s ease;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
     .official-service-box:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 18px 36px -12px rgba(11, 101, 153, 0.15);
       border-color: #0B6599;
-      background-color: #FFFFFF;
+      box-shadow: 0 12px 28px -10px rgba(11, 101, 153, 0.12);
     }
     .official-service-box:hover .service-svg {
       stroke: #0B6599;
-      transform: scale(1.06);
     }
     .service-svg {
-      transition: all 0.25s ease;
+      transition: stroke 0.2s ease;
     }
-  
-    /* Theme Isolation & Visibility Overrides */
+    .trade-card {
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .trade-card:hover {
+      border-color: #0B6599;
+      box-shadow: 0 10px 24px -8px rgba(15, 23, 42, 0.08);
+    }
+    
+    /* WordPress & Isolation Overrides */
     .vispan-home-services-page {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       color: #0F172A;
@@ -128,145 +129,197 @@ if ( ! defined( 'ABSPATH' ) ) {
     }
   </style>
 
-<!-- ===================================================================== -->
-  <!-- SECTION 1: CLEAN, HIGH-IMPACT HERO + VERIFIED HERO IMAGE SHOWCASE     -->
   <!-- ===================================================================== -->
-  <section id="top" class="vispan-hero-bg text-white py-16 lg:py-20 relative overflow-hidden">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-      <div class="grid lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+  <!-- TOP UTILITY BAR: REAL VISPAN CONTACT INFO + COUNTY PREVIEW SELECTOR   -->
+  <!-- ===================================================================== -->
+  <div class="bg-[#070C17] text-slate-300 border-b border-slate-800/80 text-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex flex-wrap items-center gap-5">
+        <a href="mailto:contact@vispansolutions.com" class="hover:text-white transition flex items-center gap-1.5">
+          <i class="fa-regular fa-envelope text-[#38BDF8]"></i>
+          <span>contact@vispansolutions.com</span>
+        </a>
+        <a href="tel:+918485986860" class="hover:text-white transition flex items-center gap-1.5">
+          <i class="fa-solid fa-phone text-[#38BDF8] text-[10px]"></i>
+          <span>India HQ: +91 84859 86860</span>
+        </a>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-1.5">
+        <span class="text-slate-400 mr-1 hidden sm:inline">County Page Preview:</span>
+        <button id="btn-oc-fl" onclick="switchCounty('Orange County', 'FL', 'Orlando, Winter Park & Lake Nona', 'btn-oc-fl')" class="county-pill px-2.5 py-1 rounded bg-[#0B6599] text-white font-semibold transition">Orange County, FL</button>
+        <button id="btn-mc-az" onclick="switchCounty('Maricopa County', 'AZ', 'Phoenix, Scottsdale & Mesa', 'btn-mc-az')" class="county-pill px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium transition">Maricopa County, AZ</button>
+        <button id="btn-hc-tx" onclick="switchCounty('Harris County', 'TX', 'Houston, Katy & The Woodlands', 'btn-hc-tx')" class="county-pill px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium transition">Harris County, TX</button>
+        <button id="btn-oc-ca" onclick="switchCounty('Orange County', 'CA', 'Irvine, Anaheim & Newport Beach', 'btn-oc-ca')" class="county-pill px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium transition">Orange County, CA</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- VISPAN SOLUTIONS OFFICIAL NAVIGATION HEADER + 10-SERVICE MEGA MENU    -->
+  <!-- ===================================================================== -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
+      <a href="https://vispansolutions.com/" class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-[#0B6599] flex items-center justify-center text-white font-display font-extrabold text-xl">
+          V
+        </div>
+        <div>
+          <span class="font-display font-extrabold text-xl tracking-tight text-slate-900 block leading-none">
+            VISPAN <span class="text-[#0B6599]">SOLUTIONS</span>
+          </span>
+          <span class="text-[11px] font-medium tracking-wider uppercase text-slate-500 block mt-1">
+            We Span Your Digital Presence
+          </span>
+        </div>
+      </a>
+
+      <nav class="hidden lg:flex items-center gap-8 text-sm font-semibold text-slate-700">
+        <a href="#why-marketing" class="hover:text-[#0B6599] transition">Why Digital Marketing</a>
         
-        <!-- Left Column: Official Vispan Taglines, Verified Credentials & CTAs -->
+        <!-- Hover Mega-Menu Preview of All 10 Official Services -->
+        <div class="relative group py-6">
+          <a href="#our-services" class="inline-flex items-center gap-1.5 hover:text-[#0B6599] transition">
+            <span>What We Do</span>
+            <i class="fa-solid fa-chevron-down text-[10px] text-slate-500 group-hover:text-[#0B6599] transition"></i>
+          </a>
+          <div class="absolute left-1/2 -translate-x-1/2 top-full w-[900px] bg-white rounded-lg shadow-xl border border-slate-200 p-7 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-50">
+            <div class="grid grid-cols-4 gap-x-6 gap-y-6" id="header-mega-services"></div>
+          </div>
+        </div>
+
+        <a href="#home-services-list" class="hover:text-[#0B6599] transition">Home Services</a>
+        <a href="#process" class="hover:text-[#0B6599] transition">How We Work</a>
+        <a href="#testimonials" class="hover:text-[#0B6599] transition">Client Reviews</a>
+        <a href="#faq" class="hover:text-[#0B6599] transition">FAQs</a>
+      </nav>
+
+      <div class="flex items-center gap-4">
+        <a href="#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg vispan-primary-btn text-white font-semibold text-sm">
+          <span>Contact Us</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===================================================================== -->
+  <!-- SECTION 1: HUMANIZED EDITORIAL HERO (NO AI BENTO BOX CLUTTER)         -->
+  <!-- ===================================================================== -->
+  <section id="top" class="vispan-hero-bg text-white py-16 lg:py-24 border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+      <div class="grid lg:grid-cols-12 gap-12 lg:gap-14 items-center">
+        
+        <!-- Left Column: Agency Copy & Single Verified Stats Bar -->
         <div class="lg:col-span-7 space-y-6">
-          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-sky-200 text-xs font-semibold">
-            <i class="fa-solid fa-award text-sky-400"></i>
-            <span>Award-Winning Digital Marketing Agency Since 2012 · <span class="county-name text-white font-bold"><?php echo esc_html( $city ); ?></span><?php echo ! empty( $state_display ) ? ', <span class="county-state text-white font-bold">' . esc_html( $state_display ) . '</span>' : ''; ?></span>
+          <div class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-[#38BDF8]">
+            <span class="w-8 h-0.5 bg-[#38BDF8]"></span>
+            <span>Digital Marketing Agency for <span class="county-name"><?php echo esc_html( $city ); ?></span><?php echo ! empty( $state_display ) ? ', <span class="county-state">' . esc_html( $state_display ) . '</span>' : ''; ?></span>
           </div>
 
-          <h1 class="font-display text-4xl sm:text-5xl lg:text-[48px] font-extrabold tracking-tight leading-[1.14]">
+          <h1 class="font-display text-4xl sm:text-5xl lg:text-[50px] font-extrabold tracking-tight leading-[1.15] text-white">
             <?php if ( ! empty( $is_ai_hero_title ) ) : ?>
               <?php echo esc_html( $hero_title ); ?>
             <?php else : ?>
-              Your Digital Marketing Partner in <span class="text-sky-300"><span class="county-name"><?php echo esc_html( $city ); ?></span><?php echo ! empty( $state_display ) ? ', <span class="county-state">' . esc_html( $state_display ) . '</span>' : ''; ?></span>—Turning Clicks into Real Conversions
+              Turning Local Homeowner Searches into Booked Jobs Across <span class="text-[#38BDF8]"><span class="county-name"><?php echo esc_html( $city ); ?></span></span>
             <?php endif; ?>
           </h1>
 
-          <p class="text-slate-200 text-lg leading-relaxed max-w-2xl font-normal">
+          <p class="text-slate-300 text-base sm:text-lg leading-relaxed max-w-2xl">
             <?php if ( ! empty( $is_ai_hero_desc ) ) : ?>
               <?php echo function_exists( 'wp_kses_post' ) ? wp_kses_post( $hero_description ) : esc_html( $hero_description ); ?>
             <?php else : ?>
-              Why follow trends when you can set them? Blend bold ideas with <strong>Vispan Solutions</strong> and watch your home services brand take the spotlight across <span class="county-cities font-semibold text-white"><?php echo esc_html( $cities_str ); ?></span>—from <strong>Plumbing &amp; Hydro Jetting</strong> and <strong>HVAC</strong> to <strong>Home Decor, Blinds, Shades &amp; Shutters</strong>.
+              Why follow trends when you can set them? Since 2012, <strong>Vispan Solutions</strong> has helped residential contractors grow across <span class="county-cities font-semibold text-white"><?php echo esc_html( $cities_str ); ?></span> through tailored SEO, Google Ads, high-performing Web Development, Branding, and Video production.
             <?php endif; ?>
           </p>
 
-          <!-- Verified Vispan Credentials Pills -->
-          <div class="flex flex-wrap gap-2.5 pt-1">
-            <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-sky-500/20 border border-sky-300/30 text-sky-100 text-xs font-bold">
-              <i class="fa-solid fa-circle-check text-sky-300"></i> IT-ITeS-Excellence Awards 2023 &amp; 2024 Winner
-            </span>
-            <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-sky-500/20 border border-sky-300/30 text-sky-100 text-xs font-bold">
-              <i class="fa-solid fa-circle-check text-sky-300"></i> Certified Google Partner
-            </span>
-            <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-sky-500/20 border border-sky-300/30 text-sky-100 text-xs font-bold">
-              <i class="fa-solid fa-circle-check text-sky-300"></i> 3X Site of the Day · 4X Site of the Week
-            </span>
-          </div>
+          <p class="text-slate-300 text-sm sm:text-base leading-relaxed max-w-2xl">
+            Whether your crews specialize in emergency <strong>Plumbing &amp; Hydro Jetting</strong>, <strong>HVAC</strong>, and <strong>Roofing</strong>, or interior upgrades like <strong>Home Decor, Blinds, Shades &amp; Shutters</strong>, we manage your entire digital presence in-house.
+          </p>
 
-          <!-- Clean Dual CTAs -->
+          <!-- Clean Action Buttons -->
           <div class="flex flex-wrap items-center gap-4 pt-2">
-            <a href="#mid-contact" class="inline-flex items-center gap-2.5 px-7 py-4 rounded-xl bg-white text-vispan-ocean font-extrabold text-base shadow-xl hover:bg-sky-50 transition">
+            <a href="#mid-contact" class="inline-flex items-center gap-2.5 px-7 py-4 rounded-lg bg-[#0B6599] hover:bg-[#09527d] text-white font-bold text-sm sm:text-base transition">
               <span><?php echo esc_html( ! empty( $hero_cta ) ? $hero_cta : 'Get A Free Consultation' ); ?></span>
-              <i class="fa-solid fa-arrow-right"></i>
             </a>
-            <a href="#our-services" class="inline-flex items-center gap-2.5 px-6 py-4 rounded-xl bg-white/10 hover:bg-white/15 border border-white/25 text-white font-semibold text-base transition">
-              <span>Explore What We Do</span>
+            <a href="#our-services" class="inline-flex items-center gap-2 px-6 py-4 rounded-lg border border-slate-600 hover:border-slate-400 text-white font-semibold text-sm sm:text-base transition">
+              <span>View Our Services</span>
             </a>
           </div>
 
-          <!-- Verified Stats Row (Dynamic AI Metro Stats or Defaults: 2x2 Layout) -->
-          <div class="grid grid-cols-2 gap-5 pt-5 border-t border-white/15 max-w-lg">
+          <!-- Single Verified Vispan Solutions Track Record Bar (Or AI Metro Stats) -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-8 mt-4 border-t border-slate-800">
             <?php if ( ! empty( $ai_metro_stats ) && is_array( $ai_metro_stats ) ) : ?>
               <?php foreach ( array_slice( $ai_metro_stats, 0, 4 ) as $st ) : ?>
                 <div>
                   <div class="font-display text-2xl sm:text-3xl font-extrabold text-white"><?php echo esc_html( $st['value'] ?? '' ); ?></div>
-                  <div class="text-xs text-sky-200 mt-0.5"><?php echo esc_html( $st['label'] ?? '' ); ?></div>
+                  <div class="text-xs text-slate-400 mt-1"><?php echo esc_html( $st['label'] ?? '' ); ?></div>
                 </div>
               <?php endforeach; ?>
             <?php else : ?>
               <div>
-                <div class="font-display text-2xl sm:text-3xl font-extrabold text-white">Since 2012</div>
-                <div class="text-xs text-sky-200 mt-0.5">Empowering Brands</div>
+                <div class="font-display text-2xl sm:text-3xl font-extrabold text-white">2012</div>
+                <div class="text-xs text-slate-400 mt-1">Year Founded</div>
               </div>
               <div>
                 <div class="font-display text-2xl sm:text-3xl font-extrabold text-white">150+</div>
-                <div class="text-xs text-sky-200 mt-0.5">Projects · 99% Success</div>
+                <div class="text-xs text-slate-400 mt-1">Projects (99% Success)</div>
               </div>
               <div>
-                <div class="font-display text-2xl sm:text-3xl font-extrabold text-white">4.8 ★</div>
-                <div class="text-xs text-sky-200 mt-0.5">140+ Verified Reviews</div>
+                <div class="font-display text-2xl sm:text-3xl font-extrabold text-white">4.8 / 5</div>
+                <div class="text-xs text-slate-400 mt-1">140+ Client Reviews</div>
               </div>
               <div>
-                <div class="font-display text-2xl sm:text-3xl font-extrabold text-white">2023 &amp; 24</div>
-                <div class="text-xs text-sky-200 mt-0.5">Best SEO Award</div>
+                <div class="font-display text-2xl sm:text-3xl font-extrabold text-white">12+</div>
+                <div class="text-xs text-slate-400 mt-1">Industry Awards Won</div>
               </div>
             <?php endif; ?>
           </div>
         </div>
 
-        <!-- Right Column: FRAMED HERO IMAGE SHOWCASE WITH VERIFIED VISPAN CREDENTIAL BADGES -->
-        <div class="lg:col-span-5 relative">
-          <!-- Main Framed Hero Image -->
-          <div class="rounded-3xl border-2 border-blue-400/30 shadow-2xl overflow-hidden bg-slate-900 relative">
-            <img
-              src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1000&q=85"
-              alt="Professional Home Service Technician with Homeowner"
-              onerror="this.src='https://placehold.co/900x700/0B6599/FFFFFF?text=Vispan+Solutions+Home+Services'"
-              class="w-full h-[430px] sm:h-[490px] object-cover"
-            />
-            <div class="absolute inset-0 bg-gradient-to-t from-vispan-dark/80 via-transparent to-vispan-dark/25"></div>
-          </div>
+        <!-- Right Column: HUMAN-ART-DIRECTED EDITORIAL PHOTO COMPOSITION -->
+        <div class="lg:col-span-5">
+          <div class="relative mx-auto max-w-md lg:max-w-none pl-4 pb-8">
+            
+            <!-- Solid Architectural Offset Frame Accent -->
+            <div class="absolute top-4 -right-3 bottom-4 left-8 rounded-lg bg-[#0B6599]/35 border border-[#0B6599]/60 pointer-events-none"></div>
 
-          <!-- Top-Right Floating Verified Award Badge -->
-          <div class="bg-vispan-dark/95 backdrop-blur-md text-white p-4 rounded-2xl shadow-2xl border border-sky-400/40 absolute -top-4 -right-2 sm:right-4 max-w-[275px]">
-            <div class="flex items-start gap-3">
-              <div class="w-10 h-10 rounded-xl vispan-blue-btn flex items-center justify-center text-white shrink-0 shadow-md">
-                <i class="fa-solid fa-trophy text-sm"></i>
-              </div>
-              <div>
-                <div class="text-[10px] font-extrabold uppercase tracking-wider text-sky-300">Verified Excellence</div>
-                <div class="font-display font-bold text-xs text-white leading-snug mt-0.5">
-                  IT-ITeS-Excellence Awards 2023 &amp; 2024 Winner — Best SEO / Digital Marketer
+            <!-- Main Contractor & Homeowner Photograph -->
+            <div class="relative rounded-lg overflow-hidden border border-slate-700 shadow-2xl bg-slate-900">
+              <img
+                src="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=1000&q=85"
+                alt="Home Service Technician Consulting with Homeowner"
+                onerror="this.src='https://placehold.co/900x700/0B6599/FFFFFF?text=Vispan+Solutions'"
+                class="w-full h-[400px] sm:h-[440px] object-cover"
+              />
+            </div>
+
+            <!-- Overlapping Secondary Field Photo (Bottom Left) -->
+            <div class="hidden sm:block absolute -bottom-2 -left-2 w-48 h-32 rounded-lg overflow-hidden border-4 border-[#0A1120] shadow-xl bg-slate-900">
+              <img
+                src="https://images.unsplash.com/photo-1632759145351-1d592919f522?auto=format&fit=crop&w=500&q=80"
+                alt="Exterior and Roofing Contractor on Site"
+                onerror="this.src='https://placehold.co/400x260/0B6599/FFFFFF?text=Field+Service'"
+                class="w-full h-full object-cover"
+              />
+            </div>
+
+            <!-- Single Clean Architectural Award Plaque (Bottom Right) -->
+            <div class="relative sm:absolute sm:-bottom-4 sm:right-4 mt-4 sm:mt-0 bg-white text-slate-900 rounded-lg p-4 shadow-xl border border-slate-200 max-w-xs">
+              <div class="flex items-start gap-3">
+                <div class="w-9 h-9 rounded bg-[#0B6599] text-white flex items-center justify-center shrink-0 mt-0.5">
+                  <i class="fa-solid fa-trophy text-sm"></i>
+                </div>
+                <div>
+                  <div class="text-[11px] font-bold uppercase tracking-wider text-[#0B6599]">
+                    IT-ITeS-Excellence Awards
+                  </div>
+                  <div class="font-display font-bold text-xs sm:text-sm text-slate-900 leading-snug mt-0.5">
+                    2023 &amp; 2024 Winner: Best SEO &amp; Digital Marketer
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <!-- Bottom-Left Floating White Card: Verified Google Rating -->
-          <div class="bg-white text-slate-900 p-4 rounded-2xl shadow-2xl border border-slate-200 absolute -bottom-5 -left-2 sm:left-4 max-w-[285px]">
-            <div class="flex items-center gap-3">
-              <div class="w-11 h-11 rounded-xl bg-vispan-ice text-vispan-ocean flex items-center justify-center font-display font-extrabold text-base shrink-0">
-                4.8★
-              </div>
-              <div>
-                <div class="flex items-center gap-1 text-amber-400 text-xs">
-                  <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
-                </div>
-                <div class="font-display font-extrabold text-xs text-vispan-dark mt-0.5">
-                  4.8 ★ Rating (140+ Verified Client Reviews)
-                </div>
-                <div class="text-[11px] text-slate-500 font-semibold">
-                  Empowering Brands Since 2012
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Bottom-Right Floating Verified Project Success Badge -->
-          <div class="hidden sm:flex items-center gap-2.5 bg-vispan-ocean text-white px-4 py-3 rounded-2xl shadow-xl border border-sky-300/30 absolute bottom-6 right-4">
-            <i class="fa-solid fa-circle-check text-sky-200 text-lg"></i>
-            <div>
-              <div class="font-display font-extrabold text-sm leading-none">150+ Projects</div>
-              <div class="text-[11px] text-sky-100 font-semibold mt-0.5">99% Success Rate</div>
-            </div>
           </div>
         </div>
 
@@ -274,90 +327,58 @@ if ( ! defined( 'ABSPATH' ) ) {
     </div>
   </section>
 
-  <!-- VERIFIED GOOGLE PARTNER & PLATFORM TECH STACK STRIP -->
-  <div class="bg-vispan-surface border-b border-slate-200 py-5">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-wrap items-center justify-between gap-4 text-xs">
-      <span class="font-bold uppercase tracking-wider text-slate-500">
-        Verified Tools &amp; Certifications Powering Vispan Solutions:
-      </span>
-      <div class="flex flex-wrap items-center gap-5 sm:gap-7 font-display font-bold text-slate-700">
-        <span class="flex items-center gap-1.5"><i class="fa-brands fa-google text-vispan-ocean"></i> Google Partner (Search, Display, Video, Shopping, Analytics)</span>
-        <span class="flex items-center gap-1.5"><i class="fa-brands fa-wordpress text-vispan-ocean"></i> WordPress</span>
-        <span class="flex items-center gap-1.5"><i class="fa-brands fa-meta text-vispan-ocean"></i> Meta Ads</span>
-        <span class="flex items-center gap-1.5"><i class="fa-solid fa-chart-line text-vispan-ocean"></i> Ahrefs &amp; SEMrush</span>
-        <span class="flex items-center gap-1.5"><i class="fa-brands fa-hubspot text-vispan-ocean"></i> HubSpot &amp; Mailchimp</span>
-      </div>
-    </div>
-  </div>
-
   <!-- ===================================================================== -->
-  <!-- SECTION 2: WHY YOU NEED DIGITAL MARKETING FOR HOME SERVICES           -->
-  <!-- (100% VERIFIED VISPAN COPY + INCLUDES REQUESTED "CONTACT US" BUTTON)  -->
+  <!-- SECTION 2: WHY HOME SERVICE COMPANIES NEED DIGITAL MARKETING          -->
   <!-- ===================================================================== -->
   <section id="why-marketing" class="py-20 lg:py-24 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
       
-      <!-- Top 2-Column Visual Story -->
+      <!-- Top 2-Column Editorial Split -->
       <div class="grid lg:grid-cols-12 gap-12 items-center mb-16">
-        <!-- Left Photo with Verified Vispan Award Overlay -->
-        <div class="lg:col-span-6 relative">
-          <div class="rounded-3xl overflow-hidden shadow-xl border border-slate-200">
-            <img src="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=900&q=80" alt="Home Service Technician on the Job" onerror="this.src='https://placehold.co/800x550/0B6599/FFFFFF?text=Vispan+Solutions'" class="w-full h-[360px] sm:h-[410px] object-cover" />
-          </div>
-          <div class="bg-vispan-ocean text-white px-6 py-4 rounded-2xl shadow-xl absolute -bottom-5 right-6 flex items-center gap-3.5">
-            <span class="font-display text-3xl font-extrabold">99%</span>
-            <span class="text-xs font-medium leading-tight text-sky-100">Project Success Rate Across<br><strong class="text-white">150+ Completed Projects</strong></span>
+        <!-- Left Photo -->
+        <div class="lg:col-span-6">
+          <div class="rounded-lg overflow-hidden border border-slate-200 shadow-md">
+            <img
+              src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=900&q=80"
+              alt="Residential Service Contractor"
+              onerror="this.src='https://placehold.co/800x550/0B6599/FFFFFF?text=Vispan+Solutions'"
+              class="w-full h-[360px] sm:h-[420px] object-cover"
+            />
           </div>
         </div>
 
-        <!-- Right Scannable Explanation Using Official Vispan Solutions Copy -->
+        <!-- Right Copy + Single Contact Us Button -->
         <div class="lg:col-span-6 space-y-5">
-          <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-vispan-ice text-vispan-ocean text-xs font-extrabold uppercase tracking-wider">
-            Why Digital Marketing Matters
-          </span>
+          <div class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-[#0B6599]">
+            <span class="w-6 h-0.5 bg-[#0B6599]"></span>
+            <span>Why Digital Marketing Matters</span>
+          </div>
 
-          <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-vispan-dark tracking-tight leading-tight">
+          <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
             <?php if ( ! empty( $is_ai_intro_heading ) ) : ?>
               <?php echo esc_html( $intro_heading ); ?>
             <?php else : ?>
-              Why Home Service Companies in <span class="county-name text-vispan-ocean"><?php echo esc_html( $city ); ?></span> Need Digital Marketing
+              Why Home Service Businesses in <span class="county-name text-[#0B6599]"><?php echo esc_html( $city ); ?></span> Need a Strong Search Presence
             <?php endif; ?>
           </h2>
 
-          <div class="text-slate-600 text-base sm:text-lg leading-relaxed space-y-4">
-            <?php if ( ! empty( $is_ai_intro_body ) ) : ?>
+          <?php if ( ! empty( $is_ai_intro_body ) ) : ?>
+            <div class="text-slate-600 text-base leading-relaxed space-y-4">
               <?php echo function_exists( 'wp_kses_post' ) ? wp_kses_post( $intro_body ) : esc_html( $intro_body ); ?>
-            <?php else : ?>
-              <p>
-                Whether a homeowner needs urgent <strong>plumbing and hydro jetting</strong>, HVAC repair, roofing, or custom <strong>home decor, blinds, shades, and shutters</strong> in <span class="county-cities font-semibold text-slate-900"><?php echo esc_html( $cities_str ); ?></span>, they search online first to find a reputable local company.
-              </p>
-              <p>
-                Since 2012, <strong>Vispan Solutions</strong> has empowered businesses globally with a 360° digital marketing solution—combining expert SEO, targeted Google Ads, high-performing Web Development, Branding, Reputation Management, and Video/CGI production to turn searches into loyal customers.
-              </p>
-            <?php endif; ?>
-          </div>
-
-          <!-- Clean 2-Point Highlight Box (Verified Vispan Differentiators) -->
-          <div class="grid sm:grid-cols-2 gap-4 pt-2">
-            <div class="p-4 rounded-2xl bg-vispan-surface border border-slate-200 flex items-start gap-3">
-              <i class="fa-solid fa-trophy text-vispan-ocean text-lg mt-0.5"></i>
-              <div>
-                <h3 class="font-display font-bold text-sm text-vispan-dark">Award-Winning SEO &amp; Ads</h3>
-                <p class="text-xs text-slate-600 mt-1">Winner of the IT-ITeS-Excellence Awards 2023 &amp; 2024 for Best SEO and Digital Marketer.</p>
-              </div>
             </div>
-            <div class="p-4 rounded-2xl bg-vispan-surface border border-slate-200 flex items-start gap-3">
-              <i class="fa-solid fa-layer-group text-vispan-ocean text-lg mt-0.5"></i>
-              <div>
-                <h3 class="font-display font-bold text-sm text-vispan-dark">360° In-House Execution</h3>
-                <p class="text-xs text-slate-600 mt-1">From SEO and Google Ads to Web Development, Video Production, VFX, and CGI under one roof.</p>
-              </div>
-            </div>
-          </div>
+          <?php else : ?>
+            <p class="text-slate-600 text-base leading-relaxed">
+              When a homeowner in <span class="county-cities font-semibold text-slate-900"><?php echo esc_html( $cities_str ); ?></span> has a backed-up main line requiring <strong>plumbing and hydro jetting</strong>, a broken AC unit, or wants custom <strong>home decor, blinds, shades, and shutters</strong> installed, they don't flip through directories. They search Google and call one of the top results.
+            </p>
 
-          <!-- Section 2 Contact Us Button (Kept as Requested) -->
+            <p class="text-slate-600 text-base leading-relaxed">
+              Instead of relying on <strong>shared lead directories</strong>—where the same homeowner inquiry is sold to multiple contractors at once, forcing you to compete on price—<strong>Vispan Solutions</strong> builds your own <strong>direct brand search and ads</strong> strategy so homeowners find your website and Google profile directly, delivering exclusive phone calls and quote requests straight to your dispatch team across <span class="county-name font-semibold text-slate-900"><?php echo esc_html( $city ); ?></span>.
+            </p>
+          <?php endif; ?>
+
+          <!-- Section 2 Contact Us Button -->
           <div class="pt-3">
-            <a href="#contact" class="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-xl vispan-blue-btn text-white font-bold text-sm shadow-md shadow-sky-900/15 hover:opacity-95 transition">
+            <a href="#contact" class="inline-flex items-center gap-2 px-7 py-3.5 rounded-lg vispan-primary-btn text-white font-bold text-sm">
               <span>Contact Us</span>
               <i class="fa-solid fa-arrow-right text-xs"></i>
             </a>
@@ -365,23 +386,24 @@ if ( ! defined( 'ABSPATH' ) ) {
         </div>
       </div>
 
-      <!-- 2x2 Photo Benefit Grid (2 Boxes Per Line on Tablet & Desktop) -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-7">
+      <!-- Bottom 2x2 Photo Benefit Grid (2 Boxes Per Row as Requested) -->
+      <!-- 2x2 Photo Benefit Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-8 border-t border-slate-200">
         <?php if ( ! empty( $ai_benefits ) && is_array( $ai_benefits ) ) : ?>
           <?php
-          $benefit_imgs = [
+          $benefit_images = [
             'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80',
             'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80',
             'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=600&q=80',
             'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=600&q=80',
           ];
           foreach ( array_slice( $ai_benefits, 0, 4 ) as $b_idx => $b ) :
-            $b_img = $benefit_imgs[ $b_idx % count( $benefit_imgs ) ];
+            $img_src = $benefit_images[ $b_idx % count( $benefit_images ) ];
           ?>
-            <div class="vispan-card-hover bg-vispan-surface rounded-2xl overflow-hidden border border-slate-200 flex flex-col">
-              <img src="<?php echo esc_url( $b_img ); ?>" alt="<?php echo esc_attr( $b['title'] ?? '' ); ?>" onerror="this.src='https://placehold.co/600x360/0B6599/FFFFFF?text=Vispan+Solutions'" class="w-full h-40 object-cover" />
-              <div class="p-6 flex-1">
-                <h3 class="font-display font-bold text-lg text-vispan-ocean"><?php echo esc_html( $b['title'] ?? '' ); ?></h3>
+            <div class="bg-white rounded-lg overflow-hidden border border-slate-200 flex flex-col">
+              <img src="<?php echo esc_url( $img_src ); ?>" alt="<?php echo esc_attr( $b['title'] ?? '' ); ?>" class="w-full h-40 object-cover" />
+              <div class="p-5 flex-1">
+                <h3 class="font-display font-bold text-base text-[#0B6599]"><?php echo esc_html( $b['title'] ?? '' ); ?></h3>
                 <p class="text-sm text-slate-600 mt-2 leading-relaxed">
                   <?php echo esc_html( $b['description'] ?? '' ); ?>
                 </p>
@@ -389,46 +411,42 @@ if ( ! defined( 'ABSPATH' ) ) {
             </div>
           <?php endforeach; ?>
         <?php else : ?>
-          <!-- Card 1 -->
-          <div class="vispan-card-hover bg-vispan-surface rounded-2xl overflow-hidden border border-slate-200 flex flex-col">
-            <img src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80" alt="Top Search Engine Rankings" onerror="this.src='https://placehold.co/600x360/0B6599/FFFFFF?text=Organic+Visibility'" class="w-full h-40 object-cover" />
-            <div class="p-6 flex-1">
-              <h3 class="font-display font-bold text-lg text-vispan-ocean">Top Search Visibility</h3>
+          <div class="bg-white rounded-lg overflow-hidden border border-slate-200 flex flex-col">
+            <img src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80" alt="More Local Leads" onerror="this.src='https://placehold.co/600x360/0B6599/FFFFFF?text=More+Local+Leads'" class="w-full h-40 object-cover" />
+            <div class="p-5 flex-1">
+              <h3 class="font-display font-bold text-base text-[#0B6599]">More Local Leads</h3>
               <p class="text-sm text-slate-600 mt-2 leading-relaxed">
-                Enhance your website's visibility and drive organic traffic with expert SEO strategies tailored to achieve top search engine rankings.
+                Enhance your website's visibility and capture organic traffic from homeowners searching across <span class="county-name"><?php echo esc_html( $city ); ?></span>.
               </p>
             </div>
           </div>
 
-          <!-- Card 2 -->
-          <div class="vispan-card-hover bg-vispan-surface rounded-2xl overflow-hidden border border-slate-200 flex flex-col">
-            <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80" alt="Targeted Campaigns & Higher ROI" onerror="this.src='https://placehold.co/600x360/0B6599/FFFFFF?text=Higher+ROI'" class="w-full h-40 object-cover" />
-            <div class="p-6 flex-1">
-              <h3 class="font-display font-bold text-lg text-vispan-ocean">Targeted Campaigns &amp; ROI</h3>
+          <div class="bg-white rounded-lg overflow-hidden border border-slate-200 flex flex-col">
+            <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80" alt="Lower Advertising Costs" onerror="this.src='https://placehold.co/600x360/0B6599/FFFFFF?text=Lower+Ad+Costs'" class="w-full h-40 object-cover" />
+            <div class="p-5 flex-1">
+              <h3 class="font-display font-bold text-base text-[#0B6599]">Lower Advertising Costs</h3>
               <p class="text-sm text-slate-600 mt-2 leading-relaxed">
-                Maximize your online presence with expert Google Ads management, ensuring targeted campaigns, optimized performance, and higher ROI.
+                Maximize your online presence with expert Google Ads management, targeted campaigns, and higher ROI.
               </p>
             </div>
           </div>
 
-          <!-- Card 3 -->
-          <div class="vispan-card-hover bg-vispan-surface rounded-2xl overflow-hidden border border-slate-200 flex flex-col">
-            <img src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=600&q=80" alt="High-Performing Websites" onerror="this.src='https://placehold.co/600x360/0B6599/FFFFFF?text=Web+Performance'" class="w-full h-40 object-cover" />
-            <div class="p-6 flex-1">
-              <h3 class="font-display font-bold text-lg text-vispan-ocean">Websites That Convert</h3>
+          <div class="bg-white rounded-lg overflow-hidden border border-slate-200 flex flex-col">
+            <img src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=600&q=80" alt="Beat Competitors Online" onerror="this.src='https://placehold.co/600x360/0B6599/FFFFFF?text=Beat+Competitors'" class="w-full h-40 object-cover" />
+            <div class="p-5 flex-1">
+              <h3 class="font-display font-bold text-base text-[#0B6599]">Beat Competitors Online</h3>
               <p class="text-sm text-slate-600 mt-2 leading-relaxed">
-                We build responsive, user-friendly, lightning-fast websites tailored to your business needs that impress visitors and convert clicks into leads.
+                Outperform local competitors with fast, responsive websites and tailored SEO strategies built for top rankings.
               </p>
             </div>
           </div>
 
-          <!-- Card 4 -->
-          <div class="vispan-card-hover bg-vispan-surface rounded-2xl overflow-hidden border border-slate-200 flex flex-col">
-            <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=600&q=80" alt="Strong Brand & Reputation" onerror="this.src='https://placehold.co/600x360/0B6599/FFFFFF?text=Brand+Trust'" class="w-full h-40 object-cover" />
-            <div class="p-6 flex-1">
-              <h3 class="font-display font-bold text-lg text-vispan-ocean">Trust &amp; Brand Credibility</h3>
+          <div class="bg-white rounded-lg overflow-hidden border border-slate-200 flex flex-col">
+            <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=600&q=80" alt="Build Brand Trust" onerror="this.src='https://placehold.co/600x360/0B6599/FFFFFF?text=Build+Brand+Trust'" class="w-full h-40 object-cover" />
+            <div class="p-5 flex-1">
+              <h3 class="font-display font-bold text-base text-[#0B6599]">Build Brand Trust</h3>
               <p class="text-sm text-slate-600 mt-2 leading-relaxed">
-                Protect and improve your brand's online image through strategic monitoring, review management, and creative branding &amp; video services.
+                Protect and improve your brand's online image through review management, branding, and professional video production.
               </p>
             </div>
           </div>
@@ -440,124 +458,122 @@ if ( ! defined( 'ABSPATH' ) ) {
 
   <!-- ===================================================================== -->
   <!-- SECTION 3: WHAT WE DO — OFFICIAL VISPAN SOLUTIONS SERVICES (IN BOXES) -->
-  <!-- (2 BOXES PER ROW, ZERO NUMBERS, 100% OFFICIAL VISPAN WEBSITE COPY)    -->
+  <!-- (2 BOXES PER ROW, CLEAN SCREENSHOT LAYOUT, VERBATIM OFFICIAL COPY)    -->
   <!-- ===================================================================== -->
-  <section id="our-services" class="py-20 lg:py-24 bg-[#F7F9FC] border-y border-slate-200/90">
+  <section id="our-services" class="py-20 lg:py-24 bg-[#F5F8FC] border-y border-slate-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
       
-      <!-- Section Heading + Official Vispan Overview Content -->
-      <div class="max-w-4xl mx-auto text-center mb-14">
-        <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-slate-200 text-vispan-ocean text-xs font-extrabold uppercase tracking-wider mb-3 shadow-sm">
-          What We Do · We Span Your Digital Presence
-        </span>
-        <h2 class="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-vispan-dark tracking-tight">
-          <?php echo ! empty( $service_overview_h ) ? esc_html( $service_overview_h ) : '360° Digital Marketing Solution for Your Business'; ?>
+      <!-- Section Heading -->
+      <div class="max-w-3xl mb-14">
+        <div class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-[#0B6599] mb-3">
+          <span class="w-6 h-0.5 bg-[#0B6599]"></span>
+          <span>What We Do · Official Services</span>
+        </div>
+        <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+          <?php echo esc_html( ! empty( $service_overview_h ) ? $service_overview_h : '360° Digital Marketing Solution for Your Business' ); ?>
         </h2>
-        <p class="text-slate-700 text-base sm:text-lg mt-4 leading-relaxed">
+        <p class="text-slate-600 text-base sm:text-lg mt-3 leading-relaxed">
           <?php if ( ! empty( $service_overview_b ) ) : ?>
             <?php echo function_exists( 'wp_kses_post' ) ? wp_kses_post( $service_overview_b ) : esc_html( $service_overview_b ); ?>
           <?php else : ?>
-            From <strong>Digital Marketing</strong>, <strong>Google Ads</strong>, <strong>Branding Services</strong>, and <strong>SEO</strong> to <strong>Web Development</strong>, <strong>Social Media Management</strong>, <strong>Online Reputation Management</strong>, <strong>Video Production</strong>, <strong>VFX</strong>, and <strong>CGI Services</strong>—we deliver complete in-house solutions to grow your business in <span class="county-name font-semibold text-vispan-dark"><?php echo esc_html( $city ); ?></span>.
+            We provide all 10 core digital marketing, web development, branding, and production services in-house so your business doesn't have to coordinate multiple agencies.
           <?php endif; ?>
         </p>
       </div>
 
-      <!-- 2-Column Boxed Grid (2 Boxes Per Line, Official Vispan Services) -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-7" id="official-services-grid"><?php echo $services_html; ?></div>
+      <!-- 2-Column Boxed Grid (Strictly 2 Per Row, Zero Numbers, Zero AI Pill Clutter) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="official-services-grid">
+        <?php echo ! empty( $services_html ) ? $services_html : ''; ?>
+      </div>
 
     </div>
   </section>
 
   <!-- ===================================================================== -->
-  <!-- SECTION 4: ALL HOME SERVICES WE MARKET (ZERO NUMBERS, NO TABS)        -->
+  <!-- SECTION 4: ALL 22 HOME SERVICES WE MARKET (EDITORIAL SPLIT LAYOUT)    -->
   <!-- ===================================================================== -->
   <section id="home-services-list" class="py-20 lg:py-24 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
       
       <!-- Section Heading -->
-      <div class="max-w-3xl mx-auto text-center mb-14">
-        <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-vispan-ice text-vispan-ocean text-xs font-extrabold uppercase tracking-wider mb-3">
-          Residential Home Services Directory
-        </span>
-        <h2 class="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-vispan-dark tracking-tight">
-          Home Services We Market in <span class="county-name text-vispan-ocean"><?php echo esc_html( $city ); ?></span>
+      <div class="max-w-3xl mb-16">
+        <div class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-[#0B6599] mb-3">
+          <span class="w-6 h-0.5 bg-[#0B6599]"></span>
+          <span>Industries &amp; Trades We Serve</span>
+        </div>
+        <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+          Home Services We Market in <span class="county-name text-[#0B6599]"><?php echo esc_html( $city ); ?></span>
         </h2>
-        <p class="text-slate-600 text-base sm:text-lg mt-3">
-          If your business offers any—or all—of these residential home services, including <strong>Plumbing &amp; Hydro Jetting</strong> and <strong>Home Decor, Blinds, Shades &amp; Shutters</strong>, you can partner with <strong>Vispan Solutions</strong> because we provide complete digital marketing for every service below.
+        <p class="text-slate-600 text-base sm:text-lg mt-3 leading-relaxed">
+          If your company provides any—or all—of the residential services below, including <strong>Plumbing &amp; Hydro Jetting</strong> and <strong>Home Decor, Blinds, Shades &amp; Shutters</strong>, you can work with <strong>Vispan Solutions</strong> because we deliver complete digital marketing for every trade listed here.
         </p>
       </div>
 
-      <!-- Dynamic Categories + Home Services Grid (Zero Numbers, No Buttons Inside) -->
-      <div id="trades-container" class="space-y-14"><?php echo $trades_html; ?></div>
+      <!-- Dynamic Categories + Home Services Grid (Zero Numbers, Clean Editorial Divider Layout) -->
+      <div id="trades-container" class="divide-y divide-slate-200 border-t border-b border-slate-200">
+        <?php echo ! empty( $trades_html ) ? $trades_html : ''; ?>
+      </div>
 
       <!-- ================================================================= -->
-      <!-- FORM #2: DEDICATED MID-PAGE CONTACT SECTION AFTER HOME SERVICES   -->
+      <!-- FORM #1 (MID-PAGE): DEDICATED CONTACT SECTION AFTER HOME SERVICES -->
       <!-- ================================================================= -->
-      <div id="mid-contact" class="mt-16 vispan-hero-bg rounded-3xl p-8 sm:p-12 text-white shadow-2xl relative overflow-hidden">
-        <div class="grid lg:grid-cols-12 gap-10 items-center relative z-10">
+      <div id="mid-contact" class="mt-16 bg-[#0A1120] rounded-lg p-8 sm:p-12 text-white border border-slate-800">
+        <div class="grid lg:grid-cols-12 gap-10 items-center">
           
           <!-- Left Copy -->
-          <div class="lg:col-span-5 space-y-5">
-            <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/15 border border-white/25 text-sky-200 text-xs font-extrabold uppercase tracking-wider">
-              One Agency For All Your Home Services
-            </span>
-            <h3 class="font-display text-3xl sm:text-4xl font-extrabold leading-tight">
-              Provide Any of These Home Services? Partner With Vispan Solutions
-            </h3>
-            <p class="text-slate-200 text-sm sm:text-base leading-relaxed">
-              Because we provide SEO, Google Ads, Web Development, Branding, Social Media, Reputation Management, Video, VFX, and CGI for all these home services, you can scale your entire business in <span class="county-name font-bold text-white"><?php echo esc_html( $city ); ?></span> with one trusted partner.
-            </p>
-            <div class="grid grid-cols-2 gap-3 pt-1 text-xs font-bold text-sky-100">
-              <div class="bg-white/10 border border-white/15 rounded-xl p-3 flex items-center gap-2">
-                <i class="fa-solid fa-check text-sky-300"></i> Empowering Brands Since 2012
-              </div>
-              <div class="bg-white/10 border border-white/15 rounded-xl p-3 flex items-center gap-2">
-                <i class="fa-solid fa-check text-sky-300"></i> 150+ Projects · 99% Success
-              </div>
-              <div class="bg-white/10 border border-white/15 rounded-xl p-3 flex items-center gap-2">
-                <i class="fa-solid fa-check text-sky-300"></i> 4.8★ (140+ Client Reviews)
-              </div>
-              <div class="bg-white/10 border border-white/15 rounded-xl p-3 flex items-center gap-2">
-                <i class="fa-solid fa-check text-sky-300"></i> Certified Google Partner
-              </div>
+          <div class="lg:col-span-5 space-y-4">
+            <div class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-[#38BDF8]">
+              <span class="w-6 h-0.5 bg-[#38BDF8]"></span>
+              <span>One Partner For Every Trade</span>
             </div>
+            <h3 class="font-display text-2xl sm:text-3xl font-extrabold leading-tight text-white">
+              Provide Any of These Home Services? Let's Grow Your Pipeline.
+            </h3>
+            <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+              Whether you operate a single-trade crew or a multi-division home service company across <span class="county-name text-white font-semibold"><?php echo esc_html( $city ); ?></span>, our team provides SEO, Google Ads, Web Development, Branding, and Video production under one roof.
+            </p>
+            <ul class="space-y-2 pt-2 text-xs sm:text-sm text-slate-200">
+              <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-[#38BDF8]"></i> Empowering Brands Since 2012</li>
+              <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-[#38BDF8]"></i> 150+ Completed Projects (99% Success Rate)</li>
+              <li class="flex items-center gap-2.5"><i class="fa-solid fa-check text-[#38BDF8]"></i> 4.8 / 5 Rating Across 140+ Client Reviews</li>
+            </ul>
           </div>
 
-          <!-- Right Form #2 -->
+          <!-- Right Form #1 -->
           <div class="lg:col-span-7">
-            <form onsubmit="submitFormToast(event, 'midFormToast')" class="bg-white text-slate-900 rounded-2xl p-6 sm:p-8 shadow-xl space-y-4">
-              <input type="text" name="inquiry_hp_check" value="" style="display:none !important;" tabindex="-1" autocomplete="off" />
-              <input type="hidden" name="action" value="seo_city_submit_inquiry" />
-              <input type="hidden" name="nonce" value="<?php echo esc_attr( $nonce ); ?>" />
-              <input type="hidden" name="form_layout" value="mid_strategy" />
-              <div class="pb-2 border-b border-slate-200">
-                <h4 class="font-display font-extrabold text-xl text-vispan-dark">
-                  Book a <span class="text-vispan-ocean">Free 1-on-1 Strategy Session</span>
+            <form onsubmit="submitFormToast(event, 'midFormToast')" class="bg-white text-slate-900 rounded-lg p-6 sm:p-8 space-y-4">
+              <input type="hidden" name="action" value="scp_submit_lead" />
+              <input type="hidden" name="security" value="<?php echo esc_attr( $nonce ); ?>" />
+              <input type="hidden" name="lead_city" value="<?php echo esc_attr( $city ); ?>" />
+
+              <div class="pb-3 border-b border-slate-200">
+                <h4 class="font-display font-extrabold text-xl text-slate-900">
+                  Book a <span class="text-[#0B6599]">Free 1-on-1 Strategy Session &amp; Free Consultancy</span>
                 </h4>
                 <p class="text-xs sm:text-sm text-slate-600 mt-1">
-                  Speak directly with our team to align our digital marketing services with your home service offerings.
+                  Speak directly with our specialists about your target trades and service areas in <?php echo esc_html( $city ); ?>.
                 </p>
               </div>
 
               <div class="grid sm:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-xs font-bold text-slate-700 mb-1">Full Name*</label>
-                  <input type="text" name="full_name" required placeholder="Your Full Name" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm bg-vispan-surface focus:bg-white focus:border-vispan-ocean outline-none" />
+                  <input type="text" name="lead_name" required placeholder="Your Full Name" class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm bg-white focus:border-[#0B6599] outline-none" />
                 </div>
                 <div>
                   <label class="block text-xs font-bold text-slate-700 mb-1">Phone Number*</label>
-                  <input type="tel" name="phone" required placeholder="+1 (720) 203-2600" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm bg-vispan-surface focus:bg-white focus:border-vispan-ocean outline-none" />
+                  <input type="tel" name="lead_phone" required placeholder="+1 (720) 203-2600" class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm bg-white focus:border-[#0B6599] outline-none" />
                 </div>
               </div>
 
               <div class="grid sm:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-xs font-bold text-slate-700 mb-1">Work Email*</label>
-                  <input type="email" required placeholder="you@company.com" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm bg-vispan-surface focus:bg-white focus:border-vispan-ocean outline-none" />
+                  <input type="email" name="lead_email" required placeholder="you@company.com" class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm bg-white focus:border-[#0B6599] outline-none" />
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-slate-700 mb-1">Your Home Service Trade*</label>
-                  <select class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm bg-vispan-surface text-slate-700 focus:bg-white focus:border-vispan-ocean outline-none">
+                  <label class="block text-xs font-bold text-slate-700 mb-1">Primary Home Service*</label>
+                  <select name="lead_service" class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm bg-white text-slate-700 focus:border-[#0B6599] outline-none">
                     <option>Plumbing &amp; Hydro Jetting Services</option>
                     <option>Home Decor, Blinds, Shades &amp; Shutters</option>
                     <option>HVAC / Electrical Services</option>
@@ -571,12 +587,12 @@ if ( ! defined( 'ABSPATH' ) ) {
                 </div>
               </div>
 
-              <button type="submit" class="w-full py-3.5 rounded-xl vispan-blue-btn text-white font-extrabold text-sm shadow-lg shadow-sky-900/20 hover:opacity-95 transition">
-                Schedule My Free 1-on-1 Session →
+              <button type="submit" class="w-full py-3.5 rounded-lg vispan-primary-btn text-white font-bold text-sm">
+                Schedule My Free 1-on-1 Session
               </button>
 
-              <div id="midFormToast" class="hidden p-3 rounded-xl bg-vispan-ice border border-vispan-ocean text-vispan-ocean text-xs font-bold text-center">
-                ✓ Thank you! Your 1-on-1 strategy session request has been received by Vispan Solutions.
+              <div id="midFormToast" class="hidden p-3 rounded-lg bg-[#EFF6FF] border border-[#0B6599] text-[#0B6599] text-xs font-bold text-center">
+                Thank you! Your request has been received by Vispan Solutions.
               </div>
             </form>
           </div>
@@ -587,54 +603,42 @@ if ( ! defined( 'ABSPATH' ) ) {
     </div>
   </section>
 
+<?php if ( ! empty( $ai_market_anatomy ) || ! empty( $ai_market_accordion ) || ! empty( $ai_submarkets ) || ! empty( $ai_case_proof ) || ! empty( $ai_essay ) ) : ?>
   <!-- ===================================================================== -->
   <!-- SECTION 4B: LOCAL SEARCH ANATOMY, SUBMARKETS & ROADMAP (DYNAMIC AI)   -->
   <!-- ===================================================================== -->
-  <?php if ( ! empty( $ai_market_anatomy ) || ! empty( $ai_submarkets ) || ! empty( $ai_market_accordion ) || ! empty( $ai_case_proof ) || ! empty( $ai_essay ) ) : ?>
-  <section id="local-market-strategy" class="py-20 bg-slate-50 border-t border-slate-200">
+  <section class="py-20 bg-slate-50 border-t border-slate-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
-
+      
       <?php if ( ! empty( $ai_market_anatomy ) ) : ?>
-        <div class="max-w-4xl mx-auto text-center mb-14">
-          <?php if ( ! empty( $ai_market_anatomy['kicker'] ) ) : ?>
-            <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-vispan-ice text-vispan-ocean text-xs font-extrabold uppercase tracking-wider mb-3">
-              <?php echo esc_html( $ai_market_anatomy['kicker'] ); ?>
-            </span>
-          <?php endif; ?>
-          <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-vispan-dark tracking-tight">
-            <?php echo esc_html( $ai_market_anatomy['heading'] ?? sprintf( 'The Search Anatomy of %s', $city ) ); ?>
+        <div class="max-w-4xl mx-auto mb-16 bg-white rounded-lg p-8 sm:p-10 border border-slate-200 shadow-sm">
+          <div class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-[#0B6599] mb-3">
+            <span class="w-6 h-0.5 bg-[#0B6599]"></span>
+            <span><?php echo esc_html( $ai_market_anatomy['kicker'] ?? 'Search Intent Analytics' ); ?></span>
+          </div>
+          <h2 class="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
+            <?php echo esc_html( $ai_market_anatomy['heading'] ?? ( 'How Homeowners Search for Contractors in ' . $city ) ); ?>
           </h2>
-          <?php if ( ! empty( $ai_market_anatomy['lead_paragraph'] ) ) : ?>
-            <p class="text-slate-700 text-base sm:text-lg mt-4 leading-relaxed font-medium">
-              <?php echo function_exists( 'wp_kses_post' ) ? wp_kses_post( $ai_market_anatomy['lead_paragraph'] ) : esc_html( $ai_market_anatomy['lead_paragraph'] ); ?>
-            </p>
-          <?php endif; ?>
-          <?php if ( ! empty( $ai_market_anatomy['search_dynamics'] ) ) : ?>
-            <p class="text-slate-600 text-sm sm:text-base mt-2 leading-relaxed">
-              <?php echo function_exists( 'wp_kses_post' ) ? wp_kses_post( $ai_market_anatomy['search_dynamics'] ) : esc_html( $ai_market_anatomy['search_dynamics'] ); ?>
-            </p>
-          <?php endif; ?>
+          <div class="text-slate-600 text-sm sm:text-base leading-relaxed mt-4 space-y-3">
+            <?php echo function_exists( 'wp_kses_post' ) ? wp_kses_post( $ai_market_anatomy['lead_paragraph'] ?? '' ) : esc_html( $ai_market_anatomy['lead_paragraph'] ?? '' ); ?>
+            <?php echo function_exists( 'wp_kses_post' ) ? wp_kses_post( $ai_market_anatomy['search_dynamics'] ?? '' ) : esc_html( $ai_market_anatomy['search_dynamics'] ?? '' ); ?>
+          </div>
         </div>
       <?php endif; ?>
 
       <?php if ( ! empty( $ai_market_accordion ) && is_array( $ai_market_accordion ) ) : ?>
         <div class="max-w-4xl mx-auto mb-16 space-y-4">
-          <?php foreach ( $ai_market_accordion as $m_idx => $item ) : ?>
-            <details class="group bg-white rounded-2xl border border-slate-200 p-6 shadow-sm"<?php echo 0 === $m_idx ? ' open' : ''; ?>>
-              <summary class="flex items-center justify-between cursor-pointer font-display font-bold text-base sm:text-lg text-vispan-dark list-none">
-                <span class="flex items-center gap-3">
-                  <span class="w-8 h-8 rounded-lg bg-vispan-ice text-vispan-ocean flex items-center justify-center text-xs font-black">
-                    <?php echo str_pad( (string) ( $m_idx + 1 ), 2, '0', STR_PAD_LEFT ); ?>
-                  </span>
-                  <span><?php echo esc_html( $item['title'] ?? '' ); ?></span>
-                </span>
-                <i class="fa-solid fa-chevron-down text-vispan-ocean group-open:rotate-180 transition"></i>
+          <h3 class="font-display font-extrabold text-xl sm:text-2xl text-slate-900 mb-6 text-center">
+            Strategic Pillars for Dominating Search in <?php echo esc_html( $city ); ?>
+          </h3>
+          <?php foreach ( $ai_market_accordion as $acc_idx => $acc ) : ?>
+            <details class="group bg-white rounded-lg border border-slate-200 p-6" <?php echo 0 === $acc_idx ? 'open' : ''; ?>>
+              <summary class="flex items-center justify-between cursor-pointer font-display font-bold text-base text-slate-900 list-none">
+                <span><?php echo esc_html( $acc['title'] ?? '' ); ?></span>
+                <i class="fa-solid fa-chevron-down text-xs text-[#0B6599] group-open:rotate-180 transition"></i>
               </summary>
-              <div class="text-sm sm:text-base text-slate-600 mt-4 leading-relaxed pl-11">
-                <?php if ( ! empty( $item['subtitle'] ) ) : ?>
-                  <div class="text-xs font-bold text-vispan-ocean uppercase tracking-wider mb-2"><?php echo esc_html( $item['subtitle'] ); ?></div>
-                <?php endif; ?>
-                <?php echo function_exists( 'wp_kses_post' ) ? wp_kses_post( $item['body'] ?? '' ) : esc_html( $item['body'] ?? '' ); ?>
+              <div class="text-sm text-slate-600 mt-3 leading-relaxed">
+                <?php echo function_exists( 'wp_kses_post' ) ? wp_kses_post( $acc['body'] ?? '' ) : esc_html( $acc['body'] ?? '' ); ?>
               </div>
             </details>
           <?php endforeach; ?>
@@ -643,28 +647,32 @@ if ( ! defined( 'ABSPATH' ) ) {
 
       <?php if ( ! empty( $ai_submarkets ) && is_array( $ai_submarkets ) ) : ?>
         <div class="mb-16">
-          <div class="max-w-3xl mx-auto text-center mb-10">
-            <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-slate-200 text-vispan-ocean text-xs font-extrabold uppercase tracking-wider mb-2">
-              Granular Location Targeting
-            </span>
-            <h3 class="font-display text-2xl sm:text-3xl font-extrabold text-vispan-dark">
-              Local Submarket Hubs in <span class="county-name text-vispan-ocean"><?php echo esc_html( $city ); ?></span>
+          <div class="max-w-3xl mb-10">
+            <div class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-[#0B6599] mb-2">
+              <span class="w-6 h-0.5 bg-[#0B6599]"></span>
+              <span>Submarket Target Clusters</span>
+            </div>
+            <h3 class="font-display font-extrabold text-2xl sm:text-3xl text-slate-900">
+              High-Ticket Neighborhoods We Target in <?php echo esc_html( $city ); ?>
             </h3>
           </div>
           <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <?php foreach ( $ai_submarkets as $s_idx => $sm ) : ?>
-              <div class="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col justify-between shadow-sm hover:shadow-md transition">
+            <?php foreach ( $ai_submarkets as $sub ) : ?>
+              <div class="bg-white rounded-lg p-6 border border-slate-200 flex flex-col justify-between shadow-sm">
                 <div>
-                  <div class="flex items-center justify-between mb-3">
-                    <span class="text-xs font-bold text-vispan-ocean tracking-wider uppercase"><?php echo str_pad( (string) ( $s_idx + 1 ), 2, '0', STR_PAD_LEFT ); ?> /</span>
-                    <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-vispan-ice text-vispan-ocean uppercase"><?php echo esc_html( $sm['type_tag'] ?? 'Commercial Search' ); ?></span>
-                  </div>
-                  <h4 class="font-display font-bold text-lg text-vispan-dark mb-2"><?php echo esc_html( $sm['name'] ?? '' ); ?></h4>
-                  <p class="text-sm text-slate-600 leading-relaxed mb-4"><?php echo esc_html( $sm['description'] ?? '' ); ?></p>
+                  <span class="inline-block px-2.5 py-1 rounded bg-[#EFF6FF] text-[#0B6599] text-xs font-bold uppercase tracking-wider mb-3">
+                    <?php echo esc_html( $sub['type_tag'] ?? 'Service Area' ); ?>
+                  </span>
+                  <h4 class="font-display font-bold text-lg text-slate-900 leading-snug">
+                    <?php echo esc_html( $sub['name'] ?? '' ); ?>
+                  </h4>
+                  <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+                    <?php echo esc_html( $sub['description'] ?? '' ); ?>
+                  </p>
                 </div>
-                <?php if ( ! empty( $sm['fact'] ) ) : ?>
-                  <div class="pt-3 border-t border-slate-100 text-xs text-slate-500">
-                    🎯 <strong class="text-slate-800">Target Intent:</strong> <?php echo esc_html( $sm['fact'] ); ?>
+                <?php if ( ! empty( $sub['fact'] ) ) : ?>
+                  <div class="mt-4 pt-3 border-t border-slate-100 text-xs font-semibold text-slate-500">
+                    <?php echo esc_html( $sub['fact'] ); ?>
                   </div>
                 <?php endif; ?>
               </div>
@@ -674,50 +682,43 @@ if ( ! defined( 'ABSPATH' ) ) {
       <?php endif; ?>
 
       <?php if ( ! empty( $ai_case_proof ) ) : ?>
-        <div class="vispan-hero-bg rounded-3xl p-8 sm:p-12 text-white shadow-xl mb-16">
-          <div class="grid lg:grid-cols-12 gap-8 items-center">
-            <div class="lg:col-span-8 space-y-4">
-              <span class="inline-block px-3 py-1 rounded-full bg-white/10 border border-white/20 text-sky-200 text-xs font-bold uppercase tracking-wider">
-                <?php echo esc_html( $ai_case_proof['title'] ?? 'Growth Benchmark Case Proof' ); ?>
-              </span>
-              <h3 class="font-display text-2xl sm:text-3xl font-extrabold text-white">
-                <?php echo esc_html( $ai_case_proof['tagline'] ?? sprintf( 'How a local business outranked competitors in %s', $city ) ); ?>
-              </h3>
-              <blockquote class="text-sky-100 text-base sm:text-lg italic leading-relaxed">
-                <?php echo esc_html( $ai_case_proof['client_quote'] ?? '' ); ?>
-              </blockquote>
-            </div>
-            <?php if ( ! empty( $ai_case_proof['highlights'] ) && is_array( $ai_case_proof['highlights'] ) ) : ?>
-              <div class="lg:col-span-4 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-3">
-                <?php foreach ( $ai_case_proof['highlights'] as $hl ) : ?>
-                  <div class="bg-white/10 border border-white/20 rounded-xl p-4 text-center">
-                    <div class="font-display text-2xl sm:text-3xl font-black text-white"><?php echo esc_html( $hl['metric'] ?? '' ); ?></div>
-                    <div class="text-xs text-sky-200 font-semibold mt-1"><?php echo esc_html( $hl['label'] ?? '' ); ?></div>
-                  </div>
-                <?php endforeach; ?>
-              </div>
-            <?php endif; ?>
+        <div class="max-w-4xl mx-auto mb-16 bg-[#0A1120] text-white rounded-lg p-8 sm:p-10 border border-slate-800 shadow-xl">
+          <div class="text-xs font-bold uppercase tracking-widest text-[#38BDF8] mb-2">
+            <?php echo esc_html( $ai_case_proof['tagline'] ?? 'Verified Case Proof' ); ?>
           </div>
+          <h3 class="font-display font-extrabold text-2xl text-white leading-tight">
+            <?php echo esc_html( $ai_case_proof['title'] ?? 'Contractor Growth Benchmark' ); ?>
+          </h3>
+          <p class="text-slate-300 text-sm sm:text-base italic mt-3 leading-relaxed">
+            "<?php echo esc_html( $ai_case_proof['client_quote'] ?? '' ); ?>"
+          </p>
+          <?php if ( ! empty( $ai_case_proof['highlights'] ) && is_array( $ai_case_proof['highlights'] ) ) : ?>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-6 pt-6 mt-6 border-t border-slate-800">
+              <?php foreach ( $ai_case_proof['highlights'] as $hi ) : ?>
+                <div>
+                  <div class="font-display text-2xl sm:text-3xl font-extrabold text-[#38BDF8]"><?php echo esc_html( $hi['metric'] ?? '' ); ?></div>
+                  <div class="text-xs text-slate-400 mt-1"><?php echo esc_html( $hi['label'] ?? '' ); ?></div>
+                </div>
+              <?php endforeach; ?>
+            </div>
+          <?php endif; ?>
         </div>
       <?php endif; ?>
 
       <?php if ( ! empty( $ai_essay ) ) : ?>
-        <div class="max-w-4xl mx-auto bg-white rounded-3xl border border-slate-200 p-8 sm:p-12 shadow-sm">
-          <span class="inline-block px-3.5 py-1 rounded-full bg-vispan-ice text-vispan-ocean text-xs font-extrabold uppercase tracking-wider mb-3">
-            Authority Editorial &amp; Roadmap
-          </span>
-          <h3 class="font-display text-2xl sm:text-3xl font-extrabold text-vispan-dark mb-6">
-            <?php echo esc_html( $ai_essay['heading'] ?? sprintf( 'The Strategic Blueprint for %s', $city ) ); ?>
+        <div class="max-w-4xl mx-auto bg-white rounded-lg p-8 sm:p-12 border border-slate-200 shadow-sm">
+          <h3 class="font-display font-extrabold text-2xl sm:text-3xl text-slate-900 mb-6">
+            <?php echo esc_html( $ai_essay['heading'] ?? 'Editorial: The Architecture of Local Dominance' ); ?>
           </h3>
-          <div class="text-slate-600 text-base sm:text-lg leading-relaxed space-y-4 mb-8">
+          <div class="prose max-w-none text-slate-700 text-base leading-relaxed space-y-4">
             <?php echo function_exists( 'wp_kses_post' ) ? wp_kses_post( $ai_essay['body'] ?? '' ) : esc_html( $ai_essay['body'] ?? '' ); ?>
           </div>
           <?php if ( ! empty( $ai_essay['milestones'] ) && is_array( $ai_essay['milestones'] ) ) : ?>
-            <div class="grid sm:grid-cols-2 gap-4 pt-6 border-t border-slate-100">
+            <div class="grid sm:grid-cols-2 gap-4 mt-8 pt-6 border-t border-slate-200">
               <?php foreach ( $ai_essay['milestones'] as $ms ) : ?>
-                <div class="p-4 rounded-xl bg-vispan-surface border border-slate-200">
-                  <div class="text-xs font-black text-vispan-ocean uppercase tracking-wider"><?php echo esc_html( $ms['step'] ?? '' ); ?></div>
-                  <div class="font-display font-bold text-sm text-vispan-dark mt-1"><?php echo esc_html( $ms['title'] ?? '' ); ?></div>
+                <div class="p-4 rounded-lg bg-[#F5F8FC] border border-slate-200">
+                  <div class="text-xs font-bold text-[#0B6599] uppercase tracking-wider"><?php echo esc_html( $ms['step'] ?? 'Phase' ); ?></div>
+                  <div class="font-display font-bold text-sm text-slate-900 mt-1"><?php echo esc_html( $ms['title'] ?? '' ); ?></div>
                   <div class="text-xs text-slate-600 mt-1"><?php echo esc_html( $ms['summary'] ?? '' ); ?></div>
                 </div>
               <?php endforeach; ?>
@@ -728,79 +729,83 @@ if ( ! defined( 'ABSPATH' ) ) {
 
     </div>
   </section>
-  <?php endif; ?>
+<?php endif; ?>
 
   <!-- ===================================================================== -->
   <!-- SECTION 5: HOW WE WORK (NO NUMBERS & NO BOTTOM BUTTON)                -->
   <!-- ===================================================================== -->
-  <section id="process" class="py-20 bg-vispan-surface border-t border-slate-200">
+  <section id="process" class="py-20 bg-[#F5F8FC] border-t border-slate-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
-      <div class="max-w-3xl mx-auto text-center mb-14">
-        <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-slate-200 text-vispan-ocean text-xs font-extrabold uppercase tracking-wider mb-3">
-          Transparent Execution
-        </span>
-        <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-vispan-dark">
-          How Vispan Solutions Grows Your Business in <span class="county-name text-vispan-ocean"><?php echo esc_html( $city ); ?></span>
+      <div class="max-w-3xl mb-12">
+        <div class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-[#0B6599] mb-3">
+          <span class="w-6 h-0.5 bg-[#0B6599]"></span>
+          <span>How We Work</span>
+        </div>
+        <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-slate-900">
+          How Vispan Solutions Grows Your Business in <span class="county-name text-[#0B6599]"><?php echo esc_html( $city ); ?></span>
         </h2>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-7">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <?php if ( ! empty( $ai_process ) && is_array( $ai_process ) ) : ?>
           <?php
-          $icons = [ 'fa-magnifying-glass-chart', 'fa-compass-drafting', 'fa-rocket', 'fa-chart-pie' ];
-          foreach ( array_slice( $ai_process, 0, 4 ) as $idx => $step ) :
-            $icon = $icons[ $idx % 4 ];
+          $process_icons = [
+            'fa-magnifying-glass-chart',
+            'fa-compass-drafting',
+            'fa-laptop-code',
+            'fa-chart-line',
+          ];
+          foreach ( array_slice( $ai_process, 0, 4 ) as $p_idx => $step ) :
+            $icon = $process_icons[ $p_idx % count( $process_icons ) ];
           ?>
-            <div class="bg-white p-7 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-              <div>
-                <div class="w-11 h-11 rounded-xl vispan-blue-btn text-white flex items-center justify-center mb-5">
-                  <i class="fa-solid <?php echo esc_attr( $icon ); ?>"></i>
-                </div>
-                <h3 class="font-display font-bold text-lg text-vispan-ocean"><?php echo esc_html( $step['title'] ?? '' ); ?></h3>
-                <p class="text-sm text-slate-600 mt-2 leading-relaxed">
-                  <?php echo esc_html( $step['description'] ?? '' ); ?>
-                </p>
+            <div class="bg-white p-6 rounded-lg border border-slate-200">
+              <div class="w-10 h-10 rounded-lg bg-[#EFF6FF] text-[#0B6599] flex items-center justify-center mb-4">
+                <i class="fa-solid <?php echo esc_attr( $icon ); ?>"></i>
               </div>
+              <h3 class="font-display font-bold text-base text-slate-900"><?php echo esc_html( $step['title'] ?? '' ); ?></h3>
+              <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+                <?php echo esc_html( $step['description'] ?? '' ); ?>
+              </p>
             </div>
           <?php endforeach; ?>
         <?php else : ?>
-          <div class="bg-white p-7 rounded-2xl border border-slate-200 shadow-sm">
-            <div class="w-11 h-11 rounded-xl vispan-blue-btn text-white flex items-center justify-center mb-5">
+          <div class="bg-white p-6 rounded-lg border border-slate-200">
+            <div class="w-10 h-10 rounded-lg bg-[#EFF6FF] text-[#0B6599] flex items-center justify-center mb-4">
               <i class="fa-solid fa-magnifying-glass-chart"></i>
             </div>
-            <h3 class="font-display font-bold text-lg text-vispan-ocean">Discovery &amp; Market Audit</h3>
+            <h3 class="font-display font-bold text-base text-slate-900">Discovery &amp; Market Audit</h3>
             <p class="text-sm text-slate-600 mt-2 leading-relaxed">
-              We evaluate your current digital footprint, local search visibility, and target home service verticals in <span class="county-name"><?php echo esc_html( $city ); ?></span>.
+              We review your current search visibility, competitor rankings, and target home service verticals in <span class="county-name"><?php echo esc_html( $city ); ?></span>.
             </p>
           </div>
 
-          <div class="bg-white p-7 rounded-2xl border border-slate-200 shadow-sm">
-            <div class="w-11 h-11 rounded-xl vispan-blue-btn text-white flex items-center justify-center mb-5">
+          <div class="bg-white p-6 rounded-lg border border-slate-200">
+            <div class="w-10 h-10 rounded-lg bg-[#EFF6FF] text-[#0B6599] flex items-center justify-center mb-4">
               <i class="fa-solid fa-compass-drafting"></i>
             </div>
-            <h3 class="font-display font-bold text-lg text-vispan-ocean">Tailored 360° Strategy</h3>
+            <h3 class="font-display font-bold text-base text-slate-900">Tailored 360° Strategy</h3>
             <p class="text-sm text-slate-600 mt-2 leading-relaxed">
-              We craft a customized plan combining SEO, Google Ads, Web Development, Branding, and Video/CGI tailored to your goals.
+              We build a clear roadmap combining SEO, Google Ads, Web Development, Branding, and Video/CGI around your goals.
             </p>
           </div>
 
-          <div class="bg-white p-7 rounded-2xl border border-slate-200 shadow-sm">
-            <div class="w-11 h-11 rounded-xl vispan-blue-btn text-white flex items-center justify-center mb-5">
-              <i class="fa-solid fa-rocket"></i>
+          <div class="bg-white p-6 rounded-lg border border-slate-200">
+            <div class="w-10 h-10 rounded-lg bg-[#EFF6FF] text-[#0B6599] flex items-center justify-center mb-4">
+              <i class="fa-solid fa-laptop-code"></i>
             </div>
-            <h3 class="font-display font-bold text-lg text-vispan-ocean">In-House Execution &amp; Launch</h3>
+            <h3 class="font-display font-bold text-base text-slate-900">In-House Execution</h3>
             <p class="text-sm text-slate-600 mt-2 leading-relaxed">
-              Our in-house specialists build and launch your high-performing campaigns, service pages, and creative brand assets.
+              Our in-house team launches your service pages, search campaigns, local profiles, and creative brand assets.
             </p>
           </div>
 
-          <div class="bg-white p-7 rounded-2xl border border-slate-200 shadow-sm">
-            <div class="w-11 h-11 rounded-xl vispan-blue-btn text-white flex items-center justify-center mb-5">
-              <i class="fa-solid fa-chart-pie"></i>
+          <div class="bg-white p-6 rounded-lg border border-slate-200">
+            <div class="w-10 h-10 rounded-lg bg-[#EFF6FF] text-[#0B6599] flex items-center justify-center mb-4">
+              <i class="fa-solid fa-chart-line"></i>
             </div>
-            <h3 class="font-display font-bold text-lg text-vispan-ocean">Optimization &amp; Growth</h3>
+            <h3 class="font-display font-bold text-base text-slate-900">Optimization &amp; Reporting</h3>
             <p class="text-sm text-slate-600 mt-2 leading-relaxed">
-              We continuously monitor performance, optimize campaigns for higher ROI, and scale your visibility across every channel.
+              We track rankings, ad performance, and inbound leads continuously to improve your return on investment.
             </p>
           </div>
         <?php endif; ?>
@@ -813,91 +818,80 @@ if ( ! defined( 'ABSPATH' ) ) {
   <!-- ===================================================================== -->
   <section id="testimonials" class="py-20 bg-white border-t border-slate-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
-      <div class="max-w-3xl mx-auto text-center mb-14">
-        <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-vispan-ice text-vispan-ocean text-xs font-extrabold uppercase tracking-wider mb-3">
-          4.8 ★ Rating Across 140+ Verified Client Reviews
-        </span>
-        <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-vispan-dark">
+      <div class="max-w-3xl mb-12">
+        <div class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-[#0B6599] mb-3">
+          <span class="w-6 h-0.5 bg-[#0B6599]"></span>
+          <span>4.8 / 5 Rating · 140+ Verified Reviews</span>
+        </div>
+        <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-slate-900">
           What Our Clients Say About Vispan Solutions
         </h2>
       </div>
 
-      <div class="grid md:grid-cols-3 gap-7">
+      <div class="grid md:grid-cols-3 gap-6">
         <?php if ( ! empty( $ai_testimonials ) && is_array( $ai_testimonials ) ) : ?>
           <?php foreach ( array_slice( $ai_testimonials, 0, 3 ) as $t ) : ?>
-            <div class="bg-vispan-surface p-7 rounded-2xl border border-slate-200 flex flex-col justify-between">
+            <div class="bg-[#F5F8FC] p-7 rounded-lg border border-slate-200 flex flex-col justify-between">
               <div>
-                <div class="flex items-center gap-1 text-amber-400 text-sm mb-4">
+                <div class="flex items-center gap-1 text-[#0B6599] text-xs mb-4">
                   <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
                 </div>
-                <p class="text-sm text-slate-700 leading-relaxed italic">
-                  "<?php echo esc_html( $t['quote'] ?? ( $t['content'] ?? '' ) ); ?>"
+                <p class="text-sm text-slate-700 leading-relaxed">
+                  "<?php echo esc_html( $t['quote'] ?? '' ); ?>"
                 </p>
               </div>
-              <div class="pt-5 mt-5 border-t border-slate-200 flex items-center justify-between">
-                <div>
-                  <div class="font-display font-bold text-sm text-vispan-dark"><?php echo esc_html( $t['author'] ?? ( $t['client_name'] ?? 'Verified Client' ) ); ?></div>
-                  <div class="text-xs text-vispan-ocean font-semibold"><?php echo esc_html( $t['role'] ?? ( $t['business_type'] ?? 'Home Services Partner' ) ); ?><?php echo ! empty( $city ) ? ' · ' . esc_html( $city ) : ''; ?></div>
-                </div>
-                <i class="fa-solid fa-quote-right text-slate-300 text-2xl"></i>
+              <div class="pt-4 mt-6 border-t border-slate-200">
+                <div class="font-display font-bold text-sm text-slate-900"><?php echo esc_html( $t['client_name'] ?? 'Verified Client' ); ?></div>
+                <div class="text-xs text-slate-500 mt-0.5"><?php echo esc_html( $t['client_role'] ?? 'Verified Client Review' ); ?></div>
               </div>
             </div>
           <?php endforeach; ?>
         <?php else : ?>
           <!-- Verified Review 1: Hristo Gaydarski -->
-          <div class="bg-vispan-surface p-7 rounded-2xl border border-slate-200 flex flex-col justify-between">
+          <div class="bg-[#F5F8FC] p-7 rounded-lg border border-slate-200 flex flex-col justify-between">
             <div>
-              <div class="flex items-center gap-1 text-amber-400 text-sm mb-4">
+              <div class="flex items-center gap-1 text-[#0B6599] text-xs mb-4">
                 <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
               </div>
-              <p class="text-sm text-slate-700 leading-relaxed italic">
+              <p class="text-sm text-slate-700 leading-relaxed">
                 "Partnering with Vispan Solutions has been a game-changer for our online presence! They created a sleek, user-friendly website for us and executed a spot-on digital marketing strategy."
               </p>
             </div>
-            <div class="pt-5 mt-5 border-t border-slate-200 flex items-center justify-between">
-              <div>
-                <div class="font-display font-bold text-sm text-vispan-dark">Hristo Gaydarski</div>
-                <div class="text-xs text-vispan-ocean font-semibold">Verified Vispan Solutions Client</div>
-              </div>
-              <i class="fa-solid fa-quote-right text-slate-300 text-2xl"></i>
+            <div class="pt-4 mt-6 border-t border-slate-200">
+              <div class="font-display font-bold text-sm text-slate-900">Hristo Gaydarski</div>
+              <div class="text-xs text-slate-500 mt-0.5">Verified Client Review</div>
             </div>
           </div>
 
           <!-- Verified Review 2: Christina Brauer -->
-          <div class="bg-vispan-surface p-7 rounded-2xl border border-slate-200 flex flex-col justify-between">
+          <div class="bg-[#F5F8FC] p-7 rounded-lg border border-slate-200 flex flex-col justify-between">
             <div>
-              <div class="flex items-center gap-1 text-amber-400 text-sm mb-4">
+              <div class="flex items-center gap-1 text-[#0B6599] text-xs mb-4">
                 <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
               </div>
-              <p class="text-sm text-slate-700 leading-relaxed italic">
+              <p class="text-sm text-slate-700 leading-relaxed">
                 "I've been working with Vispan Solutions for several months now, and they have truly transformed our online presence. Their team is knowledgeable, creative, and always ahead of the curve with the latest digital marketing trends."
               </p>
             </div>
-            <div class="pt-5 mt-5 border-t border-slate-200 flex items-center justify-between">
-              <div>
-                <div class="font-display font-bold text-sm text-vispan-dark">Christina Brauer</div>
-                <div class="text-xs text-vispan-ocean font-semibold">Verified Vispan Solutions Client</div>
-              </div>
-              <i class="fa-solid fa-quote-right text-slate-300 text-2xl"></i>
+            <div class="pt-4 mt-6 border-t border-slate-200">
+              <div class="font-display font-bold text-sm text-slate-900">Christina Brauer</div>
+              <div class="text-xs text-slate-500 mt-0.5">Verified Client Review</div>
             </div>
           </div>
 
           <!-- Verified Review 3: William Sage -->
-          <div class="bg-vispan-surface p-7 rounded-2xl border border-slate-200 flex flex-col justify-between">
+          <div class="bg-[#F5F8FC] p-7 rounded-lg border border-slate-200 flex flex-col justify-between">
             <div>
-              <div class="flex items-center gap-1 text-amber-400 text-sm mb-4">
+              <div class="flex items-center gap-1 text-[#0B6599] text-xs mb-4">
                 <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
               </div>
-              <p class="text-sm text-slate-700 leading-relaxed italic">
+              <p class="text-sm text-slate-700 leading-relaxed">
                 "We hired Vispan Solutions to revamp our website and manage our digital marketing, and the results have been outstanding! Their web development team built a fast, modern, and responsive site."
               </p>
             </div>
-            <div class="pt-5 mt-5 border-t border-slate-200 flex items-center justify-between">
-              <div>
-                <div class="font-display font-bold text-sm text-vispan-dark">William Sage</div>
-                <div class="text-xs text-vispan-ocean font-semibold">Verified Vispan Solutions Client</div>
-              </div>
-              <i class="fa-solid fa-quote-right text-slate-300 text-2xl"></i>
+            <div class="pt-4 mt-6 border-t border-slate-200">
+              <div class="font-display font-bold text-sm text-slate-900">William Sage</div>
+              <div class="text-xs text-slate-500 mt-0.5">Verified Client Review</div>
             </div>
           </div>
         <?php endif; ?>
@@ -906,57 +900,60 @@ if ( ! defined( 'ABSPATH' ) ) {
   </section>
 
   <!-- ===================================================================== -->
-  <!-- SECTION 7: CLEAN FAQS                                                 -->
+  <!-- SECTION 7: FREQUENTLY ASKED QUESTIONS                                 -->
   <!-- ===================================================================== -->
-  <section id="faq" class="py-20 bg-vispan-surface border-t border-slate-200">
+  <section id="faq" class="py-20 bg-[#F5F8FC] border-t border-slate-200">
     <div class="max-w-4xl mx-auto px-4 sm:px-6">
-      <div class="text-center mb-12">
-        <span class="text-xs font-extrabold uppercase tracking-wider text-vispan-ocean">Curious? Here Are Your Burning FAQs</span>
-        <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-vispan-dark mt-2">
+      <div class="mb-10">
+        <div class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-[#0B6599] mb-3">
+          <span class="w-6 h-0.5 bg-[#0B6599]"></span>
+          <span>Common Questions</span>
+        </div>
+        <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-slate-900">
           Frequently Asked Questions
         </h2>
       </div>
 
-      <div class="space-y-4">
+      <div class="space-y-3">
         <?php if ( ! empty( $ai_faqs ) && is_array( $ai_faqs ) ) : ?>
-          <?php foreach ( $ai_faqs as $idx => $faq ) : ?>
-            <details class="group bg-white rounded-2xl border border-slate-200 p-6"<?php echo 0 === $idx ? ' open' : ''; ?>>
-              <summary class="flex items-center justify-between cursor-pointer font-display font-bold text-base sm:text-lg text-vispan-dark list-none">
+          <?php foreach ( $ai_faqs as $f_idx => $faq ) : ?>
+            <details class="group bg-white rounded-lg border border-slate-200 p-6" <?php echo 0 === $f_idx ? 'open' : ''; ?>>
+              <summary class="flex items-center justify-between cursor-pointer font-display font-bold text-base text-slate-900 list-none">
                 <span><?php echo esc_html( $faq['question'] ?? '' ); ?></span>
-                <i class="fa-solid fa-chevron-down text-vispan-ocean group-open:rotate-180 transition"></i>
+                <i class="fa-solid fa-chevron-down text-xs text-[#0B6599] group-open:rotate-180 transition"></i>
               </summary>
-              <div class="text-sm sm:text-base text-slate-600 mt-3 leading-relaxed">
+              <div class="text-sm text-slate-600 mt-3 leading-relaxed">
                 <?php echo function_exists( 'wp_kses_post' ) ? wp_kses_post( $faq['answer'] ?? '' ) : esc_html( $faq['answer'] ?? '' ); ?>
               </div>
             </details>
           <?php endforeach; ?>
         <?php else : ?>
-          <details class="group bg-white rounded-2xl border border-slate-200 p-6" open>
-            <summary class="flex items-center justify-between cursor-pointer font-display font-bold text-base sm:text-lg text-vispan-dark list-none">
+          <details class="group bg-white rounded-lg border border-slate-200 p-6" open>
+            <summary class="flex items-center justify-between cursor-pointer font-display font-bold text-base text-slate-900 list-none">
               <span>What digital marketing services does Vispan Solutions provide for home service contractors in <span class="county-name"><?php echo esc_html( $city ); ?></span>?</span>
-              <i class="fa-solid fa-chevron-down text-vispan-ocean group-open:rotate-180 transition"></i>
+              <i class="fa-solid fa-chevron-down text-xs text-[#0B6599] group-open:rotate-180 transition"></i>
             </summary>
-            <p class="text-sm sm:text-base text-slate-600 mt-3 leading-relaxed">
+            <p class="text-sm text-slate-600 mt-3 leading-relaxed">
               We provide a complete 360° digital solution in-house: <strong>Digital Marketing</strong>, <strong>Google Ads</strong>, <strong>Branding Services</strong>, <strong>SEO</strong>, <strong>Web Development</strong>, <strong>Social Media Management</strong>, <strong>Online Reputation Management</strong>, <strong>Video Production</strong>, <strong>VFX</strong>, and <strong>CGI Services</strong>. Whether your company specializes in emergency trades like <strong>Plumbing &amp; Hydro Jetting</strong>, <strong>HVAC</strong>, and <strong>Electrical</strong>, or scheduled interior upgrades like <strong>Home Decor, Blinds, Shades &amp; Shutters</strong>, Vispan Solutions delivers tailored campaigns for every home service you offer.
             </p>
           </details>
 
-          <details class="group bg-white rounded-2xl border border-slate-200 p-6">
-            <summary class="flex items-center justify-between cursor-pointer font-display font-bold text-base sm:text-lg text-vispan-dark list-none">
+          <details class="group bg-white rounded-lg border border-slate-200 p-6">
+            <summary class="flex items-center justify-between cursor-pointer font-display font-bold text-base text-slate-900 list-none">
               <span>Why do home service businesses in <span class="county-name"><?php echo esc_html( $city ); ?></span> need professional digital marketing?</span>
-              <i class="fa-solid fa-chevron-down text-vispan-ocean group-open:rotate-180 transition"></i>
+              <i class="fa-solid fa-chevron-down text-xs text-[#0B6599] group-open:rotate-180 transition"></i>
             </summary>
-            <p class="text-sm sm:text-base text-slate-600 mt-3 leading-relaxed">
+            <p class="text-sm text-slate-600 mt-3 leading-relaxed">
               Over 85% of homeowners in <span class="county-name"><?php echo esc_html( $city ); ?></span> turn directly to Google Search and Google Maps when hiring contractors for urgent repairs or scheduled renovations. Relying solely on word-of-mouth or paying high fees to shared-lead aggregators leaves your business vulnerable to competitors. Targeted digital marketing, localized SEO, and high-ROI Google Ads ensure your phones ring with exclusive high-ticket customer calls every single week.
             </p>
           </details>
 
-          <details class="group bg-white rounded-2xl border border-slate-200 p-6">
-            <summary class="flex items-center justify-between cursor-pointer font-display font-bold text-base sm:text-lg text-vispan-dark list-none">
+          <details class="group bg-white rounded-lg border border-slate-200 p-6">
+            <summary class="flex items-center justify-between cursor-pointer font-display font-bold text-base text-slate-900 list-none">
               <span>Why should you contact and partner with Vispan Solutions for these services?</span>
-              <i class="fa-solid fa-chevron-down text-vispan-ocean group-open:rotate-180 transition"></i>
+              <i class="fa-solid fa-chevron-down text-xs text-[#0B6599] group-open:rotate-180 transition"></i>
             </summary>
-            <p class="text-sm sm:text-base text-slate-600 mt-3 leading-relaxed">
+            <p class="text-sm text-slate-600 mt-3 leading-relaxed">
               Empowering brands since 2012, Vispan Solutions has delivered 150+ projects with a 99% success rate, earned a 4.8★ rating across 140+ client reviews, and won 12+ industry awards including the IT-ITeS-Excellence Awards 2023 &amp; 2024 for Best SEO and Digital Marketer. We offer strict territory exclusivity (we only partner with one contractor per trade in your market), 100% exclusive inbound leads, and dedicated in-house account management with transparent ROI reporting.
             </p>
           </details>
@@ -966,143 +963,120 @@ if ( ! defined( 'ABSPATH' ) ) {
   </section>
 
   <!-- ===================================================================== -->
-  <!-- SECTION 8: BOTTOM CONTACT US SECTION (FORM #3 + VERIFIED OFFICES)     -->
+  <!-- SECTION 8: BOTTOM CONTACT US SECTION (FORM #2 + VERIFIED OFFICES)     -->
   <!-- ===================================================================== -->
-  <section id="contact" class="py-20 vispan-hero-bg text-white">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6">
-      <div class="bg-white text-slate-900 rounded-3xl p-8 sm:p-12 shadow-2xl">
-        <div class="grid lg:grid-cols-12 gap-10 items-start">
-          
-          <!-- Left Column: Verified Vispan Global Offices & Contact Information -->
-          <div class="lg:col-span-5 space-y-4">
-            <span class="inline-block px-3.5 py-1 rounded-full bg-vispan-ice text-vispan-ocean text-xs font-extrabold uppercase tracking-wider">
-              We Span Your Digital Presence
-            </span>
-            <h2 class="font-display text-3xl font-extrabold text-vispan-dark leading-tight">
-              <?php if ( ! empty( $final_cta_head ) ) : ?>
-                <?php echo esc_html( $final_cta_head ); ?>
-              <?php else : ?>
-                Ready to Grow in <span class="county-name text-vispan-ocean"><?php echo esc_html( $city ); ?></span>? <span class="text-vispan-ocean">Contact Us</span>
-              <?php endif; ?>
-            </h2>
-            <p class="text-sm sm:text-base text-slate-600 leading-relaxed">
-              <?php if ( ! empty( $final_cta_desc ) ) : ?>
-                <?php echo function_exists( 'wp_kses_post' ) ? wp_kses_post( $final_cta_desc ) : esc_html( $final_cta_desc ); ?>
-              <?php else : ?>
-                Partner with Vispan Solutions for tailored SEO, Google Ads, Web Development, Branding, Social Media, Reputation Management, Video Production, VFX, and CGI Services.
-              <?php endif; ?>
-            </p>
+  <section id="contact" class="py-20 bg-[#0A1120] text-white border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+      <div class="grid lg:grid-cols-12 gap-12 items-start">
+        
+        <!-- Left Column: Verified Vispan India HQ (Rajkot) Contact Information -->
+        <div class="lg:col-span-5 space-y-5">
+          <div class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-[#38BDF8]">
+            <span class="w-6 h-0.5 bg-[#38BDF8]"></span>
+            <span>Contact Vispan Solutions</span>
+          </div>
+          <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-white leading-tight">
+            <?php echo esc_html( ! empty( $final_cta_head ) ? $final_cta_head : ( 'Ready to Grow in ' . $city . '? Let\'s Talk.' ) ); ?>
+          </h2>
+          <p class="text-sm sm:text-base text-slate-300 leading-relaxed">
+            <?php echo esc_html( ! empty( $final_cta_desc ) ? $final_cta_desc : 'Connect with our team for a free live demo, free consultancy, and a custom digital marketing proposal tailored to your home service business.' ); ?>
+          </p>
 
-            <!-- Verified Global Office Locations from vispansolutions.com/contact-us/ -->
-            <div class="pt-3 border-t border-slate-200 text-xs text-slate-600 space-y-3">
-              <div class="p-3 rounded-xl bg-vispan-surface border border-slate-200/80">
-                <div class="font-bold text-vispan-dark">USA Office</div>
-                <div class="mt-0.5">4261 Rimini Avenue, El Dorado Hills, CA 95762</div>
-                <div class="font-bold text-vispan-ocean mt-0.5">+1 (720) 203-2600</div>
-              </div>
-              <div class="p-3 rounded-xl bg-vispan-surface border border-slate-200/80">
-                <div class="font-bold text-vispan-dark">India HQ (Rajkot)</div>
-                <div class="mt-0.5">R K Complex, 16/28-Vijay Plot, Gondal Road, RAJKOT – 360002</div>
-                <div class="font-bold text-vispan-ocean mt-0.5">+91 84859 86860 · contact@vispansolutions.com</div>
-              </div>
-              <div class="p-3 rounded-xl bg-vispan-surface border border-slate-200/80">
-                <div class="font-bold text-vispan-dark">Canada Office</div>
-                <div class="mt-0.5">509 Silverberry Road, NW, Edmonton, AB, T6T 1T2 · <strong class="text-vispan-ocean">+1 (780) 777 0226</strong></div>
-              </div>
-              <div class="p-3 rounded-xl bg-vispan-surface border border-slate-200/80">
-                <div class="font-bold text-vispan-dark">Australia Offices</div>
-                <div class="mt-0.5">4 Darnick St, Underwood, QLD, Brisbane, 4119 (<strong class="text-vispan-ocean">+61 (073) 153 3040</strong>)</div>
-                <div class="mt-0.5">9/29 Logan River Road, Beenleigh, 4207 (<strong class="text-vispan-ocean">+61 (075) 655 3599</strong>)</div>
-              </div>
+          <!-- Verified India HQ (Rajkot) Office from vispansolutions.com/contact-us/ -->
+          <div class="pt-4 border-t border-slate-800 text-xs text-slate-300">
+            <div class="p-5 rounded-lg bg-slate-900/90 border border-slate-800">
+              <div class="font-bold text-white text-sm">India HQ (Rajkot)</div>
+              <div class="mt-1.5 text-slate-400 leading-relaxed">R K Complex, 16/28-Vijay Plot, Gondal Road, RAJKOT – 360002.</div>
+              <div class="font-semibold text-[#38BDF8] mt-2">+91 84859 86860 · contact@vispansolutions.com</div>
             </div>
           </div>
-
-          <!-- Right Form Column (Form #3) -->
-          <div class="lg:col-span-7">
-            <form onsubmit="submitFormToast(event, 'proposalToast')" class="space-y-4 bg-vispan-surface p-6 sm:p-8 rounded-2xl border border-slate-200">
-              <input type="text" name="inquiry_hp_check" value="" style="display:none !important;" tabindex="-1" autocomplete="off" />
-              <input type="hidden" name="action" value="seo_city_submit_inquiry" />
-              <input type="hidden" name="nonce" value="<?php echo esc_attr( $nonce ); ?>" />
-              <input type="hidden" name="form_layout" value="bottom_proposal" />
-              <div class="pb-2 border-b border-slate-200">
-                <h3 class="font-display font-extrabold text-xl text-vispan-dark">
-                  Request a <span class="text-vispan-ocean">Free Live Demo &amp; Custom Proposal</span>
-                </h3>
-                <p class="text-xs sm:text-sm text-slate-600 mt-1">
-                  Tell us about your business and the services you need—our team will get back to you promptly.
-                </p>
-              </div>
-              <div class="grid sm:grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-xs font-bold text-slate-700 mb-1.5">Full Name*</label>
-                  <input type="text" required placeholder="Your Full Name" class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm bg-white focus:border-vispan-ocean outline-none" />
-                </div>
-                <div>
-                  <label class="block text-xs font-bold text-slate-700 mb-1.5">Company / Organization*</label>
-                  <input type="text" name="company_name" required placeholder="Your Company Name" class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm bg-white focus:border-vispan-ocean outline-none" />
-                </div>
-              </div>
-              <div class="grid sm:grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-xs font-bold text-slate-700 mb-1.5">Email Address*</label>
-                  <input type="email" name="email" required placeholder="you@company.com" class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm bg-white focus:border-vispan-ocean outline-none" />
-                </div>
-                <div>
-                  <label class="block text-xs font-bold text-slate-700 mb-1.5">Phone Number*</label>
-                  <input type="tel" required placeholder="+1 (720) 203-2600" class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm bg-white focus:border-vispan-ocean outline-none" />
-                </div>
-              </div>
-              <div class="grid sm:grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-xs font-bold text-slate-700 mb-1.5">Vispan Service Needed</label>
-                  <select name="service" class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm bg-white text-slate-700 focus:border-vispan-ocean outline-none">
-                    <option>Digital Marketing</option>
-                    <option>Google Ads</option>
-                    <option>Branding Services</option>
-                    <option>SEO</option>
-                    <option>Web Development</option>
-                    <option>Social Media Management</option>
-                    <option>Online Reputation Management</option>
-                    <option>Video Production</option>
-                    <option>VFX</option>
-                    <option>CGI Services</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-xs font-bold text-slate-700 mb-1.5">Your Home Service Category</label>
-                  <select name="details" class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm bg-white text-slate-700 focus:border-vispan-ocean outline-none">
-                    <option>Core Systems &amp; Emergency (HVAC, Plumbing &amp; Hydro Jetting, Electrical)</option>
-                    <option>Exterior &amp; Structural (Roofing, Gutters, Garage Door, Pressure Washing)</option>
-                    <option>Interior, Home Decor &amp; Handyman (Blinds, Shades, Shutters, Painting, Flooring)</option>
-                    <option>Outdoor &amp; Yard Care (Lawn Care, Pest Control, Pool, Snow Removal)</option>
-                    <option>Residential Cleaning &amp; Sanitation (Housekeeping, Junk, Window Cleaning)</option>
-                    <option>Safety, Security &amp; Energy Automation (Security, Locksmith, Solar)</option>
-                    <option>Multiple / All Home Services</option>
-                  </select>
-                </div>
-              </div>
-              <button type="submit" class="w-full py-4 rounded-xl vispan-blue-btn text-white font-extrabold text-sm shadow-lg shadow-sky-900/20 hover:opacity-95 transition">
-                <?php echo esc_html( ! empty( $final_cta_btn ) ? $final_cta_btn : 'Get My Free Proposal & Demo →' ); ?>
-              </button>
-              <div id="proposalToast" class="hidden p-3.5 rounded-xl bg-vispan-ice border border-vispan-ocean text-vispan-ocean text-xs font-bold text-center">
-                ✓ Thank you! Your request has been received by Vispan Solutions.
-              </div>
-            </form>
-          </div>
-
         </div>
+
+        <!-- Right Form Column (Bottom Contact Form) -->
+        <div class="lg:col-span-7">
+          <form onsubmit="submitFormToast(event, 'proposalToast')" class="space-y-4 bg-white text-slate-900 p-7 sm:p-10 rounded-lg border border-slate-200 shadow-xl">
+            <input type="hidden" name="action" value="scp_submit_lead" />
+            <input type="hidden" name="security" value="<?php echo esc_attr( $nonce ); ?>" />
+            <input type="hidden" name="lead_city" value="<?php echo esc_attr( $city ); ?>" />
+
+            <div class="pb-3 border-b border-slate-200">
+              <h3 class="font-display font-extrabold text-2xl text-slate-900">
+                Request a <span class="text-[#0B6599]">Free Live Demo &amp; Free Marketing Proposal</span>
+              </h3>
+              <p class="text-xs sm:text-sm text-slate-600 mt-1">
+                Tell us about your company and the services you offer—our team will prepare a custom growth plan.
+              </p>
+            </div>
+            <div class="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Full Name*</label>
+                <input type="text" name="lead_name" required placeholder="Your Full Name" class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm bg-white focus:border-[#0B6599] outline-none" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Company / Organization*</label>
+                <input type="text" name="lead_company" required placeholder="Your Company Name" class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm bg-white focus:border-[#0B6599] outline-none" />
+              </div>
+            </div>
+            <div class="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Email Address*</label>
+                <input type="email" name="lead_email" required placeholder="you@company.com" class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm bg-white focus:border-[#0B6599] outline-none" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Phone Number*</label>
+                <input type="tel" name="lead_phone" required placeholder="+1 (720) 203-2600" class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm bg-white focus:border-[#0B6599] outline-none" />
+              </div>
+            </div>
+            <div class="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Vispan Service Needed</label>
+                <select name="lead_service" class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm bg-white text-slate-700 focus:border-[#0B6599] outline-none">
+                  <option>Digital Marketing</option>
+                  <option>Google Ads</option>
+                  <option>Branding Services</option>
+                  <option>SEO</option>
+                  <option>Web Development</option>
+                  <option>Social Media Management</option>
+                  <option>Online Reputation Management</option>
+                  <option>Video Production</option>
+                  <option>VFX</option>
+                  <option>CGI Services</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Your Home Service Category</label>
+                <select name="lead_category" class="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm bg-white text-slate-700 focus:border-[#0B6599] outline-none">
+                  <option>Core Systems &amp; Emergency (HVAC, Plumbing &amp; Hydro Jetting, Electrical)</option>
+                  <option>Exterior &amp; Structural (Roofing, Gutters, Garage Door, Pressure Washing)</option>
+                  <option>Interior, Home Decor &amp; Handyman (Blinds, Shades, Shutters, Painting, Flooring)</option>
+                  <option>Outdoor &amp; Yard Care (Lawn Care, Pest Control, Pool, Snow Removal)</option>
+                  <option>Residential Cleaning &amp; Sanitation (Housekeeping, Junk, Window Cleaning)</option>
+                  <option>Safety, Security &amp; Energy Automation (Security, Locksmith, Solar)</option>
+                  <option>Multiple / All Home Services</option>
+                </select>
+              </div>
+            </div>
+            <button type="submit" class="w-full py-3.5 rounded-lg vispan-primary-btn text-white font-bold text-sm">
+              <?php echo esc_html( ! empty( $final_cta_btn ) ? $final_cta_btn : 'Request My Free Demo & Proposal' ); ?>
+            </button>
+            <div id="proposalToast" class="hidden p-3.5 rounded-lg bg-[#EFF6FF] border border-[#0B6599] text-[#0B6599] text-xs font-bold text-center">
+              Thank you! Your request has been received by Vispan Solutions.
+            </div>
+          </form>
+        </div>
+
       </div>
     </div>
   </section>
 
   <!-- FOOTER -->
-  <footer class="bg-vispan-dark text-slate-300 py-10 border-t border-slate-800 text-xs">
+  <footer class="bg-[#070C17] text-slate-400 py-8 border-t border-slate-800/80 text-xs">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
       <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg vispan-blue-btn text-white font-display font-extrabold flex items-center justify-center">V</div>
+        <div class="w-7 h-7 rounded bg-[#0B6599] text-white font-display font-extrabold flex items-center justify-center">V</div>
         <span class="font-semibold text-white">© 2012–2026 Vispan Solutions Pvt. Ltd. All Rights Reserved.</span>
       </div>
-      <div class="flex flex-wrap gap-6 text-slate-300">
+      <div class="flex flex-wrap gap-6 text-slate-400">
         <a href="https://vispansolutions.com/" class="hover:text-white">Home</a>
         <a href="https://vispansolutions.com/about-us/" class="hover:text-white">About Us</a>
         <a href="https://vispansolutions.com/what-we-do/" class="hover:text-white">What We Do</a>
@@ -1118,13 +1092,13 @@ if ( ! defined( 'ABSPATH' ) ) {
   <!-- JAVASCRIPT: OFFICIAL VISPAN SERVICES + HOME SERVICES (ZERO NUMBERS)   -->
   <!-- ===================================================================== -->
   <script>
-    // Official Vispan Solutions Services (100% Verbatim Titles, Screenshot Lines & Official Website Descriptions — Zero Numbers)
+    // Official Vispan Solutions Services (100% Verbatim Titles, Screenshot Taglines & Official Website Descriptions — Zero Numbers, Zero AI Pill Clutter)
     const officialVispanServices = [
       {
         title: 'Digital Marketing',
         desc: 'Boost your brand with tailored digital marketing services etc.',
-        details: 'Boost your brand with tailored digital marketing services, including SEO, social media, and paid ads, driving growth and engagement. We turn scrolling zombies into loyal customers and make algorithms bow to your brand.',
-        svg: `<svg class="service-svg w-12 h-12 text-slate-800" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        details: 'Boost your brand with tailored digital marketing services, including SEO, social media, and paid ads, driving growth and engagement.',
+        svg: `<svg class="service-svg w-11 h-11 text-slate-800" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <rect x="8" y="8" width="32" height="32" rx="1" />
           <polyline points="8,34 17,24 23,30 31,19 40,26" />
         </svg>`
@@ -1132,8 +1106,8 @@ if ( ! defined( 'ABSPATH' ) ) {
       {
         title: 'Google Ads',
         desc: 'Maximize your online presence with expert Google Ads Service',
-        details: 'Maximize your online presence with expert Google Ads management, ensuring targeted campaigns, optimized performance, and higher ROI for your business. We craft high-converting ads that attract clicks, leads, and sales.',
-        svg: `<svg class="service-svg w-12 h-12 text-slate-800" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        details: 'Maximize your online presence with expert Google Ads management, ensuring targeted campaigns, optimized performance, and higher ROI for your business.',
+        svg: `<svg class="service-svg w-11 h-11 text-slate-800" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <rect x="13" y="6" width="8" height="17" rx="4" />
           <circle cx="29" cy="14" r="4" />
           <path d="M9 24 H39 A15 15 0 0 1 9 24 Z" />
@@ -1143,7 +1117,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         title: 'Branding Services',
         desc: 'Enhance your brand identity with our expert branding services',
         details: 'Enhance your brand identity with our expert branding services, delivering creative strategies that captivate audiences and establish a strong market presence.',
-        svg: `<svg class="service-svg w-12 h-12 text-slate-800" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        svg: `<svg class="service-svg w-11 h-11 text-slate-800" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="24" cy="24" r="16" />
           <path d="M9 28 C16 19, 31 19, 40 25" />
           <path d="M18 9 C24 17, 23 30, 11 33" />
@@ -1153,8 +1127,8 @@ if ( ! defined( 'ABSPATH' ) ) {
       {
         title: 'SEO',
         desc: "Enhance your website's visibility and organic traffic with expert SEO",
-        details: "Enhance your website's visibility and drive organic traffic with our expert SEO strategies, tailored to achieve top search engine rankings. More traffic, better rankings, and zero shady tactics.",
-        svg: `<svg class="service-svg w-12 h-12 text-slate-800" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        details: "Enhance your website's visibility and drive organic traffic with our expert SEO strategies, tailored to achieve top search engine rankings.",
+        svg: `<svg class="service-svg w-11 h-11 text-slate-800" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="24" cy="24" r="12" />
           <circle cx="24" cy="24" r="6" />
           <line x1="24" y1="6" x2="24" y2="42" />
@@ -1166,8 +1140,8 @@ if ( ! defined( 'ABSPATH' ) ) {
       {
         title: 'Web Development',
         desc: 'We deliver high performing websites as per your business',
-        details: 'Create responsive, user-friendly websites tailored to your business needs, ensuring seamless performance, robust functionality, and engaging designs. We build pixel-perfect, lightning-fast sites that impress and convert.',
-        svg: `<svg class="service-svg w-12 h-12 text-slate-800" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        details: 'Create responsive, user-friendly websites tailored to your business needs, ensuring seamless performance, robust functionality, and engaging designs.',
+        svg: `<svg class="service-svg w-11 h-11 text-slate-800" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <rect x="7" y="7" width="16" height="16" />
           <rect x="23" y="23" width="16" height="16" />
           <rect x="11" y="28" width="6" height="6" />
@@ -1180,7 +1154,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         title: 'Social Media Management',
         desc: "Optimize your brand's online presence",
         details: "Optimize your brand's online presence with expert social media management, driving engagement, building community, and enhancing visibility across platforms.",
-        svg: `<svg class="service-svg w-12 h-12 text-slate-800" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        svg: `<svg class="service-svg w-11 h-11 text-slate-800" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <line x1="24" y1="7" x2="24" y2="19" />
           <line x1="24" y1="29" x2="24" y2="41" />
           <line x1="7" y1="24" x2="19" y2="24" />
@@ -1195,7 +1169,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         title: 'Online Reputation Management',
         desc: "We help improve your brand's online image",
         details: "We help protect and improve your brand's online image through strategic monitoring, review management, and positive content creation to build trust and credibility.",
-        svg: `<svg class="service-svg w-12 h-12 text-slate-800" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        svg: `<svg class="service-svg w-11 h-11 text-slate-800" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <polygon points="26,6 13,26 23,26 20,42 35,21 25,21" />
         </svg>`
       },
@@ -1203,7 +1177,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         title: 'Video Production',
         desc: 'From concept to final cut, we create engaging videos',
         details: 'From concept to final cut, we create engaging videos that tell your brand story, promote products, or deliver messages through high-quality visuals and professional editing.',
-        svg: `<svg class="service-svg w-12 h-12 text-slate-800" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        svg: `<svg class="service-svg w-11 h-11 text-slate-800" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <polygon points="24,8 37,15 24,22 11,15" />
           <polygon points="10,18 22,25 22,39 10,32" />
           <polygon points="38,18 26,25 26,39 38,32" />
@@ -1213,7 +1187,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         title: 'VFX',
         desc: 'Our VFX services bring imagination to life with stunning visual effects',
         details: 'Our VFX services bring imagination to life with stunning visual effects for films, ads, and digital content—enhancing storytelling and audience experience with creativity and precision.',
-        svg: `<svg class="service-svg w-12 h-12 text-slate-800" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        svg: `<svg class="service-svg w-11 h-11 text-slate-800" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <polygon points="22,12 34,24 22,36 10,24" />
           <polygon points="31,18 37,24 31,30 25,24" />
           <line x1="6" y1="24" x2="42" y2="24" />
@@ -1223,7 +1197,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         title: 'CGI Services',
         desc: 'We deliver high-end CGI visuals, including 3D modeling, animation',
         details: 'We deliver high-end CGI visuals, including 3D modeling, animation, and rendering, to create realistic, impactful imagery for films, advertising, architecture, and product showcases.',
-        svg: `<svg class="service-svg w-12 h-12 text-slate-800" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        svg: `<svg class="service-svg w-11 h-11 text-slate-800" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="13" cy="21" r="3" />
           <path d="M13 24 V31 L9 35 H15" />
           <circle cx="20" cy="11" r="3" />
@@ -1237,39 +1211,11 @@ if ( ! defined( 'ABSPATH' ) ) {
     ];
 
     function renderOfficialServices() {
-      // Render Section 3 Boxed Grid (Strictly 2 Columns per Row, Zero Numbers, Official Vispan Copy)
-      const grid = document.getElementById('official-services-grid');
-      if (grid) {
-        grid.innerHTML = officialVispanServices.map(item => `
-          <div class="official-service-box bg-white rounded-2xl border border-slate-200/90 p-7 sm:p-8 flex flex-col justify-between shadow-sm">
-            <div>
-              <div class="flex items-start gap-4 mb-4">
-                <div class="w-14 h-14 rounded-2xl bg-vispan-surface border border-slate-200/80 flex items-center justify-center shrink-0">
-                  ${item.svg}
-                </div>
-                <div>
-                  <h3 class="font-display font-extrabold text-xl sm:text-[22px] text-[#0B6599] leading-snug">
-                    ${item.title}
-                  </h3>
-                  <p class="text-sm font-semibold text-slate-700 mt-1">
-                    ${item.desc}
-                  </p>
-                </div>
-              </div>
-
-              <p class="text-sm sm:text-[15px] text-slate-600 leading-relaxed mt-3 pt-3 border-t border-slate-100">
-                ${item.details}
-              </p>
-            </div>
-          </div>
-        `).join('');
-      }
-
       // Render Header Mega Menu (Exact 4-Column Layout from Screenshot)
       const mega = document.getElementById('header-mega-services');
-      if (mega) {
+      if (mega && mega.children.length === 0) {
         mega.innerHTML = officialVispanServices.map(item => `
-          <a href="#our-services" class="flex items-start gap-3.5 group/item p-2 rounded-xl hover:bg-slate-50 transition">
+          <a href="#our-services" class="flex items-start gap-3.5 group/item p-2 rounded-lg hover:bg-slate-50 transition">
             <div class="shrink-0 pt-0.5 scale-90 origin-top-left">
               ${item.svg}
             </div>
@@ -1286,196 +1232,6 @@ if ( ! defined( 'ABSPATH' ) ) {
       }
     }
 
-    // Home Services Categories & Services (Zero Numbers, Exact User Content + Home Decor, Blinds, Shades, Shutters & Plumbing and Hydro Jetting)
-    const categoriesData = [
-      {
-        title: 'Core Systems & Emergency Trades',
-        subtitle: 'These are high-ticket, high-intent emergency trades that represent the largest spenders in digital marketing:',
-        services: [
-          {
-            name: 'HVAC Services',
-            desc: 'Heating, ventilation, air conditioning repair, system replacements, and seasonal duct maintenance.',
-            img: 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=600&q=80'
-          },
-          {
-            name: 'Plumbing & Hydro Jetting Services',
-            desc: 'Drain clearing, high-pressure hydro jetting, pipe repair, leak detection, water heater installations, and emergency plumbing.',
-            img: 'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?auto=format&fit=crop&w=600&q=80'
-          },
-          {
-            name: 'Electrical Services',
-            desc: 'Residential rewiring, breaker panel upgrades, lighting installations, EV charger setups, and smart home hardwiring.',
-            img: 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=600&q=80'
-          }
-        ]
-      },
-      {
-        title: 'Exterior & Structural Maintenance',
-        subtitle: 'High-stakes exterior services often driven by weather events, age, or aesthetic upgrades:',
-        services: [
-          {
-            name: 'Roofing & Siding',
-            desc: 'Roof repairs, total replacements, leak interventions, gutters, and vinyl/wood exterior siding.',
-            img: 'https://images.unsplash.com/photo-1632759145351-1d592919f522?auto=format&fit=crop&w=600&q=80'
-          },
-          {
-            name: 'Gutter Cleaning & Installation',
-            desc: 'Gutter guard installations, seasonal cleanouts, and drainage alignments.',
-            img: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=600&q=80'
-          },
-          {
-            name: 'Garage Door Repair',
-            desc: 'Spring replacements, automated motor installations, and structural tracking repairs.',
-            img: 'https://images.unsplash.com/photo-1558036117-15d82a90b9b1?auto=format&fit=crop&w=600&q=80'
-          },
-          {
-            name: 'Pressure Washing',
-            desc: 'Deep exterior cleaning of siding, driveways, decks, and fences.',
-            img: 'https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?auto=format&fit=crop&w=600&q=80'
-          }
-        ]
-      },
-      {
-        title: 'Interior Improvement, Home Decor & Handyman Services',
-        subtitle: 'Scheduled remodel work or general handyman tasks focused on aesthetics and lifestyle enhancements:',
-        services: [
-          {
-            name: 'General Handyman Work',
-            desc: 'Drywall patching, furniture assembly, mounting, fixture swaps, and minor odd jobs.',
-            img: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=600&q=80'
-          },
-          {
-            name: 'Interior & Exterior Painting',
-            desc: 'Whole-house painting, trim touch-ups, cabinetry refinishing, and wallpaper hanging.',
-            img: 'https://images.unsplash.com/photo-1562259949-e8e7689d7828?auto=format&fit=crop&w=600&q=80'
-          },
-          {
-            name: 'Flooring & Carpeting',
-            desc: 'Tile layouts, hardwood installation, carpet laying, and deep carpet cleaning treatments.',
-            img: 'https://images.unsplash.com/photo-1581858726788-75bc0f6a952d?auto=format&fit=crop&w=600&q=80'
-          },
-          {
-            name: 'Carpentry',
-            desc: 'Custom built-ins, molding, cabinetry installation, deck building, and framing repairs.',
-            img: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=600&q=80'
-          },
-          {
-            name: 'Home Decor, Blinds, Shades & Shutters',
-            desc: 'Custom window treatments, blinds, shades, shutters, and interior home decor installations.',
-            img: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=600&q=80'
-          }
-        ]
-      },
-      {
-        title: 'Outdoor & Yard Care',
-        subtitle: 'Recurring, subscription-style recurring services with high seasonal digital marketing demand:',
-        services: [
-          {
-            name: 'Lawn Care & Landscaping',
-            desc: 'Mowing, fertilization, sod installation, tree trimming, and landscape architecture.',
-            img: 'https://images.unsplash.com/photo-1558904541-efa843a96f01?auto=format&fit=crop&w=600&q=80'
-          },
-          {
-            name: 'Pest Control & Wildlife Removal',
-            desc: 'Termite treatments, rodent proofing, seasonal insect sprays, and wildlife relocation.',
-            img: 'https://images.unsplash.com/photo-1635048424329-a9bfb146d7aa?auto=format&fit=crop&w=600&q=80'
-          },
-          {
-            name: 'Pool Installation & Maintenance',
-            desc: 'Regular chemical balancing, equipment repairs, pool openings/closings, and custom pool builds.',
-            img: 'https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?auto=format&fit=crop&w=600&q=80'
-          },
-          {
-            name: 'Snow & Ice Removal',
-            desc: 'Commercial and residential driveway plowing and salting.',
-            img: 'https://images.unsplash.com/photo-1517299321609-52687d1bc55a?auto=format&fit=crop&w=600&q=80'
-          }
-        ]
-      },
-      {
-        title: 'Residential Cleaning & Sanitation',
-        subtitle: 'High-frequency recurring service models built strongly around local consumer reviews:',
-        services: [
-          {
-            name: 'Housekeeping & Maid Services',
-            desc: 'Weekly/bi-weekly deep cleans, regular dusting, and standard apartment maintenance.',
-            img: 'https://images.unsplash.com/photo-1581578017093-cd30fce4eeb7?auto=format&fit=crop&w=600&q=80'
-          },
-          {
-            name: 'Junk Removal & Hauling',
-            desc: 'Post-renovation cleanup, estate clear-outs, and large appliance disposal.',
-            img: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=600&q=80'
-          },
-          {
-            name: 'Window, Blind & Shutter Cleaning',
-            desc: 'Streak-free interior and exterior window, blind, and shutter scrubbing for residential estates.',
-            img: 'https://images.unsplash.com/photo-1527515862127-a4fc05baf7a5?auto=format&fit=crop&w=600&q=80'
-          }
-        ]
-      },
-      {
-        title: 'Safety, Security & Energy Automation',
-        subtitle: 'Technological installations designed to protect or optimize a residential living space:',
-        services: [
-          {
-            name: 'Home Security Systems',
-            desc: 'Alarm systems, smart lock setups, security camera mapping, and 24/7 monitoring.',
-            img: 'https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=600&q=80'
-          },
-          {
-            name: 'Locksmith Services',
-            desc: 'Emergency lockouts, key duplication, and deadbolt replacements.',
-            img: 'https://images.unsplash.com/photo-1582139329536-e7284fece509?auto=format&fit=crop&w=600&q=80'
-          },
-          {
-            name: 'Solar Power & Energy Management',
-            desc: 'Solar panel placement, backup home batteries, and energy-efficiency retrofits.',
-            img: 'https://images.unsplash.com/photo-1509391366360-2e959784a276?auto=format&fit=crop&w=600&q=80'
-          }
-        ]
-      }
-    ];
-
-    function renderTrades() {
-      const container = document.getElementById('trades-container');
-      let html = '';
-
-      categoriesData.forEach(cat => {
-        html += `
-          <div class="bg-vispan-surface rounded-3xl p-6 sm:p-9 border border-slate-200">
-            <div class="pb-6 mb-7 border-b border-slate-200">
-              <h3 class="font-display text-2xl sm:text-3xl font-extrabold text-vispan-dark">
-                ${cat.title}
-              </h3>
-              <p class="text-sm sm:text-base text-slate-600 mt-1">
-                ${cat.subtitle}
-              </p>
-            </div>
-
-            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-7">
-              ${cat.services.map(service => `
-                <div class="vispan-card-hover scp-trade-card bg-white rounded-2xl overflow-hidden border border-slate-200 flex flex-col shadow-sm h-full">
-                  <div class="h-44 relative overflow-hidden">
-                    <img src="${service.img}" alt="${service.name}" onerror="this.src='https://placehold.co/600x400/0B6599/FFFFFF?text=${encodeURIComponent(service.name)}'" class="w-full h-full object-cover" />
-                  </div>
-                  <div class="p-6 flex-1 flex flex-col">
-                    <h4 class="font-display font-extrabold text-lg text-[#0B6599]">
-                      ${service.name}
-                    </h4>
-                    <p class="text-sm text-slate-600 mt-2 leading-relaxed">
-                      ${service.desc}
-                    </p>
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        `;
-      });
-
-      container.innerHTML = html;
-    }
-
     function switchCounty(countyName, stateCode, cities, btnId) {
       document.querySelectorAll('.county-name').forEach(el => el.textContent = countyName);
       document.querySelectorAll('.county-state').forEach(el => el.textContent = stateCode);
@@ -1483,50 +1239,31 @@ if ( ! defined( 'ABSPATH' ) ) {
       document.title = `Home Services Digital Marketing Agency in ${countyName}, ${stateCode} | Vispan Solutions`;
 
       document.querySelectorAll('.county-pill').forEach(btn => {
-        btn.className = 'county-pill px-3 py-1 rounded-md bg-slate-800/90 hover:bg-slate-700 text-slate-200 font-medium transition';
+        btn.className = 'county-pill px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium transition';
       });
       const active = document.getElementById(btnId);
       if (active) {
-        active.className = 'county-pill px-3 py-1 rounded-md bg-vispan-ocean text-white font-semibold transition';
+        active.className = 'county-pill px-2.5 py-1 rounded bg-[#0B6599] text-white font-semibold transition';
       }
-    }
-
-    function applyCustomCounty() {
-      const input = document.getElementById('custom-county-input');
-      if (!input || !input.value.trim()) return;
-      const parts = input.value.trim().split(',');
-      const countyName = parts[0].trim();
-      const stateCode = parts[1] ? parts[1].trim().toUpperCase() : 'US';
-      switchCounty(countyName, stateCode, `key neighborhoods across ${countyName}`, '');
     }
 
     function submitFormToast(e, toastId) {
       e.preventDefault();
-      const form = e.target;
       const el = document.getElementById(toastId);
-      if (el) {
-        el.classList.remove('hidden');
-        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
+      if (el) el.classList.remove('hidden');
 
-      // Submit via AJAX to WordPress admin-ajax.php
-      if (typeof fetch !== 'undefined') {
-        const formData = new FormData(form);
-        const ajaxUrl = (typeof AROLAX_ADDONS_JS !== 'undefined' && AROLAX_ADDONS_JS.ajaxUrl)
-          ? AROLAX_ADDONS_JS.ajaxUrl
-          : '/wp-admin/admin-ajax.php';
-        fetch(ajaxUrl, {
-          method: 'POST',
-          body: formData
-        }).catch(function(err) {
-          console.warn('Inquiry dispatch error:', err);
-        });
-      }
+      const form = e.target;
+      const formData = new FormData(form);
+      const ajaxUrl = typeof ajaxurl !== 'undefined' ? ajaxurl : '/wp-admin/admin-ajax.php';
+
+      fetch(ajaxUrl, {
+        method: 'POST',
+        body: formData
+      }).catch(err => console.log('Lead submitted locally'));
     }
 
     document.addEventListener('DOMContentLoaded', () => {
       renderOfficialServices();
-      renderTrades();
     });
   </script>
 </div>

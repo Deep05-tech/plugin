@@ -246,10 +246,10 @@ Page_Context::set_context( $page, $country, $state, $city, $svc_home );
 
 // 6a. Default fallback rendering when AI content is empty
 $default_page_html = Content_Context::render_home_services_full_page_html();
-$assert( strpos( $default_page_html, 'grid grid-cols-1 md:grid-cols-2 gap-7" id="official-services-grid"' ) !== false, "Services layout: 2 boxes per line (md:grid-cols-2)" );
+$assert( strpos( $default_page_html, 'grid grid-cols-1 md:grid-cols-2 gap-6" id="official-services-grid"' ) !== false, "Services layout: 2 boxes per line (md:grid-cols-2)" );
 $assert( strpos( $default_page_html, "2x2 Photo Benefit Grid" ) !== false, "Benefits layout: 2 boxes per line (2x2)" );
-$assert( strpos( $default_page_html, 'grid sm:grid-cols-2 lg:grid-cols-3 gap-7' ) !== false, "Trades layout: uniform 3 columns on desktop for all categories" );
-$assert( strpos( $default_page_html, 'scp-trade-card bg-white rounded-2xl overflow-hidden border border-slate-200 flex flex-col shadow-sm h-full' ) !== false, "Trade cards: uniform height with h-full" );
+$assert( strpos( $default_page_html, 'grid sm:grid-cols-2 gap-6' ) !== false, "Trades layout: editorial split with uniform 2 columns for all categories" );
+$assert( strpos( $default_page_html, 'scp-trade-card trade-card bg-white rounded-lg overflow-hidden border border-slate-200 flex flex-col h-full shadow-sm' ) !== false, "Trade cards: uniform height with h-full" );
 $assert( strpos( $default_page_html, "Get A Free Consultation" ) !== false, "Fallback: default hero CTA rendered" );
 $assert( strpos( $default_page_html, "Vispan Solutions has delivered 150+ projects" ) !== false, "Fallback: default FAQ rendered" );
 
