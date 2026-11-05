@@ -2781,10 +2781,10 @@ class Content_Context {
 		$cities_list  = [];
 		if ( ! empty( $submarkets ) && is_array( $submarkets ) ) {
 			foreach ( array_slice( $submarkets, 0, 3 ) as $sm ) {
-			if ( ! empty( $sm['name'] ) ) {
-				$cities_list[] = $sm['name'];
+				if ( ! empty( $sm['name'] ) ) {
+					$cities_list[] = $sm['name'];
+				}
 			}
-		}
 		}
 		if ( ! empty( $cities_list ) ) {
 			if ( count( $cities_list ) === 1 ) {
@@ -2797,6 +2797,33 @@ class Content_Context {
 		} else {
 			$cities_str = sprintf( 'key neighborhoods across %s', $city );
 		}
+
+		// Dynamic AI Content extraction with fallbacks
+		$has_ai_content      = ! empty( $content_data );
+		$is_ai_hero_title    = ! empty( $content_data['hero']['title'] );
+		$hero_title          = self::get_hero_title();
+		$is_ai_hero_desc     = ! empty( $content_data['hero']['description'] );
+		$hero_description    = self::get_hero_description();
+		$hero_subtitle       = self::get_hero_subtitle();
+		$hero_cta            = '';
+		if ( ! empty( $content_data['hero']['cta_text'] ) ) {
+			$hero_cta = (string) $content_data['hero']['cta_text'];
+		} elseif ( ! empty( $content_data['hero']['cta'] ) ) {
+			$hero_cta = (string) $content_data['hero']['cta'];
+		}
+		$is_ai_intro_heading = ! empty( $content_data['introduction']['heading'] );
+		$intro_heading       = self::get_intro_heading();
+		$is_ai_intro_body    = ! empty( $content_data['introduction']['body'] );
+		$intro_body          = self::get_intro_body();
+		$service_overview_h  = self::get_service_overview_heading();
+		$service_overview_b  = self::get_service_overview_body();
+		$final_cta_head      = self::get_final_cta_heading();
+		$final_cta_desc      = self::get_final_cta_description();
+		$final_cta_btn       = self::get_final_cta_button();
+		$ai_process          = ! empty( $content_data['process'] ) && is_array( $content_data['process'] ) ? $content_data['process'] : [];
+		$ai_faqs             = ! empty( $content_data['faqs'] ) && is_array( $content_data['faqs'] ) ? $content_data['faqs'] : [];
+		$ai_testimonials     = ! empty( $content_data['testimonials'] ) && is_array( $content_data['testimonials'] ) ? $content_data['testimonials'] : [];
+		$ai_benefits         = ! empty( $content_data['benefits'] ) && is_array( $content_data['benefits'] ) ? $content_data['benefits'] : [];
 
 		$nonce = function_exists( 'wp_create_nonce' ) ? wp_create_nonce( 'vispan_marketing_inquiry' ) : 'vispan_inquiry_nonce';
 

@@ -239,6 +239,75 @@ $home_form = Content_Context::render_inquiry_form();
 $assert( strpos( $home_form, "Home Services Digital Marketing" ) !== false, "Home Services form contains contractor options" );
 $assert( strpos( $home_form, "HVAC Marketing &amp; SEO" ) !== false || strpos( $home_form, "HVAC Marketing & SEO" ) !== false, "Home Services form contains HVAC option" );
 
+// 6. Dynamic AI Content Injection & Fallbacks in Master Template
+echo "\n6. Testing Dynamic AI Content Injection & Fallbacks...\n";
+Content_Context::reset();
+Page_Context::set_context( $page, $country, $state, $city, $svc_home );
+
+// 6a. Default fallback rendering when AI content is empty
+$default_page_html = Content_Context::render_home_services_full_page_html();
+$assert( strpos( $default_page_html, "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7" ) !== false, "Grid layout: 3 columns on desktop (lg:grid-cols-3)" );
+$assert( strpos( $default_page_html, "Get A Free Consultation" ) !== false, "Fallback: default hero CTA rendered" );
+$assert( strpos( $default_page_html, "Vispan Solutions has delivered 150+ projects" ) !== false, "Fallback: default FAQ rendered" );
+
+// 6b. Dynamic AI content injection
+$mock_ai_content = [
+	'hero' => [
+		'title'       => 'Custom AI Driven Home Services SEO Tampa',
+		'description' => 'Dynamic AI generated hero description tailored specifically for Tampa contractor growth.',
+		'cta'         => 'Claim Your Tampa SEO Audit',
+	],
+	'introduction' => [
+		'heading' => 'Why Local SEO Dominates The Tampa Contractor Scene',
+		'body'    => '<p>Comprehensive localized introduction generated exclusively by OpenAI for Tampa trades.</p>',
+	],
+	'process' => [
+		[
+			'step'        => '01',
+			'title'       => 'Tampa Keyword Discovery',
+			'description' => 'Analyzing search volume for local contractor queries.',
+		],
+		[
+			'step'        => '02',
+			'title'       => 'Hyperlocal On-Page Optimization',
+			'description' => 'Structuring geo-targeted landing pages.',
+		],
+	],
+	'testimonials' => [
+		[
+			'quote'        => 'Vispan skyrocketed our plumbing leads in Tampa by 240% in 90 days.',
+			'client_name'  => 'Mark Henderson',
+			'client_role'  => 'Owner, Henderson Plumbing',
+			'rating'       => 5,
+		],
+	],
+	'faqs' => [
+		[
+			'question' => 'How quickly will my Tampa roofing company see results?',
+			'answer'   => 'Most Tampa contractors begin generating qualified inquiries within 60 to 90 days.',
+		],
+	],
+];
+
+$ref = new ReflectionClass( Content_Context::class );
+$prop = $ref->getProperty( 'cached_content' );
+$prop->setAccessible( true );
+$prop->setValue( null, $mock_ai_content );
+
+$ai_page_html = Content_Context::render_home_services_full_page_html();
+
+$assert( strpos( $ai_page_html, 'Custom AI Driven Home Services SEO Tampa' ) !== false, "Dynamic AI: Hero title rendered" );
+$assert( strpos( $ai_page_html, 'Dynamic AI generated hero description tailored specifically for Tampa' ) !== false, "Dynamic AI: Hero description rendered" );
+$assert( strpos( $ai_page_html, 'Claim Your Tampa SEO Audit' ) !== false, "Dynamic AI: Hero CTA button rendered" );
+$assert( strpos( $ai_page_html, 'Why Local SEO Dominates The Tampa Contractor Scene' ) !== false, "Dynamic AI: Intro heading rendered" );
+$assert( strpos( $ai_page_html, 'Comprehensive localized introduction generated exclusively by OpenAI' ) !== false, "Dynamic AI: Intro body rendered" );
+$assert( strpos( $ai_page_html, 'Tampa Keyword Discovery' ) !== false, "Dynamic AI: Custom process step rendered" );
+$assert( strpos( $ai_page_html, 'Mark Henderson' ) !== false, "Dynamic AI: Custom testimonial client rendered" );
+$assert( strpos( $ai_page_html, 'How quickly will my Tampa roofing company see results?' ) !== false, "Dynamic AI: Custom FAQ rendered" );
+
+// Reset after test
+Content_Context::reset();
+
 echo "\n======================================================\n";
 echo "  TEST SUMMARY: " . $passed . " passed, " . $failed . " failed.\n";
 echo "======================================================\n";
