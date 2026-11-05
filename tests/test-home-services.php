@@ -261,6 +261,47 @@ $mock_ai_content = [
 		'heading' => 'Why Local SEO Dominates The Tampa Contractor Scene',
 		'body'    => '<p>Comprehensive localized introduction generated exclusively by OpenAI for Tampa trades.</p>',
 	],
+	'service_overview' => [
+		'heading' => 'Comprehensive Digital Growth Architecture for Tampa Trades',
+		'body'    => '<p>Custom marketing engine engineered exclusively to scale Tampa contractors.</p>',
+	],
+	'metro_stats' => [
+		[ 'value' => '3.2M+', 'label' => 'Tampa Metro Reach' ],
+		[ 'value' => '45k+', 'label' => 'Active Trade Queries' ],
+		[ 'value' => '94%', 'label' => 'High-Intent Phone Calls' ],
+		[ 'value' => '60 Days', 'label' => 'Lead Compound Velocity' ],
+	],
+	'benefits' => [
+		[ 'title' => 'Hyper-Local Search Dominance', 'description' => 'Targeting high-intent homeowners in high-ticket zip codes.' ],
+		[ 'title' => 'Exclusive Contractor Leads', 'description' => 'Zero shared leads or aggregator competition.' ],
+	],
+	'market_anatomy' => [
+		'kicker'          => 'Hyper-Local Search Intelligence',
+		'heading'         => 'The Search Geography of Tampa Bay Trades',
+		'lead_paragraph'  => '<p>Analyzing search competition across Tampa Bay communities.</p>',
+		'search_dynamics' => '<p>Why national directories lose against targeted local contractor pages.</p>',
+	],
+	'market_accordion' => [
+		[ 'title' => 'HVAC Search Intent Mapping', 'subtitle' => 'High-CPC Emergency Calls', 'body' => '<p>Mapping immediate-dispatch heating and cooling queries.</p>' ],
+	],
+	'submarkets' => [
+		[ 'name' => 'South Tampa & Hyde Park', 'type_tag' => 'Premium Residential', 'fact' => 'High average invoice values.', 'description' => 'Targeting luxury home remodeling and maintenance.' ],
+	],
+	'case_proof' => [
+		'title'        => 'Tampa Regional Benchmark Case Proof',
+		'tagline'      => 'How a local plumber captured 14 target zip codes in Tampa',
+		'client_quote' => 'Vispan helped us scale our truck fleet from 2 to 7 within 8 months.',
+		'highlights'   => [
+			[ 'metric' => '+280%', 'label' => 'Inbound Phone Inquiries' ],
+		],
+	],
+	'essay' => [
+		'heading'    => 'The Tampa Contractor Growth Blueprint',
+		'body'       => '<p>A deep-dive analysis of search mechanics for residential trade fleets in Tampa.</p>',
+		'milestones' => [
+			[ 'step' => 'PHASE 01', 'title' => 'Core Audit', 'summary' => 'Technical citation graph build.' ],
+		],
+	],
 	'process' => [
 		[
 			'step'        => '01',
@@ -287,6 +328,11 @@ $mock_ai_content = [
 			'answer'   => 'Most Tampa contractors begin generating qualified inquiries within 60 to 90 days.',
 		],
 	],
+	'final_cta' => [
+		'heading'     => 'Ready to Dominate the Tampa Contractor Market?',
+		'description' => 'Contact Vispan Solutions today to scale your inbound trade leads.',
+		'button_text' => 'Claim Your Free Strategy Session Now →',
+	],
 ];
 
 $ref = new ReflectionClass( Content_Context::class );
@@ -299,11 +345,21 @@ $ai_page_html = Content_Context::render_home_services_full_page_html();
 $assert( strpos( $ai_page_html, 'Custom AI Driven Home Services SEO Tampa' ) !== false, "Dynamic AI: Hero title rendered" );
 $assert( strpos( $ai_page_html, 'Dynamic AI generated hero description tailored specifically for Tampa' ) !== false, "Dynamic AI: Hero description rendered" );
 $assert( strpos( $ai_page_html, 'Claim Your Tampa SEO Audit' ) !== false, "Dynamic AI: Hero CTA button rendered" );
+$assert( strpos( $ai_page_html, '3.2M+' ) !== false, "Dynamic AI: Hero metro stats rendered" );
 $assert( strpos( $ai_page_html, 'Why Local SEO Dominates The Tampa Contractor Scene' ) !== false, "Dynamic AI: Intro heading rendered" );
 $assert( strpos( $ai_page_html, 'Comprehensive localized introduction generated exclusively by OpenAI' ) !== false, "Dynamic AI: Intro body rendered" );
+$assert( strpos( $ai_page_html, 'Hyper-Local Search Dominance' ) !== false, "Dynamic AI: Custom benefit rendered" );
+$assert( strpos( $ai_page_html, 'Comprehensive Digital Growth Architecture for Tampa Trades' ) !== false, "Dynamic AI: Service overview heading rendered" );
+$assert( strpos( $ai_page_html, 'The Search Geography of Tampa Bay Trades' ) !== false, "Dynamic AI: Market anatomy heading rendered" );
+$assert( strpos( $ai_page_html, 'HVAC Search Intent Mapping' ) !== false, "Dynamic AI: Market accordion item rendered" );
+$assert( strpos( $ai_page_html, esc_html( 'South Tampa & Hyde Park' ) ) !== false, "Dynamic AI: Submarket rendered" );
+$assert( strpos( $ai_page_html, 'Tampa Regional Benchmark Case Proof' ) !== false, "Dynamic AI: Case proof rendered" );
+$assert( strpos( $ai_page_html, 'The Tampa Contractor Growth Blueprint' ) !== false, "Dynamic AI: Editorial essay rendered" );
 $assert( strpos( $ai_page_html, 'Tampa Keyword Discovery' ) !== false, "Dynamic AI: Custom process step rendered" );
 $assert( strpos( $ai_page_html, 'Mark Henderson' ) !== false, "Dynamic AI: Custom testimonial client rendered" );
 $assert( strpos( $ai_page_html, 'How quickly will my Tampa roofing company see results?' ) !== false, "Dynamic AI: Custom FAQ rendered" );
+$assert( strpos( $ai_page_html, 'Ready to Dominate the Tampa Contractor Market?' ) !== false, "Dynamic AI: Final CTA heading rendered" );
+$assert( strpos( $ai_page_html, 'Claim Your Free Strategy Session Now →' ) !== false, "Dynamic AI: Final CTA button rendered" );
 
 // Reset after test
 Content_Context::reset();

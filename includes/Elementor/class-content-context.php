@@ -2824,6 +2824,13 @@ class Content_Context {
 		$ai_faqs             = ! empty( $content_data['faqs'] ) && is_array( $content_data['faqs'] ) ? $content_data['faqs'] : [];
 		$ai_testimonials     = ! empty( $content_data['testimonials'] ) && is_array( $content_data['testimonials'] ) ? $content_data['testimonials'] : [];
 		$ai_benefits         = ! empty( $content_data['benefits'] ) && is_array( $content_data['benefits'] ) ? $content_data['benefits'] : [];
+		$ai_metro_stats      = ! empty( $content_data['metro_stats'] ) && is_array( $content_data['metro_stats'] ) ? $content_data['metro_stats'] : [];
+		$ai_market_anatomy   = ! empty( $content_data['market_anatomy'] ) && is_array( $content_data['market_anatomy'] ) ? $content_data['market_anatomy'] : [];
+		$ai_market_accordion = ! empty( $content_data['market_accordion'] ) && is_array( $content_data['market_accordion'] ) ? $content_data['market_accordion'] : [];
+		$ai_submarkets       = ! empty( $content_data['submarkets'] ) && is_array( $content_data['submarkets'] ) ? $content_data['submarkets'] : [];
+		$ai_case_proof       = ! empty( $content_data['case_proof'] ) && is_array( $content_data['case_proof'] ) ? $content_data['case_proof'] : [];
+		$ai_essay            = ! empty( $content_data['essay'] ) && is_array( $content_data['essay'] ) ? $content_data['essay'] : [];
+		$ai_local_relevance  = ! empty( $content_data['local_relevance'] ) && is_array( $content_data['local_relevance'] ) ? $content_data['local_relevance'] : [];
 
 		$nonce = function_exists( 'wp_create_nonce' ) ? wp_create_nonce( 'vispan_marketing_inquiry' ) : 'vispan_inquiry_nonce';
 
