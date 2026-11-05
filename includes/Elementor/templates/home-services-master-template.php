@@ -1441,8 +1441,6 @@ if ( ! defined( 'ABSPATH' ) ) {
       let html = '';
 
       categoriesData.forEach(cat => {
-        const gridCols = cat.services.length === 4 ? 'lg:grid-cols-2' : 'lg:grid-cols-3';
-
         html += `
           <div class="bg-vispan-surface rounded-3xl p-6 sm:p-9 border border-slate-200">
             <div class="pb-6 mb-7 border-b border-slate-200">
@@ -1454,9 +1452,9 @@ if ( ! defined( 'ABSPATH' ) ) {
               </p>
             </div>
 
-            <div class="grid sm:grid-cols-2 ${gridCols} gap-7">
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-7">
               ${cat.services.map(service => `
-                <div class="vispan-card-hover bg-white rounded-2xl overflow-hidden border border-slate-200 flex flex-col shadow-sm">
+                <div class="vispan-card-hover scp-trade-card bg-white rounded-2xl overflow-hidden border border-slate-200 flex flex-col shadow-sm h-full">
                   <div class="h-44 relative overflow-hidden">
                     <img src="${service.img}" alt="${service.name}" onerror="this.src='https://placehold.co/600x400/0B6599/FFFFFF?text=${encodeURIComponent(service.name)}'" class="w-full h-full object-cover" />
                   </div>
