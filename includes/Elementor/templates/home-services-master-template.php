@@ -454,11 +454,6 @@ if ( ! defined( 'ABSPATH' ) ) {
         
         <!-- Left Column: Agency Copy & Single Verified Stats Bar -->
         <div class="lg:col-span-7 space-y-6">
-          <div class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-[#38BDF8]">
-            <span class="w-8 h-0.5 bg-[#38BDF8]"></span>
-            <span>Digital Marketing Agency for <span class="county-name"><?php echo esc_html( $city ); ?></span><?php echo ! empty( $state_display ) ? ', <span class="county-state">' . esc_html( $state_display ) . '</span>' : ''; ?></span>
-          </div>
-
           <h1 class="font-display text-4xl sm:text-5xl lg:text-[50px] font-extrabold tracking-tight leading-[1.15] text-white">
             <?php if ( ! empty( $is_ai_hero_title ) ) : ?>
               <?php echo esc_html( $hero_title ); ?>
@@ -582,7 +577,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         <div class="lg:col-span-6">
           <div class="rounded-lg overflow-hidden border border-slate-200 shadow-md">
             <img
-              src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=900&q=80"
+              src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1000&q=80"
               alt="Residential Service Contractor"
               onerror="this.src='https://placehold.co/800x550/0B6599/FFFFFF?text=Vispan+Solutions'"
               class="w-full h-[360px] sm:h-[420px] object-cover"
@@ -630,7 +625,6 @@ if ( ! defined( 'ABSPATH' ) ) {
       </div>
 
       <!-- Bottom 2x2 Photo Benefit Grid (2 Boxes Per Row as Requested) -->
-      <!-- 2x2 Photo Benefit Grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-8 border-t border-slate-200">
         <?php if ( ! empty( $ai_benefits ) && is_array( $ai_benefits ) ) : ?>
           <?php
@@ -640,55 +634,82 @@ if ( ! defined( 'ABSPATH' ) ) {
             'https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=600&q=80',
             'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=600&q=80',
           ];
+          $benefit_icons = [ 'fa-chart-line', 'fa-bullseye', 'fa-trophy', 'fa-award' ];
           foreach ( array_slice( $ai_benefits, 0, 4 ) as $b_idx => $b ) :
             $img_src = $benefit_images[ $b_idx % count( $benefit_images ) ];
+            $icon    = $b['icon'] ?? $benefit_icons[ $b_idx % count( $benefit_icons ) ];
           ?>
-            <div class="benefit-card bg-white rounded-lg overflow-hidden border border-slate-200 flex flex-col">
-              <img src="<?php echo esc_url( $img_src ); ?>" alt="<?php echo esc_attr( $b['title'] ?? '' ); ?>" class="w-full h-40 object-cover" />
-              <div class="p-5 flex-1">
-                <h3 class="font-display font-bold text-base text-[#0B6599]"><?php echo esc_html( $b['title'] ?? '' ); ?></h3>
-                <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+            <div class="benefit-card bg-white rounded-xl overflow-hidden border border-slate-200 flex flex-col sm:flex-row shadow-sm hover:shadow-md transition">
+              <div class="sm:w-5/12 h-52 sm:h-auto min-h-[190px] relative overflow-hidden bg-slate-100 shrink-0">
+                <img src="<?php echo esc_url( $img_src ); ?>" alt="<?php echo esc_attr( $b['title'] ?? '' ); ?>" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
+              </div>
+              <div class="p-6 sm:w-7/12 flex flex-col justify-center">
+                <div class="w-8 h-8 rounded-lg bg-[#EFF6FF] text-[#0B6599] flex items-center justify-center mb-3 text-xs">
+                  <i class="fa-solid <?php echo esc_attr( $icon ); ?>"></i>
+                </div>
+                <h3 class="font-display font-bold text-lg text-slate-900 leading-snug"><?php echo esc_html( $b['title'] ?? '' ); ?></h3>
+                <p class="text-sm text-slate-700 mt-2 leading-relaxed font-normal">
                   <?php echo esc_html( $b['description'] ?? '' ); ?>
                 </p>
               </div>
             </div>
           <?php endforeach; ?>
         <?php else : ?>
-          <div class="benefit-card bg-white rounded-lg overflow-hidden border border-slate-200 flex flex-col">
-            <img src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80" alt="More Local Leads" onerror="this.src='https://placehold.co/600x360/0B6599/FFFFFF?text=More+Local+Leads'" class="w-full h-40 object-cover" />
-            <div class="p-5 flex-1">
-              <h3 class="font-display font-bold text-base text-[#0B6599]">More Local Leads</h3>
-              <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+          <div class="benefit-card bg-white rounded-xl overflow-hidden border border-slate-200 flex flex-col sm:flex-row shadow-sm hover:shadow-md transition">
+            <div class="sm:w-5/12 h-52 sm:h-auto min-h-[190px] relative overflow-hidden bg-slate-100 shrink-0">
+              <img src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80" alt="More Local Leads" onerror="this.src='https://placehold.co/600x360/0B6599/FFFFFF?text=More+Local+Leads'" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
+            </div>
+            <div class="p-6 sm:w-7/12 flex flex-col justify-center">
+              <div class="w-8 h-8 rounded-lg bg-[#EFF6FF] text-[#0B6599] flex items-center justify-center mb-3 text-xs">
+                <i class="fa-solid fa-chart-line"></i>
+              </div>
+              <h3 class="font-display font-bold text-lg text-slate-900 leading-snug">More Local Leads</h3>
+              <p class="text-sm text-slate-700 mt-2 leading-relaxed font-normal">
                 Enhance your website's visibility and capture organic traffic from homeowners searching across <span class="county-name"><?php echo esc_html( $city ); ?></span>.
               </p>
             </div>
           </div>
 
-          <div class="benefit-card bg-white rounded-lg overflow-hidden border border-slate-200 flex flex-col">
-            <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80" alt="Lower Advertising Costs" onerror="this.src='https://placehold.co/600x360/0B6599/FFFFFF?text=Lower+Ad+Costs'" class="w-full h-40 object-cover" />
-            <div class="p-5 flex-1">
-              <h3 class="font-display font-bold text-base text-[#0B6599]">Lower Advertising Costs</h3>
-              <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+          <div class="benefit-card bg-white rounded-xl overflow-hidden border border-slate-200 flex flex-col sm:flex-row shadow-sm hover:shadow-md transition">
+            <div class="sm:w-5/12 h-52 sm:h-auto min-h-[190px] relative overflow-hidden bg-slate-100 shrink-0">
+              <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80" alt="Lower Advertising Costs" onerror="this.src='https://placehold.co/600x360/0B6599/FFFFFF?text=Lower+Ad+Costs'" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
+            </div>
+            <div class="p-6 sm:w-7/12 flex flex-col justify-center">
+              <div class="w-8 h-8 rounded-lg bg-[#EFF6FF] text-[#0B6599] flex items-center justify-center mb-3 text-xs">
+                <i class="fa-solid fa-bullseye"></i>
+              </div>
+              <h3 class="font-display font-bold text-lg text-slate-900 leading-snug">Lower Advertising Costs</h3>
+              <p class="text-sm text-slate-700 mt-2 leading-relaxed font-normal">
                 Maximize your online presence with expert Google Ads management, targeted campaigns, and higher ROI.
               </p>
             </div>
           </div>
 
-          <div class="benefit-card bg-white rounded-lg overflow-hidden border border-slate-200 flex flex-col">
-            <img src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=600&q=80" alt="Beat Competitors Online" onerror="this.src='https://placehold.co/600x360/0B6599/FFFFFF?text=Beat+Competitors'" class="w-full h-40 object-cover" />
-            <div class="p-5 flex-1">
-              <h3 class="font-display font-bold text-base text-[#0B6599]">Beat Competitors Online</h3>
-              <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+          <div class="benefit-card bg-white rounded-xl overflow-hidden border border-slate-200 flex flex-col sm:flex-row shadow-sm hover:shadow-md transition">
+            <div class="sm:w-5/12 h-52 sm:h-auto min-h-[190px] relative overflow-hidden bg-slate-100 shrink-0">
+              <img src="https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?auto=format&fit=crop&w=600&q=80" alt="Beat Competitors Online" onerror="this.src='https://placehold.co/600x360/0B6599/FFFFFF?text=Beat+Competitors'" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
+            </div>
+            <div class="p-6 sm:w-7/12 flex flex-col justify-center">
+              <div class="w-8 h-8 rounded-lg bg-[#EFF6FF] text-[#0B6599] flex items-center justify-center mb-3 text-xs">
+                <i class="fa-solid fa-trophy"></i>
+              </div>
+              <h3 class="font-display font-bold text-lg text-slate-900 leading-snug">Beat Competitors Online</h3>
+              <p class="text-sm text-slate-700 mt-2 leading-relaxed font-normal">
                 Outperform local competitors with fast, responsive websites and tailored SEO strategies built for top rankings.
               </p>
             </div>
           </div>
 
-          <div class="benefit-card bg-white rounded-lg overflow-hidden border border-slate-200 flex flex-col">
-            <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=600&q=80" alt="Build Brand Trust" onerror="this.src='https://placehold.co/600x360/0B6599/FFFFFF?text=Build+Brand+Trust'" class="w-full h-40 object-cover" />
-            <div class="p-5 flex-1">
-              <h3 class="font-display font-bold text-base text-[#0B6599]">Build Brand Trust</h3>
-              <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+          <div class="benefit-card bg-white rounded-xl overflow-hidden border border-slate-200 flex flex-col sm:flex-row shadow-sm hover:shadow-md transition">
+            <div class="sm:w-5/12 h-52 sm:h-auto min-h-[190px] relative overflow-hidden bg-slate-100 shrink-0">
+              <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=600&q=80" alt="Build Brand Trust" onerror="this.src='https://placehold.co/600x360/0B6599/FFFFFF?text=Build+Brand+Trust'" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" />
+            </div>
+            <div class="p-6 sm:w-7/12 flex flex-col justify-center">
+              <div class="w-8 h-8 rounded-lg bg-[#EFF6FF] text-[#0B6599] flex items-center justify-center mb-3 text-xs">
+                <i class="fa-solid fa-award"></i>
+              </div>
+              <h3 class="font-display font-bold text-lg text-slate-900 leading-snug">Build Brand Trust</h3>
+              <p class="text-sm text-slate-700 mt-2 leading-relaxed font-normal">
                 Protect and improve your brand's online image through review management, branding, and professional video production.
               </p>
             </div>
@@ -706,22 +727,26 @@ if ( ! defined( 'ABSPATH' ) ) {
   <section id="our-services" class="py-20 lg:py-24 bg-[#F5F8FC] border-y border-slate-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
       
-      <!-- Section Heading -->
-      <div class="max-w-3xl mb-14">
-        <div class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-[#0B6599] mb-3">
-          <span class="w-6 h-0.5 bg-[#0B6599]"></span>
-          <span>What We Do · Official Services</span>
+      <!-- Section Heading (2-Column Grid eliminating empty right side) -->
+      <div class="grid lg:grid-cols-12 gap-8 items-end mb-14">
+        <div class="lg:col-span-6">
+          <div class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-[#0B6599] mb-3">
+            <span class="w-6 h-0.5 bg-[#0B6599]"></span>
+            <span>What We Do · Official Services</span>
+          </div>
+          <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+            <?php echo esc_html( ! empty( $service_overview_h ) ? $service_overview_h : '360° Digital Marketing Solution for Your Business' ); ?>
+          </h2>
         </div>
-        <h2 class="font-display text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-          <?php echo esc_html( ! empty( $service_overview_h ) ? $service_overview_h : '360° Digital Marketing Solution for Your Business' ); ?>
-        </h2>
-        <p class="text-slate-600 text-base sm:text-lg mt-3 leading-relaxed">
-          <?php if ( ! empty( $service_overview_b ) ) : ?>
-            <?php echo function_exists( 'wp_kses_post' ) ? wp_kses_post( $service_overview_b ) : esc_html( $service_overview_b ); ?>
-          <?php else : ?>
-            We provide all 10 core digital marketing, web development, branding, and production services in-house so your business doesn't have to coordinate multiple agencies.
-          <?php endif; ?>
-        </p>
+        <div class="lg:col-span-6">
+          <p class="text-slate-700 text-base sm:text-lg leading-relaxed font-normal">
+            <?php if ( ! empty( $service_overview_b ) ) : ?>
+              <?php echo function_exists( 'wp_kses_post' ) ? wp_kses_post( $service_overview_b ) : esc_html( $service_overview_b ); ?>
+            <?php else : ?>
+              We provide all 10 core digital marketing, web development, branding, and production services in-house so your business doesn't have to coordinate multiple agencies.
+            <?php endif; ?>
+          </p>
+        </div>
       </div>
 
       <!-- 2-Column Boxed Grid (Strictly 2 Per Row, Zero Numbers, Zero AI Pill Clutter) -->
@@ -899,7 +924,7 @@ if ( ! defined( 'ABSPATH' ) ) {
               High-Ticket Neighborhoods We Target in <?php echo esc_html( $city ); ?>
             </h3>
           </div>
-          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <?php foreach ( $ai_submarkets as $sub ) : ?>
               <div class="bg-white rounded-lg p-6 border border-slate-200 flex flex-col justify-between shadow-sm">
                 <div>
@@ -909,7 +934,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                   <h4 class="font-display font-bold text-lg text-slate-900 leading-snug">
                     <?php echo esc_html( $sub['name'] ?? '' ); ?>
                   </h4>
-                  <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+                  <p class="text-sm text-slate-700 mt-2 leading-relaxed font-normal">
                     <?php echo esc_html( $sub['description'] ?? '' ); ?>
                   </p>
                 </div>
