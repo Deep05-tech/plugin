@@ -219,8 +219,9 @@ class City_Page_Repository {
 		$city_name = $city->name ?? 'City';
 		$primary_keyword = ! empty( $data['primary_keyword'] ) ? sanitize_text_field( $data['primary_keyword'] ) : ( preg_match( '/\b(agency|marketing|seo|services|solutions)\b/i', $svc_name ) ? sprintf( '%s in %s', $svc_name, $city_name ) : sprintf( 'Best Digital Marketing Agency for %s in %s', $svc_name, $city_name ) );
 		$title_override  = ! empty( $data['title_override'] ) ? sanitize_text_field( $data['title_override'] ) : $primary_keyword;
-		$slug            = ! empty( $data['slug'] ) ? sanitize_title( $data['slug'] ) : sanitize_title( "best-digital-marketing-agency-for-{$service->slug}-in-{$city->slug}" );
-		$url_path        = URL_Engine::build_path( $country, $state, $city, $service );
+		$slug            = ! empty( $data['slug'] ) ? sanitize_title( $data['slug'] ) : ( ! empty( $service->slug ) && ! empty( $city->slug ) ? sanitize_title( "best-digital-marketing-agency-for-{$service->slug}-in-{$city->slug}" ) : sanitize_title( $primary_keyword ) );
+		$custom_slug     = ! empty( $data['custom_slug'] ) ? sanitize_title( $data['custom_slug'] ) : null;
+		$url_path        = ! empty( $data['url_path'] ) ? '/' . trim( sanitize_text_field( $data['url_path'] ), '/' ) . '/' : URL_Engine::build_path( $country, $state, $city, $service, $custom_slug ?: '' );
 
 		$status          = sanitize_text_field( $data['status'] ?? self::STATUS_DRAFT );
 		$import_job_id   = ! empty( $data['import_job_id'] ) ? sanitize_text_field( $data['import_job_id'] ) : null;
@@ -235,7 +236,7 @@ class City_Page_Repository {
 				'city_id'         => $city_id,
 				'service_id'      => $service_id,
 				'slug'            => $slug,
-				'custom_slug'     => null,
+				'custom_slug'     => $custom_slug,
 				'url_path'        => $url_path,
 				'title_override'  => $title_override,
 				'status'          => $status,

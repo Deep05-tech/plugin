@@ -37,6 +37,9 @@ class CSV_Validator {
 		'city_slug',
 		'service_slug',
 		'page_status',
+		'status',
+		'custom_slug',
+		'url_path',
 		'keywords',
 		'target_keywords',
 		'primary_keyword',
@@ -57,6 +60,9 @@ class CSV_Validator {
 		'city_slug'    => 100,
 		'service_slug' => 150,
 		'page_status'  => 20,
+		'status'       => 20,
+		'custom_slug'  => 200,
+		'url_path'     => 255,
 	];
 
 	/**
@@ -308,21 +314,30 @@ class CSV_Validator {
 			$state_code   = isset( $column_map['state_code'] ) ? self::sanitize_formula_injection( $row[ $column_map['state_code'] ] ?? '' ) : '';
 			$city_slug    = isset( $column_map['city_slug'] ) ? sanitize_title( $row[ $column_map['city_slug'] ] ?? '' ) : '';
 			$service_slug = isset( $column_map['service_slug'] ) ? sanitize_title( $row[ $column_map['service_slug'] ] ?? '' ) : '';
-			$page_status  = isset( $column_map['page_status'] ) ? sanitize_text_field( $row[ $column_map['page_status'] ] ?? 'draft' ) : 'draft';
+			$page_status  = isset( $column_map['page_status'] ) ? sanitize_text_field( $row[ $column_map['page_status'] ] ?? 'draft' ) : ( isset( $column_map['status'] ) ? sanitize_text_field( $row[ $column_map['status'] ] ?? 'draft' ) : 'draft' );
+			$custom_slug  = isset( $column_map['custom_slug'] ) ? sanitize_title( $row[ $column_map['custom_slug'] ] ?? '' ) : '';
+			$url_path     = isset( $column_map['url_path'] ) ? sanitize_text_field( $row[ $column_map['url_path'] ] ?? '' ) : '';
+			$primary_kw   = isset( $column_map['primary_keyword'] ) ? sanitize_text_field( $row[ $column_map['primary_keyword'] ] ?? '' ) : ( isset( $column_map['keyword'] ) ? sanitize_text_field( $row[ $column_map['keyword'] ] ?? '' ) : '' );
+			$keywords     = isset( $column_map['keywords'] ) ? sanitize_textarea_field( $row[ $column_map['keywords'] ] ?? '' ) : ( isset( $column_map['target_keywords'] ) ? sanitize_textarea_field( $row[ $column_map['target_keywords'] ] ?? '' ) : '' );
 
 			$valid_entry = [
-				'row_index'    => $row_index,
-				'country'      => $country,
-				'state'        => $state,
-				'city'         => $city,
-				'service'      => $service,
-				'country_code' => $country_code,
-				'state_code'   => $state_code,
-				'city_slug'    => $city_slug,
-				'service_slug' => $service_slug,
-				'page_status'  => $page_status,
-				'signature'    => $signature,
-				'warnings'     => $row_warnings,
+				'row_index'       => $row_index,
+				'country'         => $country,
+				'state'           => $state,
+				'city'            => $city,
+				'service'         => $service,
+				'country_code'    => $country_code,
+				'state_code'      => $state_code,
+				'city_slug'       => $city_slug,
+				'service_slug'    => $service_slug,
+				'page_status'     => $page_status,
+				'status'          => $page_status,
+				'custom_slug'     => $custom_slug,
+				'url_path'        => $url_path,
+				'primary_keyword' => $primary_kw,
+				'keywords'        => $keywords,
+				'signature'       => $signature,
+				'warnings'        => $row_warnings,
 			];
 
 			if ( ! empty( $row_warnings ) ) {

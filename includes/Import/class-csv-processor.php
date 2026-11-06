@@ -158,9 +158,12 @@ class CSV_Processor {
 				}
 				$service_id = self::$cache_services[ $service_key ];
 
-				// 5. Register Logical City Page Combination with Keywords.
-				$primary_kw = ! empty( $row['primary_keyword'] ) ? CSV_Normalizer::canonical_name( (string) $row['primary_keyword'] ) : ( ! empty( $row['keyword'] ) ? CSV_Normalizer::canonical_name( (string) $row['keyword'] ) : '' );
-				$target_kws = ! empty( $row['keywords'] ) ? sanitize_textarea_field( (string) $row['keywords'] ) : ( ! empty( $row['target_keywords'] ) ? sanitize_textarea_field( (string) $row['target_keywords'] ) : ( ! empty( $row['secondary_keywords'] ) ? sanitize_textarea_field( (string) $row['secondary_keywords'] ) : '' ) );
+				// 5. Register Logical City Page Combination with Keywords & Custom URLs.
+				$primary_kw  = ! empty( $row['primary_keyword'] ) ? CSV_Normalizer::canonical_name( (string) $row['primary_keyword'] ) : ( ! empty( $row['keyword'] ) ? CSV_Normalizer::canonical_name( (string) $row['keyword'] ) : '' );
+				$target_kws  = ! empty( $row['keywords'] ) ? sanitize_textarea_field( (string) $row['keywords'] ) : ( ! empty( $row['target_keywords'] ) ? sanitize_textarea_field( (string) $row['target_keywords'] ) : ( ! empty( $row['secondary_keywords'] ) ? sanitize_textarea_field( (string) $row['secondary_keywords'] ) : '' ) );
+				$custom_slug = ! empty( $row['custom_slug'] ) ? sanitize_title( (string) $row['custom_slug'] ) : null;
+				$url_path    = ! empty( $row['url_path'] ) ? '/' . trim( sanitize_text_field( (string) $row['url_path'] ), '/' ) . '/' : null;
+				$status      = ! empty( $row['status'] ) ? sanitize_text_field( (string) $row['status'] ) : ( ! empty( $row['page_status'] ) ? sanitize_text_field( (string) $row['page_status'] ) : null );
 
 				$page_combo = City_Page_Repository::find_or_create( [
 					'country_id'      => $country_id,
@@ -170,14 +173,17 @@ class CSV_Processor {
 					'import_job_id'   => $job_id,
 					'primary_keyword' => $primary_kw,
 					'target_keywords' => $target_kws,
+					'custom_slug'     => $custom_slug,
+					'url_path'        => $url_path,
+					'status'          => $status ?: City_Page_Repository::STATUS_DRAFT,
 				] );
 
 				if ( ! empty( $page_combo['created'] ) ) {
 					$batch_stats['created_combinations']++;
 				} else {
 					$batch_stats['existing_combinations']++;
-					// If page already exists and new keywords were provided in CSV, update the keywords.
-					if ( ! empty( $page_combo['id'] ) && ( ! empty( $primary_kw ) || ! empty( $target_kws ) ) ) {
+					// If page already exists and new keywords/urls were provided in CSV, update the record.
+					if ( ! empty( $page_combo['id'] ) ) {
 						$update_payload = [];
 						if ( ! empty( $primary_kw ) ) {
 							$update_payload['primary_keyword'] = $primary_kw;
@@ -185,7 +191,18 @@ class CSV_Processor {
 						if ( ! empty( $target_kws ) ) {
 							$update_payload['target_keywords'] = $target_kws;
 						}
-						City_Page_Repository::update( (int) $page_combo['id'], $update_payload );
+						if ( ! empty( $custom_slug ) ) {
+							$update_payload['custom_slug'] = $custom_slug;
+						}
+						if ( ! empty( $url_path ) ) {
+							$update_payload['url_path'] = $url_path;
+						}
+						if ( ! empty( $status ) ) {
+							$update_payload['status'] = $status;
+						}
+						if ( ! empty( $update_payload ) ) {
+							City_Page_Repository::update( (int) $page_combo['id'], $update_payload );
+						}
 					}
 				}
 

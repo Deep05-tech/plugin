@@ -47,6 +47,25 @@ class Import_Controller {
 			return;
 		}
 
+		// Handle Download Real Estate Demo CSV.
+		if ( 'download_re_demo' === $action ) {
+			$this->handle_download_file( SEO_CITY_PAGES_PLUGIN_DIR . 'data/real-estate-demo-20.csv', 'real-estate-demo-20.csv' );
+			return;
+		}
+
+		// Handle Download Real Estate All 3117 CSV.
+		if ( 'download_re_all' === $action ) {
+			$this->handle_download_file( SEO_CITY_PAGES_PLUGIN_DIR . 'data/real-estate-all-3117.csv', 'real-estate-all-3117.csv' );
+			return;
+		}
+
+		// Handle Seed Real Estate Demo (20 Pages).
+		if ( 'seed_real_estate_demo' === $action ) {
+			check_admin_referer( 'seed_re_demo' );
+			$this->handle_seed_real_estate_demo();
+			return;
+		}
+
 		// Handle Download Error CSV.
 		if ( 'download_errors' === $action ) {
 			$this->handle_download_errors();
@@ -321,6 +340,73 @@ class Import_Controller {
 		}
 
 		fclose( $output ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
+		exit;
+	}
+
+	/**
+	 * Seed 20 Real Estate Demo Pages from bundled CSV.
+	 *
+	 * @return void
+	 */
+	private function handle_seed_real_estate_demo(): void {
+		if ( ! current_user_can( Capabilities::MANAGE ) ) {
+			wp_die( esc_html__( 'Unauthorized.', 'seo-city-pages' ) );
+		}
+
+		$file_path = SEO_CITY_PAGES_PLUGIN_DIR . 'data/real-estate-demo-20.csv';
+		if ( ! file_exists( $file_path ) ) {
+			wp_die( esc_html__( 'Real estate demo dataset file not found.', 'seo-city-pages' ) );
+		}
+
+		$validation = CSV_Validator::validate_file( $file_path );
+		if ( empty( $validation['valid_rows'] ) ) {
+			wp_die( esc_html__( 'Failed to parse real estate demo dataset.', 'seo-city-pages' ) );
+		}
+
+		$job_id = 're_demo_' . wp_generate_password( 8, false, false );
+		Import_Job_Repository::create_job( [
+			'job_id'     => $job_id,
+			'file_name'  => 'real-estate-demo-20.csv',
+			'total_rows' => count( $validation['valid_rows'] ),
+			'status'     => 'running',
+			'valid_rows' => count( $validation['valid_rows'] ),
+		] );
+
+		$result = CSV_Processor::process_batch( $validation['valid_rows'], $job_id );
+		Import_Job_Repository::update_status( $job_id, 'completed', $result );
+
+		$redirect_url = add_query_arg(
+			[
+				'page'      => 'seo-city-pages-import',
+				're_seeded' => (int) ( $result['created_combinations'] + $result['existing_combinations'] ),
+			],
+			admin_url( 'admin.php' )
+		);
+		wp_safe_redirect( $redirect_url );
+		exit;
+	}
+
+	/**
+	 * Stream static file download.
+	 *
+	 * @param string $path File path.
+	 * @param string $download_name Filename for browser download.
+	 * @return void
+	 */
+	private function handle_download_file( string $path, string $download_name ): void {
+		if ( ! current_user_can( Capabilities::MANAGE ) ) {
+			wp_die( esc_html__( 'Unauthorized.', 'seo-city-pages' ) );
+		}
+
+		if ( ! file_exists( $path ) || ! is_readable( $path ) ) {
+			wp_die( esc_html__( 'Requested file not found.', 'seo-city-pages' ) );
+		}
+
+		header( 'Content-Type: text/csv; charset=utf-8' );
+		header( 'Content-Disposition: attachment; filename=' . sanitize_file_name( $download_name ) );
+		header( 'Pragma: no-cache' );
+		header( 'Expires: 0' );
+		readfile( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile
 		exit;
 	}
 }

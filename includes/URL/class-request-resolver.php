@@ -562,6 +562,19 @@ class Request_Resolver {
 			return;
 		}
 
+		$is_real_estate = (bool) preg_match( '/\b(real\s*estate|realtor|brokerage|housing|realty)\b/i', (string) $service );
+		if ( $is_real_estate ) {
+			echo \SeoCityPages\Elementor\Elementor_Integration::get_animation_assets(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo \SeoCityPages\Elementor\Content_Context::render_real_estate_full_page_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			if ( function_exists( 'get_footer' ) ) {
+				get_footer();
+			}
+			if ( ! defined( 'SEO_CITY_PAGES_TESTING' ) ) {
+				exit;
+			}
+			return;
+		}
+
 		echo \SeoCityPages\Elementor\Elementor_Integration::get_animation_assets(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		?>
 		<main id="primary" class="site-main seo-city-page-container" style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e1e1e; line-height: 1.6; background: #ffffff;">

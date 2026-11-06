@@ -28,11 +28,17 @@ $can_import          = \SeoCityPages\Security\Capabilities::user_can( \SeoCityPa
 			<p class="scp-subtitle"><?php esc_html_e( 'The primary, high-volume data-ingestion pipeline for Countries, States, Cities, Services, and Logical City Pages.', 'seo-city-pages' ); ?></p>
 		</div>
 		<div class="scp-header-right">
-			<a href="<?php echo esc_url( admin_url( 'admin.php?page=seo-city-pages-pages&action=new' ) ); ?>" class="button button-primary">
-				<span class="dashicons dashicons-plus-alt2"></span> <?php esc_html_e( 'Generate Page Manually', 'seo-city-pages' ); ?>
+			<a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?page=seo-city-pages-import&action=seed_real_estate_demo' ), 'seed_re_demo' ) ); ?>" class="button button-primary" style="background: #0B6599; border-color: #0B6599;" onclick="return confirm('Generate 20 Real Estate demo pages on staging?');">
+				<span class="dashicons dashicons-admin-home"></span> <?php esc_html_e( 'Seed Real Estate Demo (20 Pages)', 'seo-city-pages' ); ?>
 			</a>
-			<a href="<?php echo esc_url( $sample_download_url ); ?>" class="button button-secondary">
-				<span class="dashicons dashicons-download"></span> <?php esc_html_e( 'Download Sample CSV', 'seo-city-pages' ); ?>
+			<a href="<?php echo esc_url( admin_url( 'admin.php?page=seo-city-pages-import&action=download_re_demo' ) ); ?>" class="button button-secondary">
+				<span class="dashicons dashicons-download"></span> <?php esc_html_e( 'Demo CSV (20)', 'seo-city-pages' ); ?>
+			</a>
+			<a href="<?php echo esc_url( admin_url( 'admin.php?page=seo-city-pages-import&action=download_re_all' ) ); ?>" class="button button-secondary">
+				<span class="dashicons dashicons-media-spreadsheet"></span> <?php esc_html_e( 'All Real Estate CSV (3,117)', 'seo-city-pages' ); ?>
+			</a>
+			<a href="<?php echo esc_url( admin_url( 'admin.php?page=seo-city-pages-pages&action=new' ) ); ?>" class="button button-secondary">
+				<span class="dashicons dashicons-plus-alt2"></span> <?php esc_html_e( 'New Page', 'seo-city-pages' ); ?>
 			</a>
 			<a href="<?php echo esc_url( admin_url( 'admin.php?page=seo-city-pages' ) ); ?>" class="button button-secondary">
 				<span class="dashicons dashicons-dashboard"></span> <?php esc_html_e( 'Dashboard', 'seo-city-pages' ); ?>
@@ -75,6 +81,12 @@ $can_import          = \SeoCityPages\Security\Capabilities::user_can( \SeoCityPa
 	<?php if ( ! empty( $error_notice ) ) : ?>
 		<div class="notice notice-error is-dismissible">
 			<p><strong><?php esc_html_e( 'Import Validation Error:', 'seo-city-pages' ); ?></strong> <?php echo esc_html( $error_notice ); ?></p>
+		</div>
+	<?php endif; ?>
+
+	<?php if ( isset( $_GET['re_seeded'] ) ) : ?>
+		<div class="notice notice-success is-dismissible" style="border-left-color: #0B6599;">
+			<p><strong><?php esc_html_e( 'Real Estate Demo Ready:', 'seo-city-pages' ); ?></strong> <?php printf( esc_html__( 'Successfully seeded %d Real Estate demo pages into your staging database! The live sitemap URLs are now active with zero 404s.', 'seo-city-pages' ), absint( $_GET['re_seeded'] ) ); ?></p>
 		</div>
 	<?php endif; ?>
 

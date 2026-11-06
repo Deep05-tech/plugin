@@ -144,6 +144,20 @@ class Elementor_Integration {
 		$url     = Page_Context::get_url();
 
 		$is_home_services = (bool) preg_match( '/\b(home\s*services?|home\s*cleaning|contractors?|emergency\s*trades?)\b/i', (string) $service );
+		$is_real_estate   = (bool) preg_match( '/\b(real\s*estate|realtor|brokerage|housing|realty)\b/i', (string) $service );
+
+		// Developer-crafted Real Estate Landing Page
+		if ( $is_real_estate && null === $widget && ( false !== strpos( $content, 'vispan_hero_section' ) || ( false !== strpos( $content, 'data-elementor-type' ) && false !== strpos( $content, 'elementor-section' ) ) || false !== strpos( $content, 'vispan_cta_section' ) ) ) {
+			$is_editor = false;
+			if ( class_exists( '\Elementor\Plugin' ) && isset( \Elementor\Plugin::$instance->editor ) && method_exists( \Elementor\Plugin::$instance->editor, 'is_edit_mode' ) ) {
+				$is_editor = (bool) \Elementor\Plugin::$instance->editor->is_edit_mode();
+			}
+			if ( ! $is_editor ) {
+				$crafted_page = Content_Context::render_real_estate_full_page_html();
+				$is_filtering = false;
+				return $crafted_page;
+			}
+		}
 
 		// Developer-crafted Home Services Landing Page: replace the generic master Elementor template with the custom multi-trade contractor landing page.
 		if ( $is_home_services && null === $widget && ( false !== strpos( $content, 'vispan_hero_section' ) || ( false !== strpos( $content, 'data-elementor-type' ) && false !== strpos( $content, 'elementor-section' ) ) || false !== strpos( $content, 'vispan_cta_section' ) ) ) {
@@ -328,6 +342,11 @@ class Elementor_Integration {
 		$is_home_services = (bool) preg_match( '/\b(home\s*services?|home\s*cleaning|contractors?|emergency\s*trades?)\b/i', (string) $service_name );
 		if ( $is_home_services ) {
 			return Content_Context::render_home_services_full_page_html();
+		}
+
+		$is_real_estate = (bool) preg_match( '/\b(real\s*estate|realtor|brokerage|housing|realty)\b/i', (string) $service_name );
+		if ( $is_real_estate ) {
+			return Content_Context::render_real_estate_full_page_html();
 		}
 
 		// Check if Elementor template is configured and active.

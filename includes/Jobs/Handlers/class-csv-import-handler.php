@@ -14,7 +14,7 @@ use SeoCityPages\Database\State_Repository;
 use SeoCityPages\Database\City_Repository;
 use SeoCityPages\Database\Service_Repository;
 use SeoCityPages\Database\City_Page_Repository;
-use SeoCityPages\URL\URL_Structure;
+use SeoCityPages\URL\URL_Engine;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -169,15 +169,17 @@ class CSV_Import_Handler {
 		}
 
 		// 6. Create City Page.
-		$url_path = URL_Structure::generate_url_path( $service_obj->slug, $city_obj->slug );
-		$page_data = [
+		$custom_slug = ! empty( $row['custom_slug'] ) ? sanitize_title( (string) $row['custom_slug'] ) : '';
+		$url_path    = ! empty( $row['url_path'] ) ? '/' . trim( sanitize_text_field( (string) $row['url_path'] ), '/' ) . '/' : URL_Engine::build_path( $country, $state, $city_obj, $service_obj, $custom_slug );
+		$page_data   = [
 			'country_id'        => $country_id,
 			'state_id'          => $state_id,
 			'city_id'           => $city_id,
 			'service_id'        => $service_id,
 			'slug'              => $city_obj->slug,
+			'custom_slug'       => $custom_slug ?: null,
 			'url_path'          => $url_path,
-			'status'            => sanitize_text_field( $row['page_status'] ?? 'draft' ),
+			'status'            => sanitize_text_field( $row['status'] ?? ( $row['page_status'] ?? 'draft' ) ),
 			'generation_status' => 'not_generated',
 			'import_job_id'     => $job->job_id,
 		];

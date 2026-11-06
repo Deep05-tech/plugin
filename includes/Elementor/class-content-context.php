@@ -2852,4 +2852,74 @@ class Content_Context {
 
 		return '<!-- Vispan Home Services template missing -->';
 	}
+
+	/**
+	 * Render the complete, developer-crafted Real Estate Landing Page.
+	 *
+	 * Uses the official Vispan Solutions real estate master template with Tailwind CSS styling,
+	 * 10 official Vispan real estate growth services, 6 property sectors, verified reviews,
+	 * and AJAX-connected lead forms.
+	 *
+	 * @return string Complete high-converting HTML layout.
+	 */
+	public static function render_real_estate_full_page_html(): string {
+		$city    = Page_Context::get_city();
+		if ( empty( $city ) ) {
+			$city = 'Your City';
+		}
+		$state   = Page_Context::get_state();
+		$country = Page_Context::get_country();
+		$service = Page_Context::get_service();
+		if ( empty( $service ) ) {
+			$service = 'Real Estate Advertising Agency';
+		}
+
+		$state_display = ! empty( $state ) ? $state : '';
+
+		// Dynamic submarket string
+		$content_data = self::get_active_content();
+		$submarkets   = $content_data['submarkets'] ?? [];
+		$cities_list  = [];
+		if ( ! empty( $submarkets ) && is_array( $submarkets ) ) {
+			foreach ( array_slice( $submarkets, 0, 3 ) as $sm ) {
+				if ( ! empty( $sm['name'] ) ) {
+					$cities_list[] = $sm['name'];
+				}
+			}
+		}
+		if ( ! empty( $cities_list ) ) {
+			if ( count( $cities_list ) === 1 ) {
+				$cities_str = $cities_list[0];
+			} elseif ( count( $cities_list ) === 2 ) {
+				$cities_str = $cities_list[0] . ' & ' . $cities_list[1];
+			} else {
+				$cities_str = $cities_list[0] . ', ' . $cities_list[1] . ' & ' . $cities_list[2];
+			}
+		} else {
+			$cities_str = sprintf( 'key neighborhoods across %s', $city );
+		}
+
+		$hero_title       = self::get_hero_title();
+		$hero_description = self::get_hero_description();
+		$hero_cta         = ! empty( $content_data['hero']['cta_text'] ) ? (string) $content_data['hero']['cta_text'] : self::get_hero_cta();
+		$intro_heading    = self::get_intro_heading();
+		$intro_body       = self::get_intro_body();
+		$service_overview_h = self::get_service_overview_heading();
+		$service_overview_b = self::get_service_overview_body();
+		$final_cta_head   = self::get_final_cta_heading();
+		$final_cta_desc   = self::get_final_cta_description();
+		$final_cta_btn    = self::get_final_cta_button();
+
+		$nonce = function_exists( 'wp_create_nonce' ) ? wp_create_nonce( 'vispan_marketing_inquiry' ) : 'vispan_inquiry_nonce';
+
+		$tpl_dir       = __DIR__ . '/templates';
+		$template_file = $tpl_dir . '/real-estate-master-template.php';
+		if ( file_exists( $template_file ) ) {
+			ob_start();
+			include $template_file;
+			return (string) ob_get_clean();
+		}
+
+		return '<!-- Vispan Real Estate template missing -->';
+	}
 }
