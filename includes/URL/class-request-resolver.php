@@ -131,10 +131,14 @@ class Request_Resolver {
 			|| self::$is_preview;
 
 		if ( $is_seo_page ) {
-			// 1. Check for Elementor Full Width Template (Header + Full Width Canvas + Footer, NO sidebar/banner)
+			// 1. Check for Elementor Canvas Template (Full blank canvas: NO theme header/footer leaks)
 			if ( class_exists( '\Elementor\Plugin' ) && isset( \Elementor\Plugin::$instance->modules_manager ) ) {
 				$templates_module = \Elementor\Plugin::$instance->modules_manager->get_modules( 'page-templates' );
 				if ( $templates_module && method_exists( $templates_module, 'get_template_path' ) ) {
+					$el_canvas = $templates_module->get_template_path( 'elementor_canvas' );
+					if ( ! empty( $el_canvas ) && file_exists( $el_canvas ) ) {
+						return $el_canvas;
+					}
 					$el_template = $templates_module->get_template_path( 'elementor_header_footer' );
 					if ( ! empty( $el_template ) && file_exists( $el_template ) ) {
 						return $el_template;
@@ -503,16 +507,23 @@ class Request_Resolver {
 	 * @return void
 	 */
 	private function render_elementor_template( int $template_id ): void {
-		if ( function_exists( 'get_header' ) ) {
+		$rendered = '';
+		if ( class_exists( '\Elementor\Plugin' ) && isset( \Elementor\Plugin::$instance->frontend ) ) {
+			$raw_content = \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( $template_id, true );
+			$rendered    = \SeoCityPages\Elementor\Elementor_Integration::filter_rendered_content( $raw_content );
+		}
+
+		$is_full_page = false !== strpos( $rendered, 'vispan-home-services-page' )
+			|| false !== strpos( $rendered, 'vispan-real-estate-page' )
+			|| false !== strpos( $rendered, 'vispan-general-agency-page' );
+
+		if ( ! $is_full_page && function_exists( 'get_header' ) ) {
 			get_header();
 		}
 
-		if ( class_exists( '\Elementor\Plugin' ) && isset( \Elementor\Plugin::$instance->frontend ) ) {
-			$raw_content = \Elementor\Plugin::$instance->frontend->get_builder_content_for_display( $template_id, true );
-			echo \SeoCityPages\Elementor\Elementor_Integration::filter_rendered_content( $raw_content ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		}
+		echo $rendered; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
-		if ( function_exists( 'get_footer' ) ) {
+		if ( ! $is_full_page && function_exists( 'get_footer' ) ) {
 			get_footer();
 		}
 
@@ -533,21 +544,7 @@ class Request_Resolver {
 			get_header();
 		}
 
-		$hero_title       = \SeoCityPages\Elementor\Content_Context::get_hero_title();
-		$hero_description = \SeoCityPages\Elementor\Content_Context::get_hero_description();
-		$hero_cta         = \SeoCityPages\Elementor\Content_Context::get_hero_cta();
-		$intro_heading    = \SeoCityPages\Elementor\Content_Context::get_intro_heading();
-		$intro_body       = \SeoCityPages\Elementor\Content_Context::get_intro_body();
-		$overview_heading = \SeoCityPages\Elementor\Content_Context::get_service_overview_heading();
-		$overview_body    = \SeoCityPages\Elementor\Content_Context::get_service_overview_body();
-		$final_cta_head   = \SeoCityPages\Elementor\Content_Context::get_final_cta_heading();
-		$final_cta_desc   = \SeoCityPages\Elementor\Content_Context::get_final_cta_description();
-		$final_cta_btn    = \SeoCityPages\Elementor\Content_Context::get_final_cta_button();
-
-		$city    = \SeoCityPages\Elementor\Page_Context::get_city();
-		$state   = \SeoCityPages\Elementor\Page_Context::get_state();
 		$service = \SeoCityPages\Elementor\Page_Context::get_service();
-		$url     = \SeoCityPages\Elementor\Page_Context::get_url();
 
 		$is_home_services = (bool) preg_match( '/\b(home\s*services?|home\s*cleaning|contractors?|emergency\s*trades?)\b/i', (string) $service );
 		if ( $is_home_services ) {
@@ -575,219 +572,16 @@ class Request_Resolver {
 			return;
 		}
 
+		// Master General Agency template for all other services (Dental Clinic, Law Firm, Healthcare, B2B/B2C, etc.)
 		echo \SeoCityPages\Elementor\Elementor_Integration::get_animation_assets(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		?>
-		<main id="primary" class="site-main seo-city-page-container" style="font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e1e1e; line-height: 1.6; background: #ffffff;">
-
-			<!-- 1. HERO SECTION -->
-			<section class="seo-hero-section" style="padding: 80px 24px 70px; background: #FFFFFF; max-width: 1200px; margin: 0 auto;">
-				<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 48px; align-items: center;">
-					<div class="vispan-reveal-left">
-						<div style="display: inline-flex; align-items: center; gap: 8px; background: #F0F6FA; border: 1px solid #CCE0ED; border-radius: 30px; padding: 6px 16px; margin-bottom: 18px;">
-							<span style="font-size: 12px; font-weight: 800; color: #02426A; letter-spacing: 0.12em; text-transform: uppercase;">⭐ 5.0 ON GOOGLE • <?php echo esc_html( $city ); ?> EXPERTISE</span>
-						</div>
-						<h1 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(30px, 4vw, 50px); font-weight: 800; line-height: 1.2; letter-spacing: 0px; word-spacing: 1.5px; color: #121212; margin: 0 0 18px;"><?php echo esc_html( $hero_title ); ?></h1>
-						<p style="font-size: 18px; line-height: 1.65; color: #5D5756; margin: 0 0 24px; max-width: 580px;"><?php echo esc_html( $hero_description ); ?></p>
-						<div style="display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 32px; font-size: 14.5px; font-weight: 600; color: #121212;">
-							<span style="display: inline-flex; align-items: center; gap: 6px;"><span style="color: #02426A; font-weight: 900;">✓</span> 100% ROI-Focused</span>
-							<span style="display: inline-flex; align-items: center; gap: 6px;"><span style="color: #02426A; font-weight: 900;">✓</span> Dedicated Strategist</span>
-							<span style="display: inline-flex; align-items: center; gap: 6px;"><span style="color: #02426A; font-weight: 900;">✓</span> Submarket Targeting</span>
-						</div>
-						<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 18px;">
-							<a href="https://vispansolutions.com/contact-us/" class="vispan-btn-glow" style="display: inline-block; background: #02426A; color: #FFFFFF; font-weight: 700; font-size: 14px; letter-spacing: 0.04em; text-transform: uppercase; padding: 16px 36px; border-radius: 100px; text-decoration: none; box-shadow: 0 12px 28px -10px rgba(2,66,106,0.5);"><?php echo esc_html( $hero_cta ); ?></a>
-							<a href="tel:+918485986860" style="font-size: 14.5px; font-weight: 700; color: #02426A; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">📞 +91 84859 86860</a>
-						</div>
-					</div>
-					<div class="vispan-reveal-right vispan-delay-1 vispan-hover-card" style="background: #F0F6FA; border: 1.5px solid #CCE0ED; border-radius: 24px; padding: 0 0 28px; overflow: hidden; box-shadow: 0 20px 45px -25px rgba(2,66,106,0.2);">
-						<div style="height: 170px; position: relative; overflow: hidden;">
-							<img src="<?php echo esc_url( \SeoCityPages\Elementor\Content_Context::get_image_url( 'seo-strategy-team.jpg' ) ); ?>" alt="Local SEO Strategy Team" style="width: 100%; height: 100%; object-fit: cover;" />
-							<div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(2,66,106,0.15) 0%, rgba(2,66,106,0.85) 100%);"></div>
-							<div style="position: absolute; bottom: 12px; left: 18px; right: 18px; display: flex; justify-content: space-between; align-items: flex-end;">
-								<span style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 11px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: #BEE3F8; background: rgba(2,66,106,0.7); padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2);">VISPAN LOCAL ADVANTAGE</span>
-								<span style="background: #00a32a; color: #FFFFFF; font-size: 10.5px; font-weight: 800; padding: 3px 8px; border-radius: 12px;">ACTIVE STRATEGY</span>
-							</div>
-						</div>
-						<div style="padding: 22px 24px 0;">
-							<h3 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; font-weight: 800; color: #121212; margin: 0 0 16px;">Market Growth In <?php echo esc_html( $city ); ?></h3>
-							<div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
-								<div style="background: #FFFFFF; border: 1px solid #CCE0ED; border-radius: 12px; padding: 12px 14px; display: flex; align-items: flex-start; gap: 10px;">
-									<span style="background: #e6f7ec; color: #00a32a; font-size: 15px; font-weight: 900; width: 26px; height: 26px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">✓</span>
-									<div>
-										<div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13.5px; font-weight: 800; color: #121212;">Granular Submarket Graph</div>
-										<div style="font-size: 12px; color: #5D5756; line-height: 1.4;">Geo-coordinated schema capturing high-CPC commercial searchers.</div>
-									</div>
-								</div>
-								<div style="background: #FFFFFF; border: 1px solid #CCE0ED; border-radius: 12px; padding: 12px 14px; display: flex; align-items: flex-start; gap: 10px;">
-									<span style="background: #e6f7ec; color: #00a32a; font-size: 15px; font-weight: 900; width: 26px; height: 26px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">✓</span>
-									<div>
-										<div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13.5px; font-weight: 800; color: #121212;">Map Pack & SERP Velocity</div>
-										<div style="font-size: 12px; color: #5D5756; line-height: 1.4;">Top 3 Google positioning framework with verified citation audit.</div>
-									</div>
-								</div>
-								<div style="background: #FFFFFF; border: 1px solid #CCE0ED; border-radius: 12px; padding: 12px 14px; display: flex; align-items: flex-start; gap: 10px;">
-									<span style="background: #e6f7ec; color: #00a32a; font-size: 15px; font-weight: 900; width: 26px; height: 26px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">✓</span>
-									<div>
-										<div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13.5px; font-weight: 800; color: #121212;">Dedicated Senior Strategist</div>
-										<div style="font-size: 12px; color: #5D5756; line-height: 1.4;">Direct partner consultation with monthly executive ROI reviews.</div>
-									</div>
-								</div>
-							</div>
-							<div style="background: #02426A; border-radius: 12px; padding: 12px 16px; text-align: center; color: #FFFFFF;">
-								<div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.04em;">📍 Tailored specifically for <?php echo esc_html( $city . ', ' . $state ); ?></div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</section>
-
-			<!-- 2. CITYSCAPE / MARKET KICKER BANNER -->
-			<section style="padding: 75px 24px; background: #02426A; color: #FFFFFF;">
-				<div class="vispan-reveal-up" style="position: relative; text-align: center; max-width: 900px; margin: 0 auto; padding: 40px 30px; background: linear-gradient(rgba(2,66,106,0.92), rgba(2,66,106,0.92)), url('<?php echo esc_url( \SeoCityPages\Elementor\Content_Context::get_image_url( 'city-market-data.jpg' ) ); ?>') center/cover no-repeat; border-radius: 20px; border: 1.5px solid rgba(255,255,255,0.15); box-shadow: 0 20px 50px -20px rgba(0,0,0,0.5);">
-					<div style="font-size: 12px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: #BEE3F8; margin-bottom: 12px;">LOCAL SEARCH MARKET DYNAMICS</div>
-					<h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(26px, 3.2vw, 38px); font-weight: 800; color: #FFFFFF; line-height: 1.25; margin: 0 0 14px;"><?php echo esc_html( $intro_heading ); ?></h2>
-					<p style="font-size: 16.5px; line-height: 1.65; color: #E2E8F0; max-width: 740px; margin: 0 auto;"><?php echo function_exists( 'wp_kses_post' ) ? \wp_kses_post( $intro_body ) : esc_html( $intro_body ); ?></p>
-				</div>
-			</section>
-
-			<!-- 3. MARKET ANATOMY & METRO STATS -->
-			<section style="padding: 85px 24px; background: #FFFFFF;">
-				<div style="max-width: 1140px; margin: 0 auto;">
-					<div style="margin-bottom: 40px;">
-						<?php echo \SeoCityPages\Elementor\Content_Context::render_market_anatomy_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-					</div>
-					<div style="margin-top: 30px;">
-						<?php echo \SeoCityPages\Elementor\Content_Context::render_metro_stats_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-					</div>
-				</div>
-			</section>
-
-			<!-- 4. SEARCH INTENT ACCORDION -->
-			<section style="padding: 85px 24px; background: #F8FAFC;">
-				<div style="max-width: 880px; margin: 0 auto;">
-					<div class="vispan-reveal-up" style="text-align: center; margin-bottom: 40px;">
-						<div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: #02426A; margin-bottom: 10px;">SEARCH INTENT ARCHITECTURE</div>
-						<h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(28px, 3.4vw, 42px); font-weight: 800; color: #121212; margin: 0;">How We Capture High-Intent Traffic in <?php echo esc_html( $city ); ?></h2>
-					</div>
-					<?php echo \SeoCityPages\Elementor\Content_Context::render_market_accordion_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				</div>
-			</section>
-
-			<!-- 5. THE SUBMARKETS GRID -->
-			<section style="padding: 85px 24px; background: #FFFFFF;">
-				<div style="max-width: 1140px; margin: 0 auto;">
-					<div class="vispan-reveal-up" style="text-align: center; margin-bottom: 48px;">
-						<div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: #02426A; margin-bottom: 10px;">HYPER-LOCAL COVERAGE</div>
-						<h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(28px, 3.4vw, 42px); font-weight: 800; color: #121212; margin: 0 0 12px;">The <?php echo esc_html( $city ); ?> Submarket Ecosystem</h2>
-						<p style="font-size: 16.5px; color: #5D5756; max-width: 680px; margin: 0 auto;">We target individual commercial nodes across the metropolitan region, establishing local radius dominance.</p>
-					</div>
-					<?php echo \SeoCityPages\Elementor\Content_Context::render_submarkets_grid_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				</div>
-			</section>
-
-			<!-- 6. PROOF / CASE STUDY HIGHLIGHT -->
-			<section style="padding: 85px 24px; background: #F8FAFC;">
-				<div style="max-width: 900px; margin: 0 auto;">
-					<?php echo \SeoCityPages\Elementor\Content_Context::render_case_proof_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				</div>
-			</section>
-
-			<!-- 7. LONG-FORM AUTHORITY ESSAY -->
-			<section style="padding: 85px 24px; background: #F8FAFC;">
-				<div style="max-width: 1140px; margin: 0 auto;">
-					<?php echo \SeoCityPages\Elementor\Content_Context::render_essay_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				</div>
-			</section>
-
-			<!-- 8. ALL AGENCY SERVICES (10 Core Capabilities Cards) -->
-			<section style="padding: 85px 24px; background: #FFFFFF;">
-				<div style="max-width: 1140px; margin: 0 auto;">
-					<div class="vispan-reveal-up" style="text-align: center; max-width: 820px; margin: 0 auto 48px;">
-						<div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: #02426A; margin-bottom: 10px;">OUR COMPREHENSIVE SUITE</div>
-						<h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(28px, 3.4vw, 42px); font-weight: 800; color: #121212; margin: 0 0 12px; letter-spacing: 0px !important; word-spacing: normal !important;">Our Full Suite of Digital Marketing & Creative Services for <?php echo esc_html( ! empty( $service ) ? $service : 'Your Business' ); ?></h2>
-						<p style="font-size: 16.5px; color: #5D5756; margin: 0 auto; letter-spacing: 0px !important; word-spacing: normal !important;">From high-intent search campaigns to world-class 3D visuals, explore all 10 specialized services engineered to scale your <?php echo esc_html( ! empty( $service ) ? $service : 'brand' ); ?> practice in <?php echo esc_html( $city ); ?>.</p>
-					</div>
-					<?php echo \SeoCityPages\Elementor\Content_Context::render_industry_verticals_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				</div>
-			</section>
-
-			<!-- 10. NATIONAL DIRECTORY VS VISPAN COMPARISON TABLE -->
-			<section style="padding: 85px 24px; background: #F8FAFC;">
-				<div style="max-width: 1080px; margin: 0 auto;">
-					<div class="vispan-reveal-up" style="text-align: center; max-width: 760px; margin: 0 auto 44px;">
-						<div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: #02426A; margin-bottom: 10px;">STRATEGIC DIFFERENTIATION</div>
-						<h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(28px, 3.4vw, 42px); font-weight: 800; color: #121212; margin: 0 0 12px;">Standard National SEO vs. Vispan Architecture</h2>
-						<p style="font-size: 16.5px; color: #5D5756; margin: 0 auto;">Why thin doorway pages fail in competitive metropolitan markets and how our localized entity graph wins.</p>
-					</div>
-					<?php echo \SeoCityPages\Elementor\Content_Context::render_comparison_table_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				</div>
-			</section>
-
-			<!-- 11. 4-STAGE EXECUTION METHODOLOGY -->
-			<section style="padding: 85px 24px; background: #FFFFFF;">
-				<div style="max-width: 1140px; margin: 0 auto;">
-					<div class="vispan-reveal-up" style="text-align: center; max-width: 760px; margin: 0 auto 44px;">
-						<div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: #02426A; margin-bottom: 10px;">EXECUTION ROADMAP</div>
-						<h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(28px, 3.4vw, 42px); font-weight: 800; color: #121212; margin: 0 0 12px;">Our 4-Stage Search Growth Engine</h2>
-						<p style="font-size: 16.5px; color: #5D5756; margin: 0 auto;">A systematic, milestone-driven framework designed to establish compound local authority across <?php echo esc_html( $city ); ?>.</p>
-					</div>
-					<?php echo \SeoCityPages\Elementor\Content_Context::render_process_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				</div>
-			</section>
-
-			<!-- 12. 12-POINT TECHNICAL DELIVERABLES CHECKLIST -->
-			<section style="padding: 85px 24px; background: #F8FAFC;">
-				<div style="max-width: 1140px; margin: 0 auto;">
-					<div class="vispan-reveal-up" style="text-align: center; max-width: 760px; margin: 0 auto 44px;">
-						<div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: #02426A; margin-bottom: 10px;">TRANSPARENT DELIVERABLES</div>
-						<h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(28px, 3.4vw, 42px); font-weight: 800; color: #121212; margin: 0 0 12px;">Complete Local SEO Deliverables Package</h2>
-						<p style="font-size: 16.5px; color: #5D5756; margin: 0 auto;">Everything included in your dedicated <?php echo esc_html( $city ); ?> search growth campaign.</p>
-					</div>
-					<?php echo \SeoCityPages\Elementor\Content_Context::render_deliverables_checklist_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				</div>
-			</section>
-
-			<!-- 13. CORE CAPABILITIES / BENEFITS -->
-			<section style="padding: 85px 24px; background: #FFFFFF;">
-				<div style="max-width: 1140px; margin: 0 auto;">
-					<div class="vispan-reveal-up" style="text-align: center; max-width: 760px; margin: 0 auto 48px;">
-						<div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: #02426A; margin-bottom: 10px;">CORE EXPERTISE</div>
-						<h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(28px, 3.4vw, 42px); font-weight: 800; color: #121212; margin: 0 0 12px;"><?php echo esc_html( $overview_heading ); ?></h2>
-						<p style="font-size: 16.5px; color: #5D5756; margin: 0 auto;"><?php echo function_exists( 'wp_kses_post' ) ? \wp_kses_post( $overview_body ) : esc_html( $overview_body ); ?></p>
-					</div>
-					<?php echo \SeoCityPages\Elementor\Content_Context::render_benefits_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				</div>
-			</section>
-
-			<!-- 14. FAQ ACCORDION -->
-			<section style="padding: 85px 24px; background: #F8FAFC;">
-				<div style="max-width: 880px; margin: 0 auto;">
-					<div class="vispan-reveal-up" style="text-align: center; margin-bottom: 36px;">
-						<div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; font-weight: 800; letter-spacing: 0.18em; text-transform: uppercase; color: #02426A; margin-bottom: 10px;">COMMON QUESTIONS</div>
-						<h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(28px, 3.4vw, 42px); font-weight: 800; color: #121212; margin: 0;">Frequently Asked Questions in <?php echo esc_html( $city ); ?></h2>
-					</div>
-					<?php echo \SeoCityPages\Elementor\Content_Context::render_faqs_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-				</div>
-			</section>
-
-			<!-- 15. CLOSING CALL TO ACTION -->
-			<section style="padding: 85px 24px; background: #02426A; color: #FFFFFF;">
-				<div class="vispan-reveal-up" style="text-align: center; max-width: 760px; margin: 0 auto;">
-					<h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(30px, 4vw, 48px); font-weight: 800; color: #FFFFFF; line-height: 1.15; margin: 0 0 16px;"><?php echo esc_html( $final_cta_head ); ?></h2>
-					<p style="font-size: 17px; line-height: 1.65; color: #E2E8F0; max-width: 640px; margin: 0 auto 32px;"><?php echo esc_html( $final_cta_desc ); ?></p>
-					<div>
-						<a href="<?php echo esc_url( $url ); ?>" class="vispan-btn-glow" style="display: inline-block; background: #FFFFFF; color: #02426A; font-family: 'DM Sans', sans-serif; font-weight: 800; font-size: 14.5px; letter-spacing: 0.06em; text-transform: uppercase; padding: 18px 40px; border-radius: 100px; text-decoration: none; box-shadow: 0 12px 30px rgba(0,0,0,0.25);"><?php echo esc_html( $final_cta_btn ); ?></a>
-					</div>
-				</div>
-			</section>
-		</main>
-		<?php
+		echo \SeoCityPages\Elementor\Content_Context::render_general_agency_full_page_html(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		if ( function_exists( 'get_footer' ) ) {
 			get_footer();
 		}
-
 		if ( ! defined( 'SEO_CITY_PAGES_TESTING' ) ) {
 			exit;
 		}
+		return;
 	}
 
 	/**

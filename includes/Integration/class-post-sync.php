@@ -154,7 +154,7 @@ class Post_Sync {
 				update_post_meta( $post_id, self::META_URL_PATH, $page->url_path );
 				update_post_meta( $post_id, '_elementor_edit_mode', 'builder' );
 				update_post_meta( $post_id, '_elementor_template_type', 'wp-page' );
-				update_post_meta( $post_id, '_wp_page_template', 'elementor_header_footer' );
+				update_post_meta( $post_id, '_wp_page_template', 'elementor_canvas' );
 
 				// Arolax & general theme isolation: disable blog sidebar & title banner for full-width landing pages
 				update_post_meta( $post_id, 'disable_banner', 1 );

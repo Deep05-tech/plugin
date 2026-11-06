@@ -2922,4 +2922,54 @@ class Content_Context {
 
 		return '<!-- Vispan Real Estate template missing -->';
 	}
+
+	/**
+	 * Render the complete, developer-crafted General Agency Landing Page.
+	 *
+	 * Uses the official Vispan Solutions general agency master template with Tailwind CSS styling,
+	 * 10 official Vispan agency services, full-spectrum digital marketing and SEO solutions,
+	 * verified reviews, and AJAX-connected lead forms.
+	 *
+	 * Used for Dental Clinic, Law Firm, Healthcare, Accounting, Tech, and all professional services.
+	 *
+	 * @return string Complete high-converting HTML layout.
+	 */
+	public static function render_general_agency_full_page_html(): string {
+		$city    = Page_Context::get_city();
+		if ( empty( $city ) ) {
+			$city = 'Rajkot';
+		}
+		$state   = Page_Context::get_state();
+		$country = Page_Context::get_country();
+		$service = Page_Context::get_service();
+		if ( empty( $service ) ) {
+			$service = 'Dental Clinic Marketing';
+		}
+
+		$content_data = self::get_active_content();
+
+		$hero_title         = self::get_hero_title();
+		$hero_description   = self::get_hero_description();
+		$hero_cta           = ! empty( $content_data['hero']['cta_text'] ) ? (string) $content_data['hero']['cta_text'] : self::get_hero_cta();
+		$intro_heading      = self::get_intro_heading();
+		$intro_body         = self::get_intro_body();
+		$service_overview_h = self::get_service_overview_heading();
+		$service_overview_b = self::get_service_overview_body();
+		$final_cta_head     = self::get_final_cta_heading();
+		$final_cta_desc     = self::get_final_cta_description();
+		$final_cta_btn      = self::get_final_cta_button();
+		$url                = Page_Context::get_url();
+
+		$nonce = function_exists( 'wp_create_nonce' ) ? wp_create_nonce( 'vispan_marketing_inquiry' ) : 'vispan_inquiry_nonce';
+
+		$tpl_dir       = __DIR__ . '/templates';
+		$template_file = $tpl_dir . '/general-agency-master-template.php';
+		if ( file_exists( $template_file ) ) {
+			ob_start();
+			include $template_file;
+			return (string) ob_get_clean();
+		}
+
+		return '<!-- Vispan General Agency template missing -->';
+	}
 }

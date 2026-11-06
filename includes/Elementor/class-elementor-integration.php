@@ -173,6 +173,19 @@ class Elementor_Integration {
 			}
 		}
 
+		// Developer-crafted General Agency Landing Page: used for Dental Clinic, Law Firm, and all other services.
+		if ( ! $is_home_services && ! $is_real_estate && null === $widget && ( false !== strpos( $content, 'vispan_hero_section' ) || ( false !== strpos( $content, 'data-elementor-type' ) && false !== strpos( $content, 'elementor-section' ) ) || false !== strpos( $content, 'vispan_cta_section' ) ) ) {
+			$is_editor = false;
+			if ( class_exists( '\Elementor\Plugin' ) && isset( \Elementor\Plugin::$instance->editor ) && method_exists( \Elementor\Plugin::$instance->editor, 'is_edit_mode' ) ) {
+				$is_editor = (bool) \Elementor\Plugin::$instance->editor->is_edit_mode();
+			}
+			if ( ! $is_editor ) {
+				$crafted_page = Content_Context::render_general_agency_full_page_html();
+				$is_filtering = false;
+				return $crafted_page;
+			}
+		}
+
 		$replacements = [
 			// Core identity tokens.
 			'{{seo_city_name}}'    => $city,
@@ -362,26 +375,8 @@ class Elementor_Integration {
 			}
 		}
 
-		// Fallback clean responsive layout.
-		$hero_title = Content_Context::get_hero_title();
-		$hero_desc  = Content_Context::get_hero_description();
-		$hero_cta   = Content_Context::get_hero_cta();
-		$intro_h    = Content_Context::get_intro_heading();
-		$intro_b    = Content_Context::get_intro_body();
-		$form       = Content_Context::render_inquiry_form();
-
-		return '<div class="scp-city-page-wrap" style="max-width:1140px; margin:0 auto; padding:40px 20px; font-family:inherit;">'
-			. '<div class="scp-hero" style="background:#0f172a; color:#fff; padding:60px 40px; border-radius:12px; margin-bottom:40px; text-align:center;">'
-			. '<h1 style="color:#fff; font-size:36px; margin-bottom:16px;">' . esc_html( $hero_title ) . '</h1>'
-			. '<p style="color:#94a3b8; font-size:18px; max-width:800px; margin:0 auto 24px auto;">' . esc_html( $hero_desc ) . '</p>'
-			. '<a href="#inquiry-form" class="button button-primary" style="background:#2563eb; color:#fff; padding:12px 28px; border-radius:6px; text-decoration:none; font-weight:600;">' . esc_html( $hero_cta ) . '</a>'
-			. '</div>'
-			. '<div class="scp-intro" style="margin-bottom:40px;">'
-			. '<h2 style="font-size:28px; margin-bottom:12px;">' . esc_html( $intro_h ) . '</h2>'
-			. '<div style="font-size:16px; line-height:1.7; color:#334155;">' . wp_kses_post( $intro_b ) . '</div>'
-			. '</div>'
-			. '<div id="inquiry-form" class="scp-form-section" style="margin-top:40px;">' . $form . '</div>'
-			. '</div>';
+		// Master General Agency template for Dental Clinic, Law Firm, Healthcare, B2B/B2C, and all other services.
+		return Content_Context::render_general_agency_full_page_html();
 	}
 
 	/**
