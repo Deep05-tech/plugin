@@ -131,17 +131,25 @@ class Request_Resolver {
 			|| self::$is_preview;
 
 		if ( $is_seo_page ) {
-			// 1. Check for Elementor Canvas Template (Full blank canvas: NO theme header/footer leaks)
+			// 1. Check for Elementor Page Templates based on vertical
 			if ( class_exists( '\Elementor\Plugin' ) && isset( \Elementor\Plugin::$instance->modules_manager ) ) {
 				$templates_module = \Elementor\Plugin::$instance->modules_manager->get_modules( 'page-templates' );
 				if ( $templates_module && method_exists( $templates_module, 'get_template_path' ) ) {
-					$el_canvas = $templates_module->get_template_path( 'elementor_canvas' );
-					if ( ! empty( $el_canvas ) && file_exists( $el_canvas ) ) {
-						return $el_canvas;
-					}
-					$el_template = $templates_module->get_template_path( 'elementor_header_footer' );
-					if ( ! empty( $el_template ) && file_exists( $el_template ) ) {
-						return $el_template;
+					$service          = \SeoCityPages\Elementor\Page_Context::get_service();
+					$is_home_services = (bool) preg_match( '/\b(home\s*services?|home\s*cleaning|contractors?|emergency\s*trades?)\b/i', (string) $service );
+					$is_real_estate   = (bool) preg_match( '/\b(real\s*estate|realtor|brokerage|housing|realty)\b/i', (string) $service );
+
+					if ( $is_home_services || $is_real_estate ) {
+						$el_canvas = $templates_module->get_template_path( 'elementor_canvas' );
+						if ( ! empty( $el_canvas ) && file_exists( $el_canvas ) ) {
+							return $el_canvas;
+						}
+					} else {
+						// General Agency pages (Dental Clinic, Law Firm, etc.) use elementor_header_footer matching vispansolutions.com
+						$el_template = $templates_module->get_template_path( 'elementor_header_footer' );
+						if ( ! empty( $el_template ) && file_exists( $el_template ) ) {
+							return $el_template;
+						}
 					}
 				}
 			}

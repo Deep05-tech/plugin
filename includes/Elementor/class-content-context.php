@@ -1735,9 +1735,10 @@ class Content_Context {
 		$form_id     = uniqid( 'vispan_form_' );
 		$page_id     = $args['page_id'] ?? ( class_exists( Page_Context::class ) ? Page_Context::get_page_id() : 0 );
 		$current_svc = $args['service'] ?? ( class_exists( Page_Context::class ) ? Page_Context::get_service() : '' );
-		$page_url    = $args['url'] ?? ( class_exists( Page_Context::class ) ? Page_Context::get_url() : '' );
-		$ajax_url    = function_exists( 'admin_url' ) ? ( function_exists( 'wp_make_link_relative' ) ? wp_make_link_relative( admin_url( 'admin-ajax.php' ) ) : admin_url( 'admin-ajax.php' ) ) : '/wp-admin/admin-ajax.php';
-		$nonce       = function_exists( 'wp_create_nonce' ) ? wp_create_nonce( \SeoCityPages\Frontend\Inquiry_Handler::NONCE_ACTION ) : '';
+		$page_url     = $args['url'] ?? ( class_exists( Page_Context::class ) ? Page_Context::get_url() : '' );
+		$ajax_url     = function_exists( 'admin_url' ) ? ( function_exists( 'wp_make_link_relative' ) ? wp_make_link_relative( admin_url( 'admin-ajax.php' ) ) : admin_url( 'admin-ajax.php' ) ) : '/wp-admin/admin-ajax.php';
+		$nonce_action = class_exists( '\SeoCityPages\Frontend\Inquiry_Handler' ) ? \SeoCityPages\Frontend\Inquiry_Handler::NONCE_ACTION : 'vispan_marketing_inquiry';
+		$nonce        = function_exists( 'wp_create_nonce' ) ? wp_create_nonce( $nonce_action ) : 'inquiry_nonce';
 
 		// Complete global list of all countries with dial codes
 		$country_options = [

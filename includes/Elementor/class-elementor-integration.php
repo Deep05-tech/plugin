@@ -173,18 +173,6 @@ class Elementor_Integration {
 			}
 		}
 
-		// Developer-crafted General Agency Landing Page: used for Dental Clinic, Law Firm, and all other services.
-		if ( ! $is_home_services && ! $is_real_estate && null === $widget && ( false !== strpos( $content, 'vispan_hero_section' ) || ( false !== strpos( $content, 'data-elementor-type' ) && false !== strpos( $content, 'elementor-section' ) ) || false !== strpos( $content, 'vispan_cta_section' ) ) ) {
-			$is_editor = false;
-			if ( class_exists( '\Elementor\Plugin' ) && isset( \Elementor\Plugin::$instance->editor ) && method_exists( \Elementor\Plugin::$instance->editor, 'is_edit_mode' ) ) {
-				$is_editor = (bool) \Elementor\Plugin::$instance->editor->is_edit_mode();
-			}
-			if ( ! $is_editor ) {
-				$crafted_page = Content_Context::render_general_agency_full_page_html();
-				$is_filtering = false;
-				return $crafted_page;
-			}
-		}
 
 		$replacements = [
 			// Core identity tokens.
@@ -391,7 +379,56 @@ class Elementor_Integration {
 		}
 		$rendered = true;
 
-		return '<style id="vispan-scroll-animations-css">
+		return '<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+		<style id="vispan-scroll-animations-css">
+			/* Base Lenis Smooth Scrolling Engine CSS */
+			html.lenis, html.lenis body {
+				height: auto;
+			}
+			.lenis.lenis-smooth {
+				scroll-behavior: auto !important;
+			}
+			.lenis.lenis-smooth [data-lenis-prevent] {
+				overscroll-behavior: contain;
+			}
+			.lenis.lenis-stopped {
+				overflow: hidden;
+			}
+			.lenis.lenis-smooth iframe {
+				pointer-events: none;
+			}
+			html, body, #page, .wp-site-blocks, .vispan-general-agency-page, .vispan-container, .vispan-home-services-page, .vispan-real-estate-page {
+				overflow-x: clip !important;
+				overflow-y: visible !important;
+			}
+
+			/* Hardware-Accelerated Entrance Animations */
+			@media (prefers-reduced-motion: no-preference) {
+				html.js-animations [data-animate] {
+					opacity: 0;
+					transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+								transform 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+								filter 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+					will-change: opacity, transform;
+				}
+				html.js-animations [data-animate="fade-up"] { transform: translate3d(0, 32px, 0); }
+				html.js-animations [data-animate="fade-down"] { transform: translate3d(0, -32px, 0); }
+				html.js-animations [data-animate="fade-left"] { transform: translate3d(-36px, 0, 0); }
+				html.js-animations [data-animate="fade-right"] { transform: translate3d(36px, 0, 0); }
+				html.js-animations [data-animate="zoom-in"] { transform: scale3d(0.94, 0.94, 1); }
+				html.js-animations [data-delay="100"] { transition-delay: 100ms; }
+				html.js-animations [data-delay="150"] { transition-delay: 150ms; }
+				html.js-animations [data-delay="200"] { transition-delay: 200ms; }
+				html.js-animations [data-delay="250"] { transition-delay: 250ms; }
+				html.js-animations [data-delay="300"] { transition-delay: 300ms; }
+				html.js-animations [data-delay="400"] { transition-delay: 400ms; }
+				html.js-animations [data-delay="500"] { transition-delay: 500ms; }
+				html.js-animations [data-animate].is-animated {
+					opacity: 1 !important;
+					transform: translate3d(0, 0, 0) scale3d(1, 1, 1) !important;
+				}
+			}
+
 			/* 0. Universal Typography Spacing Override: Prevent theme/kit negative spacing collisions */
 			.elementor-kit-3 h1, .elementor-kit-3 h2, .elementor-kit-3 h3, .elementor-kit-3 h4, .elementor-kit-3 h5, .elementor-kit-3 h6,
 			.elementor-kit-3 p, .elementor-kit-3 a, .elementor-kit-3 span, .elementor-kit-3 div,
@@ -718,6 +755,44 @@ class Elementor_Integration {
 		</style>
 		<script id="vispan-scroll-animations-js">
 		(function() {
+			// 1. Mark progressive enhancement
+			document.documentElement.classList.add("js-animations");
+
+			// 2. Initialize Lenis Smooth Scroll Engine
+			if (typeof Lenis !== "undefined" && !window.lenis) {
+				try {
+					var lenis = new Lenis({
+						duration: 1.2,
+						easing: function(t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); },
+						smoothWheel: true,
+						touchMultiplier: 1.3
+					});
+					window.lenis = lenis;
+
+					function raf(time) {
+						lenis.raf(time);
+						requestAnimationFrame(raf);
+					}
+					requestAnimationFrame(raf);
+
+					// Internal anchor smooth scrolling
+					document.querySelectorAll("a[href^=\'#\']").forEach(function(anchor) {
+						anchor.addEventListener("click", function(e) {
+							var targetId = this.getAttribute("href");
+							if (!targetId || targetId === "#") return;
+							var target = document.querySelector(targetId);
+							if (target) {
+								e.preventDefault();
+								lenis.scrollTo(target, { offset: -70, duration: 1.15 });
+							}
+						});
+					});
+				} catch (err) {
+					console.warn("Lenis fallback", err);
+				}
+			}
+
+			// 3. Hardware-Accelerated Intersection Observer
 			function initVispanAnimations() {
 				// Immediate dismissal of theme preloader overlay
 				var preloaders = document.querySelectorAll("#preloader, .preloader, .arolax-preloader, #loading, .page-loader, .loading-screen, .arolax-page-loading, .preloader-wrap");
@@ -725,13 +800,12 @@ class Elementor_Integration {
 					preloaders[p].style.display = "none";
 				}
 
-				var targets = document.querySelectorAll(".vispan-reveal-left, .vispan-reveal-right, .vispan-reveal-up, .vispan-reveal-fade");
+				var targets = document.querySelectorAll(".vispan-reveal-left, .vispan-reveal-right, .vispan-reveal-up, .vispan-reveal-fade, [data-animate]");
 				if (!targets.length) return;
 
 				function reveal(el) {
-					if (!el.classList.contains("vispan-in-view")) {
-						el.classList.add("vispan-in-view");
-					}
+					el.classList.add("vispan-in-view");
+					el.classList.add("is-animated");
 				}
 
 				// Trigger entrance animations for visible hero section after small frame delay
@@ -762,11 +836,71 @@ class Elementor_Integration {
 					for (var k = 0; k < targets.length; k++) {
 						observer.observe(targets[k]);
 					}
+
+					// Numeric stat counters
+					var counterObserver = new IntersectionObserver(function(entries, obs) {
+						for (var c = 0; c < entries.length; c++) {
+							if (entries[c].isIntersecting) {
+								animateCounter(entries[c].target);
+								obs.unobserve(entries[c].target);
+							}
+						}
+					}, { threshold: 0.25 });
+
+					document.querySelectorAll(".stat-counter").forEach(function(el) {
+						counterObserver.observe(el);
+					});
 				} else {
 					for (var i = 0; i < targets.length; i++) {
 						reveal(targets[i]);
 					}
 				}
+
+				// Floating Back to Top Button
+				var btt = document.getElementById("back-to-top-btn");
+				if (btt) {
+					window.addEventListener("scroll", function() {
+						if (window.scrollY > 400) {
+							btt.classList.add("visible");
+						} else {
+							btt.classList.remove("visible");
+						}
+					}, { passive: true });
+
+					btt.addEventListener("click", function() {
+						if (window.lenis) {
+							window.lenis.scrollTo(0, { duration: 1.2 });
+						} else {
+							window.scrollTo({ top: 0, behavior: "smooth" });
+						}
+					});
+				}
+			}
+
+			function animateCounter(el) {
+				var rawTarget = el.getAttribute("data-target") || el.textContent.trim();
+				var match = rawTarget.match(/([\d\.]+)/);
+				if (!match) return;
+				var targetNum = parseFloat(match[1]);
+				var prefix = rawTarget.slice(0, match.index);
+				var suffix = rawTarget.slice(match.index + match[1].length);
+				var isDecimal = match[1].includes(".");
+				var duration = 1600;
+				var start = performance.now();
+
+				function update(now) {
+					var elapsed = now - start;
+					var progress = Math.min(elapsed / duration, 1);
+					var ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+					var current = targetNum * ease;
+					el.textContent = prefix + (isDecimal ? current.toFixed(1) : Math.floor(current)) + suffix;
+					if (progress < 1) {
+						requestAnimationFrame(update);
+					} else {
+						el.textContent = rawTarget;
+					}
+				}
+				requestAnimationFrame(update);
 			}
 
 			if (document.readyState === "loading") {
