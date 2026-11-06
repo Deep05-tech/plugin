@@ -152,25 +152,93 @@ $display_service = ! empty( $service ) ? $service : "Real Estate Advertising Age
       transform: scale(1.07) !important;
     }
 
-    /* Staggered entrance animations */
-    .vispan-anim-ready {
-      opacity: 0;
-      transform: translateY(28px);
-      transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1), transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
-      will-change: opacity, transform;
+    /* Lenis Smooth Scroll Core Styles */
+    html.lenis, html.lenis body {
+      height: auto;
     }
-    .vispan-anim-visible {
-      opacity: 1 !important;
-      transform: translateY(0) scale(1) !important;
+    .lenis.lenis-smooth {
+      scroll-behavior: auto !important;
+    }
+    .lenis.lenis-smooth [data-lenis-prevent] {
+      overscroll-behavior: contain;
+    }
+    .lenis.lenis-stopped {
+      overflow: hidden;
+    }
+    .lenis.lenis-smooth iframe {
+      pointer-events: none;
+    }
+
+    /* Hardware-Accelerated Scroll Entrance Animations (Home Services Standard) */
+    @media (prefers-reduced-motion: no-preference) {
+      html.js-animations [data-animate],
+      html.js-animations [data-anim],
+      html.js-animations .vispan-anim-ready {
+        opacity: 0;
+        transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+                    transform 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+                    filter 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+        will-change: opacity, transform;
+      }
+
+      html.js-animations [data-animate="fade-up"],
+      html.js-animations [data-anim="fade-up"],
+      html.js-animations .vispan-anim-ready {
+        transform: translate3d(0, 32px, 0);
+      }
+      html.js-animations [data-animate="fade-down"],
+      html.js-animations [data-anim="fade-down"] {
+        transform: translate3d(0, -28px, 0);
+      }
+      html.js-animations [data-animate="fade-left"],
+      html.js-animations [data-anim="fade-left"] {
+        transform: translate3d(36px, 0, 0);
+      }
+      html.js-animations [data-animate="fade-right"],
+      html.js-animations [data-anim="fade-right"] {
+        transform: translate3d(-36px, 0, 0);
+      }
+      html.js-animations [data-animate="zoom-in"],
+      html.js-animations [data-anim="zoom-in"] {
+        transform: scale3d(0.92, 0.92, 1);
+      }
+      html.js-animations [data-animate="flip-up"],
+      html.js-animations [data-anim="flip-up"] {
+        transform: perspective(1000px) rotateX(15deg) translate3d(0, 24px, 0);
+      }
+
+      /* Stagger Delays */
+      html.js-animations [data-delay="50"]  { transition-delay: 50ms; }
+      html.js-animations [data-delay="75"]  { transition-delay: 75ms; }
+      html.js-animations [data-delay="100"] { transition-delay: 100ms; }
+      html.js-animations [data-delay="150"] { transition-delay: 150ms; }
+      html.js-animations [data-delay="200"] { transition-delay: 200ms; }
+      html.js-animations [data-delay="250"] { transition-delay: 250ms; }
+      html.js-animations [data-delay="300"] { transition-delay: 300ms; }
+      html.js-animations [data-delay="350"] { transition-delay: 350ms; }
+      html.js-animations [data-delay="400"] { transition-delay: 400ms; }
+      html.js-animations [data-delay="450"] { transition-delay: 450ms; }
+      html.js-animations [data-delay="500"] { transition-delay: 500ms; }
+      html.js-animations [data-delay="600"] { transition-delay: 600ms; }
+
+      /* In-View Activated State */
+      html.js-animations [data-animate].is-animated,
+      html.js-animations [data-anim].is-animated,
+      html.js-animations [data-anim].vispan-anim-visible,
+      html.js-animations .vispan-anim-ready.is-animated,
+      html.js-animations .vispan-anim-ready.vispan-anim-visible {
+        opacity: 1 !important;
+        transform: translate3d(0, 0, 0) scale3d(1, 1, 1) rotateX(0) !important;
+      }
     }
 
     #back-to-top-btn {
       position: fixed;
-      bottom: 24px;
-      right: 24px;
+      bottom: 1.5rem;
+      right: 1.5rem;
       z-index: 50;
-      width: 44px;
-      height: 44px;
+      width: 2.75rem;
+      height: 2.75rem;
       border-radius: 9999px;
       background: #0B6599;
       color: #FFFFFF;
@@ -178,19 +246,21 @@ $display_service = ! empty( $service ) ? $service : "Real Estate Advertising Age
       align-items: center;
       justify-content: center;
       box-shadow: 0 10px 25px -5px rgba(11, 101, 153, 0.4);
+      cursor: pointer;
       opacity: 0;
       pointer-events: none;
-      transform: translateY(16px);
-      transition: opacity 0.3s ease, transform 0.3s ease, background-color 0.2s ease;
+      transform: translate3d(0, 16px, 0);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
     #back-to-top-btn.visible {
       opacity: 1;
       pointer-events: auto;
-      transform: translateY(0);
+      transform: translate3d(0, 0, 0);
     }
     #back-to-top-btn:hover {
-      background: #0284C7;
-      transform: translateY(-2px);
+      background: #084b72;
+      transform: translate3d(0, -3px, 0);
+      box-shadow: 0 14px 30px -4px rgba(11, 101, 153, 0.5);
     }
   </style>
 
@@ -943,92 +1013,132 @@ $display_service = ! empty( $service ) ? $service : "Real Estate Advertising Age
     </div>
   </footer>
 
-  <!-- SCRIPT: LENIS SMOOTH SCROLL, ANIMATIONS & AJAX -->
+  <!-- SCRIPT: LENIS SMOOTH SCROLL, ANIMATIONS & AJAX (HOME SERVICES STANDARD) -->
   <script>
-    // 1. Lenis Smooth Scrolling Engine
-    let lenis = null;
-    if (typeof Lenis !== "undefined") {
-      lenis = new Lenis({
-        duration: 1.2,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        orientation: "vertical",
-        smoothWheel: true,
-        wheelMultiplier: 1.05
-      });
-      function raf(time) {
-        lenis.raf(time);
-        requestAnimationFrame(raf);
-      }
-      requestAnimationFrame(raf);
-    }
-
-    // 2. Staggered Entrance Animations
     function initAnimations() {
-      const animElements = document.querySelectorAll(".vispan-anim-ready");
-      if (!animElements.length) return;
+      // 1. Mark root element for progressive enhancement (no CSS flash / safe for SEO)
+      document.documentElement.classList.add('js-animations');
 
-      const observer = new IntersectionObserver((entries, obs) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const el = entry.target;
-            const delay = parseInt(el.getAttribute("data-delay") || "0", 10);
-            setTimeout(() => {
-              el.classList.add("vispan-anim-visible");
-              const counters = el.querySelectorAll(".counter-item");
-              counters.forEach(animateCounter);
-            }, delay);
-            obs.unobserve(el);
+      // 2. Initialize Lenis Smooth Scroll Engine
+      if (typeof Lenis !== 'undefined') {
+        try {
+          const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            smoothWheel: true,
+            touchMultiplier: 1.3,
+          });
+          window.lenis = lenis;
+
+          function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+          }
+          requestAnimationFrame(raf);
+
+          // Connect Lenis to internal anchor links for buttery-smooth section jumps
+          document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+              const targetId = this.getAttribute('href');
+              if (!targetId || targetId === '#') return;
+              const target = document.querySelector(targetId);
+              if (target) {
+                e.preventDefault();
+                lenis.scrollTo(target, { offset: -70, duration: 1.15 });
+              }
+            });
+          });
+        } catch (err) {
+          console.warn('Lenis initialized with native fallback', err);
+        }
+      }
+
+      // 3. Hardware-Accelerated Scroll Entrance Observer
+      if ('IntersectionObserver' in window) {
+        const animObserver = new IntersectionObserver((entries, observer) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-animated');
+              entry.target.classList.add('vispan-anim-visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, {
+          threshold: 0.08,
+          rootMargin: '0px 0px -40px 0px'
+        });
+
+        document.querySelectorAll('[data-animate], [data-anim], .vispan-anim-ready').forEach(el => {
+          animObserver.observe(el);
+        });
+
+        // 4. Interactive Numeric Stat Counters Observer
+        const counterObserver = new IntersectionObserver((entries, observer) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              animateCounter(entry.target);
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.25 });
+
+        document.querySelectorAll('.stat-counter, .counter-item').forEach(el => {
+          counterObserver.observe(el);
+        });
+      } else {
+        // Fallback for browsers without IntersectionObserver
+        document.querySelectorAll('[data-animate], [data-anim], .vispan-anim-ready').forEach(el => {
+          el.classList.add('is-animated');
+          el.classList.add('vispan-anim-visible');
+        });
+      }
+
+      // 5. Floating Back to Top Button
+      const btt = document.getElementById('back-to-top-btn');
+      if (btt) {
+        window.addEventListener('scroll', () => {
+          if (window.scrollY > 400) {
+            btt.classList.add('visible');
+          } else {
+            btt.classList.remove('visible');
+          }
+        }, { passive: true });
+
+        btt.addEventListener('click', () => {
+          if (window.lenis) {
+            window.lenis.scrollTo(0, { duration: 1.2 });
+          } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
           }
         });
-      }, { rootMargin: "0px 0px -40px 0px", threshold: 0.1 });
-
-      animElements.forEach(el => observer.observe(el));
+      }
     }
 
-    // 3. Counter Animation
     function animateCounter(el) {
-      const targetStr = el.getAttribute("data-target") || el.textContent.trim();
-      const match = targetStr.match(/([\d\.]+)/);
+      const rawTarget = el.getAttribute('data-target') || el.textContent.trim();
+      const match = rawTarget.match(/([\d\.]+)/);
       if (!match) return;
       const targetNum = parseFloat(match[1]);
-      const prefix = targetStr.slice(0, match.index);
-      const suffix = targetStr.slice(match.index + match[1].length);
-      const isDecimal = match[1].includes(".");
-      const duration = 1500;
+      const prefix = rawTarget.slice(0, match.index);
+      const suffix = rawTarget.slice(match.index + match[1].length);
+      const isDecimal = match[1].includes('.');
+      const duration = 1600;
       const start = performance.now();
 
       function update(now) {
         const elapsed = now - start;
         const progress = Math.min(elapsed / duration, 1);
-        const ease = 1 - Math.pow(2, -10 * progress);
+        // Exponential ease-out
+        const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
         const current = targetNum * ease;
         el.textContent = prefix + (isDecimal ? current.toFixed(1) : Math.floor(current)) + suffix;
         if (progress < 1) {
           requestAnimationFrame(update);
         } else {
-          el.textContent = targetStr;
+          el.textContent = rawTarget;
         }
       }
       requestAnimationFrame(update);
-    }
-
-    // 4. Back To Top
-    const btt = document.getElementById("back-to-top-btn");
-    if (btt) {
-      window.addEventListener("scroll", () => {
-        if (window.scrollY > 400) {
-          btt.classList.add("visible");
-        } else {
-          btt.classList.remove("visible");
-        }
-      });
-      btt.addEventListener("click", () => {
-        if (lenis) {
-          lenis.scrollTo(0, { duration: 1.2 });
-        } else {
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        }
-      });
     }
 
     // 5. Dual AJAX Lead Form Submission

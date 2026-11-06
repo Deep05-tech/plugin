@@ -57,6 +57,9 @@ $nonce_val = ! empty( $nonce ) ? $nonce : ( function_exists( 'wp_create_nonce' )
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
+  <!-- Lenis Modern Smooth Scroll Engine -->
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+
 
   <script>
     tailwind.config = {
@@ -154,36 +157,80 @@ $nonce_val = ! empty( $nonce ) ? $nonce : ( function_exists( 'wp_create_nonce' )
       box-shadow: 0 14px 30px -8px rgba(2, 66, 106, 0.45) !important;
     }
 
-    /* 6. Hardware-Accelerated Animations */
+    /* 6. Lenis Smooth Scroll Core Styles */
+    html.lenis, html.lenis body {
+      height: auto;
+    }
+    .lenis.lenis-smooth {
+      scroll-behavior: auto !important;
+    }
+    .lenis.lenis-smooth [data-lenis-prevent] {
+      overscroll-behavior: contain;
+    }
+    .lenis.lenis-stopped {
+      overflow: hidden;
+    }
+    .lenis.lenis-smooth iframe {
+      pointer-events: none;
+    }
+
+    /* 7. Hardware-Accelerated Scroll Entrance Animations (Home Services Standard) */
     @media (prefers-reduced-motion: no-preference) {
       html.js-animations [data-animate] {
         opacity: 0;
         transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
-                    transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+                    transform 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+                    filter 0.75s cubic-bezier(0.16, 1, 0.3, 1);
         will-change: opacity, transform;
       }
-      html.js-animations [data-animate="fade-up"] { transform: translate3d(0, 30px, 0); }
-      html.js-animations [data-animate="fade-down"] { transform: translate3d(0, -25px, 0); }
-      html.js-animations [data-animate="fade-left"] { transform: translate3d(32px, 0, 0); }
-      html.js-animations [data-animate="fade-right"] { transform: translate3d(-32px, 0, 0); }
-      html.js-animations [data-animate="zoom-in"] { transform: scale3d(0.94, 0.94, 1); }
 
-      html.js-animations [data-animate].is-animated,
-      #hero [data-animate],
-      .vispan-hero [data-animate] {
+      html.js-animations [data-animate="fade-up"] {
+        transform: translate3d(0, 32px, 0);
+      }
+      html.js-animations [data-animate="fade-down"] {
+        transform: translate3d(0, -28px, 0);
+      }
+      html.js-animations [data-animate="fade-left"] {
+        transform: translate3d(36px, 0, 0);
+      }
+      html.js-animations [data-animate="fade-right"] {
+        transform: translate3d(-36px, 0, 0);
+      }
+      html.js-animations [data-animate="zoom-in"] {
+        transform: scale3d(0.92, 0.92, 1);
+      }
+      html.js-animations [data-animate="flip-up"] {
+        transform: perspective(1000px) rotateX(15deg) translate3d(0, 24px, 0);
+      }
+
+      /* Stagger Delays */
+      html.js-animations [data-delay="75"]  { transition-delay: 75ms; }
+      html.js-animations [data-delay="100"] { transition-delay: 100ms; }
+      html.js-animations [data-delay="150"] { transition-delay: 150ms; }
+      html.js-animations [data-delay="200"] { transition-delay: 200ms; }
+      html.js-animations [data-delay="250"] { transition-delay: 250ms; }
+      html.js-animations [data-delay="300"] { transition-delay: 300ms; }
+      html.js-animations [data-delay="350"] { transition-delay: 350ms; }
+      html.js-animations [data-delay="400"] { transition-delay: 400ms; }
+      html.js-animations [data-delay="450"] { transition-delay: 450ms; }
+      html.js-animations [data-delay="500"] { transition-delay: 500ms; }
+      html.js-animations [data-delay="600"] { transition-delay: 600ms; }
+
+      /* In-View Activated State */
+      html.js-animations [data-animate].is-animated {
         opacity: 1 !important;
-        transform: translate3d(0, 0, 0) scale3d(1, 1, 1) !important;
+        transform: translate3d(0, 0, 0) scale3d(1, 1, 1) rotateX(0) !important;
       }
     }
 
-    /* 7. Floating Back-to-Top */
+    /* 8. Floating Back to Top Button */
     #back-to-top-btn {
       position: fixed;
-      bottom: 24px;
-      right: 24px;
-      z-index: 45;
-      width: 44px;
-      height: 44px;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 50;
+      width: 2.75rem;
+      height: 2.75rem;
       border-radius: 9999px;
       background: #02426A;
       color: #FFFFFF;
@@ -205,6 +252,7 @@ $nonce_val = ! empty( $nonce ) ? $nonce : ( function_exists( 'wp_create_nonce' )
     #back-to-top-btn:hover {
       background: #012b45;
       transform: translate3d(0, -3px, 0);
+      box-shadow: 0 14px 30px -4px rgba(2, 66, 106, 0.5);
     }
   </style>
 
@@ -779,81 +827,104 @@ $nonce_val = ! empty( $nonce ) ? $nonce : ( function_exists( 'wp_create_nonce' )
   <!-- Interactive Scripts & AJAX Form Handler -->
   <script>
     (function() {
-      function initGeneralAgencyScripts() {
-        // 1. Native Smooth Anchor Click Navigation (Zero blocking, maximum performance)
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-          anchor.addEventListener('click', function(e) {
-            const targetId = this.getAttribute('href');
-            if (targetId && targetId !== '#') {
-              const targetElem = document.querySelector(targetId);
-              if (targetElem) {
-                e.preventDefault();
-                const headerOffset = 80;
-                const elementPosition = targetElem.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                window.scrollTo({
-                  top: offsetPosition,
-                  behavior: 'smooth'
-                });
-              }
-            }
-          });
-        });
+      // =========================================================================
+      // MODERN ANIMATIONS & LENIS SMOOTH SCROLL CONTROLLER (HOME SERVICES STANDARD)
+      // =========================================================================
+      function initAnimations() {
+        // 1. Mark root element for progressive enhancement (no CSS flash / safe for SEO)
+        document.documentElement.classList.add('js-animations');
 
-        // 2. Hardware-Accelerated Scroll Entrance Animations
-        const animItems = document.querySelectorAll('[data-animate]');
-        if (animItems.length > 0) {
-          document.documentElement.classList.add('js-animations');
-
-          // Immediate check: Reveal elements already in viewport on load
-          function revealVisibleElements() {
-            const vh = window.innerHeight || document.documentElement.clientHeight;
-            animItems.forEach(item => {
-              const rect = item.getBoundingClientRect();
-              if (rect.top < vh && rect.bottom > 0) {
-                item.classList.add('is-animated');
-              }
+        // 2. Initialize Lenis Smooth Scroll Engine
+        if (typeof Lenis !== 'undefined') {
+          try {
+            const lenis = new Lenis({
+              duration: 1.2,
+              easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+              smoothWheel: true,
+              touchMultiplier: 1.3,
             });
-          }
-          revealVisibleElements();
+            window.lenis = lenis;
 
-          if ('IntersectionObserver' in window) {
-            const observer = new IntersectionObserver((entries) => {
-              entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                  entry.target.classList.add('is-animated');
-                  observer.unobserve(entry.target);
+            function raf(time) {
+              lenis.raf(time);
+              requestAnimationFrame(raf);
+            }
+            requestAnimationFrame(raf);
+
+            // Connect Lenis to internal anchor links for buttery-smooth section jumps
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+              anchor.addEventListener('click', function(e) {
+                const targetId = this.getAttribute('href');
+                if (!targetId || targetId === '#') return;
+                const target = document.querySelector(targetId);
+                if (target) {
+                  e.preventDefault();
+                  lenis.scrollTo(target, { offset: -70, duration: 1.15 });
                 }
               });
-            }, {
-              threshold: 0.05,
-              rootMargin: '0px 0px 60px 0px'
             });
-
-            animItems.forEach(item => observer.observe(item));
-
-            // Safety fallback: ensure all content becomes visible even if observer is delayed
-            setTimeout(() => {
-              animItems.forEach(item => item.classList.add('is-animated'));
-            }, 1500);
-          } else {
-            animItems.forEach(item => item.classList.add('is-animated'));
+          } catch (err) {
+            console.warn('Lenis initialized with native fallback', err);
           }
         }
 
-        // 3. Back-To-Top Button Scroll Visibility
-        const backToTopBtn = document.getElementById('back-to-top-btn');
-        if (backToTopBtn) {
-          window.addEventListener('scroll', function() {
-            if (window.scrollY > 400) {
-              backToTopBtn.classList.add('visible');
-            } else {
-              backToTopBtn.classList.remove('visible');
-            }
-          }, { passive: true });
+        // 3. Hardware-Accelerated Scroll Entrance Observer
+        if ('IntersectionObserver' in window) {
+          const animObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-animated');
+                observer.unobserve(entry.target);
+              }
+            });
+          }, {
+            threshold: 0.08,
+            rootMargin: '0px 0px -40px 0px'
+          });
+
+          document.querySelectorAll('[data-animate]').forEach(el => {
+            animObserver.observe(el);
+          });
+
+          // 4. Interactive Numeric Stat Counters Observer
+          const counterObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                animateCounter(entry.target);
+                observer.unobserve(entry.target);
+              }
+            });
+          }, { threshold: 0.25 });
+
+          document.querySelectorAll('.stat-counter').forEach(el => {
+            counterObserver.observe(el);
+          });
+        } else {
+          // Fallback for browsers without IntersectionObserver
+          document.querySelectorAll('[data-animate]').forEach(el => el.classList.add('is-animated'));
         }
 
-        // 4. AJAX Form Submission
+        // 5. Floating Back to Top Button
+        const btt = document.getElementById('back-to-top-btn');
+        if (btt) {
+          window.addEventListener('scroll', () => {
+            if (window.scrollY > 400) {
+              btt.classList.add('visible');
+            } else {
+              btt.classList.remove('visible');
+            }
+          }, { passive: true });
+
+          btt.addEventListener('click', () => {
+            if (window.lenis) {
+              window.lenis.scrollTo(0, { duration: 1.2 });
+            } else {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+          });
+        }
+
+        // 6. AJAX Form Submission
         const form = document.getElementById('general-agency-inquiry-form');
         const resultDiv = document.getElementById('general-inquiry-result');
 
@@ -902,10 +973,36 @@ $nonce_val = ! empty( $nonce ) ? $nonce : ( function_exists( 'wp_create_nonce' )
         }
       }
 
+      function animateCounter(el) {
+        const rawTarget = el.getAttribute('data-target') || el.textContent.trim();
+        const match = rawTarget.match(/([\d\.]+)/);
+        if (!match) return;
+        const targetNum = parseFloat(match[1]);
+        const prefix = rawTarget.slice(0, match.index);
+        const suffix = rawTarget.slice(match.index + match[1].length);
+        const isDecimal = match[1].includes('.');
+        const duration = 1600;
+        const start = performance.now();
+
+        function update(now) {
+          const elapsed = now - start;
+          const progress = Math.min(elapsed / duration, 1);
+          const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+          const current = targetNum * ease;
+          el.textContent = prefix + (isDecimal ? current.toFixed(1) : Math.floor(current)) + suffix;
+          if (progress < 1) {
+            requestAnimationFrame(update);
+          } else {
+            el.textContent = rawTarget;
+          }
+        }
+        requestAnimationFrame(update);
+      }
+
       if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initGeneralAgencyScripts);
+        document.addEventListener('DOMContentLoaded', initAnimations);
       } else {
-        initGeneralAgencyScripts();
+        initAnimations();
       }
     })();
   </script>
