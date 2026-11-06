@@ -30,6 +30,13 @@ final class Plugin {
 	private static $instance = null;
 
 	/**
+	 * Flag indicating if the plugin has already been bootstrapped.
+	 *
+	 * @var bool
+	 */
+	private static $bootstrapped = false;
+
+	/**
 	 * Admin menu manager instance.
 	 *
 	 * @var Admin_Menu|null
@@ -68,6 +75,11 @@ final class Plugin {
 	 * @return void
 	 */
 	public function init(): void {
+		if ( self::$bootstrapped ) {
+			return;
+		}
+		self::$bootstrapped = true;
+
 		// 1. Check PHP compatibility.
 		if ( ! Environment::is_php_compatible() ) {
 			add_action( 'admin_notices', [ $this, 'render_php_incompatible_notice' ] );

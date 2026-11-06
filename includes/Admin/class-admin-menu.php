@@ -33,12 +33,20 @@ class Admin_Menu {
 	private $hook_suffixes = [];
 
 	/**
+	 * Flag indicating whether menus have already been registered.
+	 *
+	 * @var bool
+	 */
+	private static $menus_registered = false;
+
+	/**
 	 * Initialize admin menu hooks.
 	 *
 	 * @return void
 	 */
 	public function init(): void {
 		add_action( 'admin_menu', [ $this, 'register_menus' ] );
+		add_action( 'admin_menu', [ $this, 'deduplicate_submenus' ], 999 );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_assets' ] );
 		add_action( 'admin_notices', [ $this, 'render_environment_notices' ] );
 		add_filter( 'parent_file', [ $this, 'filter_parent_file' ] );
@@ -50,6 +58,11 @@ class Admin_Menu {
 	 * @return void
 	 */
 	public function register_menus(): void {
+		if ( self::$menus_registered ) {
+			return;
+		}
+		self::$menus_registered = true;
+
 		// Top Level: SEO City Pages (Dashboard)
 		$main_hook = add_menu_page(
 			__( 'SEO City Pages', 'seo-city-pages' ),
@@ -256,6 +269,31 @@ class Admin_Menu {
 			[ $this, 'render_audit_page' ]
 		);
 		$this->hook_suffixes[] = $audit_hook;
+	}
+
+	/**
+	 * Deduplicate any accidentally registered duplicate submenu entries.
+	 *
+	 * @return void
+	 */
+	public function deduplicate_submenus(): void {
+		global $submenu;
+		if ( empty( $submenu[ self::MENU_SLUG ] ) || ! is_array( $submenu[ self::MENU_SLUG ] ) ) {
+			return;
+		}
+
+		$seen_slugs      = [];
+		$unique_submenus = [];
+
+		foreach ( $submenu[ self::MENU_SLUG ] as $item ) {
+			$slug = $item[2] ?? '';
+			if ( ! empty( $slug ) && ! isset( $seen_slugs[ $slug ] ) ) {
+				$seen_slugs[ $slug ] = true;
+				$unique_submenus[]   = $item;
+			}
+		}
+
+		$submenu[ self::MENU_SLUG ] = $unique_submenus;
 	}
 
 	/**

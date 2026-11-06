@@ -29,6 +29,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 class AI_Controller {
 
 	/**
+	 * Flag indicating whether menus have already been registered.
+	 *
+	 * @var bool
+	 */
+	private static $menus_registered = false;
+
+	/**
 	 * Initialize AI Controller hooks and AJAX actions.
 	 *
 	 * @return void
@@ -66,6 +73,11 @@ class AI_Controller {
 	 * @return void
 	 */
 	public function register_menus(): void {
+		if ( self::$menus_registered ) {
+			return;
+		}
+		self::$menus_registered = true;
+
 		add_submenu_page(
 			'seo-city-pages',
 			__( 'AI Content Engine', 'seo-city-pages' ),

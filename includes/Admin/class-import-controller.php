@@ -25,6 +25,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Import_Controller {
 
 	/**
+	 * Flag indicating whether this screen has already been rendered in the current request.
+	 *
+	 * @var bool
+	 */
+	private static $rendered = false;
+
+	/**
 	 * Constructor: Register AJAX handlers.
 	 */
 	public function __construct() {
@@ -37,6 +44,11 @@ class Import_Controller {
 	 * @return void
 	 */
 	public function render(): void {
+		if ( self::$rendered ) {
+			return;
+		}
+		self::$rendered = true;
+
 		Security::enforce_capability( Capabilities::MANAGE );
 
 		$action = sanitize_text_field( $_GET['action'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended

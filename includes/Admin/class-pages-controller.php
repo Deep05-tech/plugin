@@ -27,11 +27,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Pages_Controller {
 
 	/**
+	 * Flag indicating whether this screen has already been rendered in the current request.
+	 *
+	 * @var bool
+	 */
+	private static $rendered = false;
+
+	/**
 	 * Main controller entry point.
 	 *
 	 * @return void
 	 */
 	public function render(): void {
+		if ( self::$rendered ) {
+			return;
+		}
+		self::$rendered = true;
+
 		Security::enforce_capability( Capabilities::MANAGE );
 
 		$action = sanitize_text_field( $_GET['action'] ?? '' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
