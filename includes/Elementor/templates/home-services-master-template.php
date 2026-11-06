@@ -1844,10 +1844,16 @@ if ( ! defined( 'ABSPATH' ) ) {
       requestAnimationFrame(update);
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
+    function bootstrapHomeServices() {
       renderOfficialServices();
       initAnimations();
-    });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bootstrapHomeServices);
+    } else {
+      bootstrapHomeServices();
+    }
   </script>
 
   <!-- Floating Back to Top Action Button -->

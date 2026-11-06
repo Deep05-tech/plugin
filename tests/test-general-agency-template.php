@@ -247,7 +247,7 @@ $rendered_html = Content_Context::render_general_agency_full_page_html();
 
 assert_test( ! empty( $rendered_html ), "General Agency template renders non-empty HTML" );
 assert_test( false !== strpos( $rendered_html, 'vispan-general-agency-page' ), "Contains container class .vispan-general-agency-page" );
-assert_test( false !== strpos( $rendered_html, 'cdn.jsdelivr.net/npm/lenis' ), "Includes Lenis smooth scroll engine script" );
+assert_test( false !== strpos( $rendered_html, 'scroll-behavior: smooth' ), "Includes non-blocking native smooth scrolling support" );
 assert_test( false !== strpos( $rendered_html, 'Rajkot' ), "Interpolates target city: Rajkot" );
 assert_test( false !== strpos( $rendered_html, 'Dental Clinic' ), "Interpolates target service: Dental Clinic" );
 assert_test( false !== strpos( $rendered_html, '#proposal-form' ), "Contains proposal intake lead form (#proposal-form)" );

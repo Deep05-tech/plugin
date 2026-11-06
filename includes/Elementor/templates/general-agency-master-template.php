@@ -57,8 +57,6 @@ $nonce_val = ! empty( $nonce ) ? $nonce : ( function_exists( 'wp_create_nonce' )
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
-  <!-- Lenis Modern Smooth Scroll Engine -->
-  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
 
   <script>
     tailwind.config = {
@@ -88,12 +86,18 @@ $nonce_val = ! empty( $nonce ) ? $nonce : ( function_exists( 'wp_create_nonce' )
   </script>
 
   <style>
-    /* 1. Base Typography & Resets */
+    /* 1. Base Typography, Resets & Non-Blocking Smooth Scrolling */
+    html {
+      scroll-behavior: smooth !important;
+    }
+    html, body, #page, .wp-site-blocks, .vispan-general-agency-page {
+      overflow-x: clip !important;
+      overflow-y: visible !important;
+    }
     body {
       font-family: 'DM Sans', 'Inter', sans-serif;
       color: #121212;
       background-color: #FFFFFF;
-      overflow-x: hidden;
       margin: 0;
       padding: 0;
     }
@@ -164,7 +168,9 @@ $nonce_val = ! empty( $nonce ) ? $nonce : ( function_exists( 'wp_create_nonce' )
       html.js-animations [data-animate="fade-right"] { transform: translate3d(-32px, 0, 0); }
       html.js-animations [data-animate="zoom-in"] { transform: scale3d(0.94, 0.94, 1); }
 
-      html.js-animations [data-animate].is-animated {
+      html.js-animations [data-animate].is-animated,
+      #hero [data-animate],
+      .vispan-hero [data-animate] {
         opacity: 1 !important;
         transform: translate3d(0, 0, 0) scale3d(1, 1, 1) !important;
       }
@@ -772,26 +778,9 @@ $nonce_val = ! empty( $nonce ) ? $nonce : ( function_exists( 'wp_create_nonce' )
 
   <!-- Interactive Scripts & AJAX Form Handler -->
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // 1. Lenis Smooth Scroll Initialization
-      if (typeof Lenis !== 'undefined') {
-        const lenis = new Lenis({
-          duration: 1.1,
-          easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-          direction: 'vertical',
-          gestureDirection: 'vertical',
-          smooth: true,
-          smoothTouch: false,
-          touchMultiplier: 2,
-        });
-
-        function raf(time) {
-          lenis.raf(time);
-          requestAnimationFrame(raf);
-        }
-        requestAnimationFrame(raf);
-
-        // Smooth Anchor Click Navigation
+    (function() {
+      function initGeneralAgencyScripts() {
+        // 1. Native Smooth Anchor Click Navigation (Zero blocking, maximum performance)
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
           anchor.addEventListener('click', function(e) {
             const targetId = this.getAttribute('href');
@@ -799,94 +788,125 @@ $nonce_val = ! empty( $nonce ) ? $nonce : ( function_exists( 'wp_create_nonce' )
               const targetElem = document.querySelector(targetId);
               if (targetElem) {
                 e.preventDefault();
-                lenis.scrollTo(targetElem, { offset: -70 });
+                const headerOffset = 80;
+                const elementPosition = targetElem.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                window.scrollTo({
+                  top: offsetPosition,
+                  behavior: 'smooth'
+                });
               }
             }
           });
         });
-      }
 
-      // 2. Hardware-Accelerated Scroll Entrance Animations
-      document.documentElement.classList.add('js-animations');
-      const animItems = document.querySelectorAll('[data-animate]');
+        // 2. Hardware-Accelerated Scroll Entrance Animations
+        const animItems = document.querySelectorAll('[data-animate]');
+        if (animItems.length > 0) {
+          document.documentElement.classList.add('js-animations');
 
-      if ('IntersectionObserver' in window && animItems.length > 0) {
-        const observer = new IntersectionObserver((entries) => {
-          entries.forEach(entry => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('is-animated');
-              observer.unobserve(entry.target);
-            }
-          });
-        }, {
-          threshold: 0.08,
-          rootMargin: '0px 0px -40px 0px'
-        });
+          // Immediate check: Reveal elements already in viewport on load
+          function revealVisibleElements() {
+            const vh = window.innerHeight || document.documentElement.clientHeight;
+            animItems.forEach(item => {
+              const rect = item.getBoundingClientRect();
+              if (rect.top < vh && rect.bottom > 0) {
+                item.classList.add('is-animated');
+              }
+            });
+          }
+          revealVisibleElements();
 
-        animItems.forEach(item => observer.observe(item));
-      } else {
-        animItems.forEach(item => item.classList.add('is-animated'));
-      }
+          if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+              entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                  entry.target.classList.add('is-animated');
+                  observer.unobserve(entry.target);
+                }
+              });
+            }, {
+              threshold: 0.05,
+              rootMargin: '0px 0px 60px 0px'
+            });
 
-      // 3. Back-To-Top Button Scroll Visibility
-      const backToTopBtn = document.getElementById('back-to-top-btn');
-      if (backToTopBtn) {
-        window.addEventListener('scroll', function() {
-          if (window.scrollY > 400) {
-            backToTopBtn.classList.add('visible');
+            animItems.forEach(item => observer.observe(item));
+
+            // Safety fallback: ensure all content becomes visible even if observer is delayed
+            setTimeout(() => {
+              animItems.forEach(item => item.classList.add('is-animated'));
+            }, 1500);
           } else {
-            backToTopBtn.classList.remove('visible');
+            animItems.forEach(item => item.classList.add('is-animated'));
           }
-        }, { passive: true });
-      }
+        }
 
-      // 4. AJAX Form Submission
-      const form = document.getElementById('general-agency-inquiry-form');
-      const resultDiv = document.getElementById('general-inquiry-result');
-
-      if (form && resultDiv) {
-        form.addEventListener('submit', function(e) {
-          e.preventDefault();
-          const submitBtn = form.querySelector('button[type="submit"]');
-          const originalBtnText = submitBtn ? submitBtn.innerText : '';
-
-          if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.innerText = 'Transmitting Proposal Request...';
-          }
-
-          resultDiv.className = 'py-3 px-4 rounded-xl text-sm font-semibold text-center bg-blue-50 text-[#02426A] block';
-          resultDiv.innerText = 'Submitting your request to our senior strategy team...';
-
-          const formData = new FormData(form);
-
-          fetch(form.action, {
-            method: 'POST',
-            body: formData
-          })
-          .then(res => res.json())
-          .then(data => {
-            if (data.success) {
-              resultDiv.className = 'py-3 px-4 rounded-xl text-sm font-semibold text-center bg-emerald-50 text-emerald-800 border border-emerald-200 block';
-              resultDiv.innerHTML = '<span class="font-bold">✓ Success!</span> ' + (data.data?.message || 'Your inquiry has been received. Our senior team will contact you within 15 minutes.');
-              form.reset();
+        // 3. Back-To-Top Button Scroll Visibility
+        const backToTopBtn = document.getElementById('back-to-top-btn');
+        if (backToTopBtn) {
+          window.addEventListener('scroll', function() {
+            if (window.scrollY > 400) {
+              backToTopBtn.classList.add('visible');
             } else {
-              resultDiv.className = 'py-3 px-4 rounded-xl text-sm font-semibold text-center bg-rose-50 text-rose-800 border border-rose-200 block';
-              resultDiv.innerHTML = '<span class="font-bold">Notice:</span> ' + (data.data?.message || 'Thank you! Your inquiry was recorded successfully.');
+              backToTopBtn.classList.remove('visible');
             }
-          })
-          .catch(err => {
-            resultDiv.className = 'py-3 px-4 rounded-xl text-sm font-semibold text-center bg-emerald-50 text-emerald-800 border border-emerald-200 block';
-            resultDiv.innerHTML = '<span class="font-bold">✓ Received:</span> Thank you! Our senior team has received your details and will follow up shortly.';
-          })
-          .finally(() => {
+          }, { passive: true });
+        }
+
+        // 4. AJAX Form Submission
+        const form = document.getElementById('general-agency-inquiry-form');
+        const resultDiv = document.getElementById('general-inquiry-result');
+
+        if (form && resultDiv) {
+          form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn ? submitBtn.innerText : '';
+
             if (submitBtn) {
-              submitBtn.disabled = false;
-              submitBtn.innerText = originalBtnText;
+              submitBtn.disabled = true;
+              submitBtn.innerText = 'Transmitting Proposal Request...';
             }
+
+            resultDiv.className = 'py-3 px-4 rounded-xl text-sm font-semibold text-center bg-blue-50 text-[#02426A] block';
+            resultDiv.innerText = 'Submitting your request to our senior strategy team...';
+
+            const formData = new FormData(form);
+
+            fetch(form.action, {
+              method: 'POST',
+              body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                resultDiv.className = 'py-3 px-4 rounded-xl text-sm font-semibold text-center bg-emerald-50 text-emerald-800 border border-emerald-200 block';
+                resultDiv.innerHTML = '<span class="font-bold">✓ Success!</span> ' + (data.data?.message || 'Your inquiry has been received. Our senior team will contact you within 15 minutes.');
+                form.reset();
+              } else {
+                resultDiv.className = 'py-3 px-4 rounded-xl text-sm font-semibold text-center bg-rose-50 text-rose-800 border border-rose-200 block';
+                resultDiv.innerHTML = '<span class="font-bold">Notice:</span> ' + (data.data?.message || 'Thank you! Your inquiry was recorded successfully.');
+              }
+            })
+            .catch(err => {
+              resultDiv.className = 'py-3 px-4 rounded-xl text-sm font-semibold text-center bg-emerald-50 text-emerald-800 border border-emerald-200 block';
+              resultDiv.innerHTML = '<span class="font-bold">✓ Received:</span> Thank you! Our senior team has received your details and will follow up shortly.';
+            })
+            .finally(() => {
+              if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerText = originalBtnText;
+              }
+            });
           });
-        });
+        }
       }
-    });
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initGeneralAgencyScripts);
+      } else {
+        initGeneralAgencyScripts();
+      }
+    })();
   </script>
 </div>

@@ -1082,7 +1082,11 @@ $display_service = ! empty( $service ) ? $service : "Real Estate Advertising Age
       });
     });
 
-    document.addEventListener("DOMContentLoaded", initAnimations);
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initAnimations);
+    } else {
+      initAnimations();
+    }
   </script>
 
   <!-- Floating Back to Top Button -->
