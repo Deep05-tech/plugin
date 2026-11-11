@@ -134,6 +134,12 @@ class Elementor_Integration {
 			return $content;
 		}
 
+		// Strictly protect built-in pages (e.g. homepage, about, contact, blog):
+		// If there is no active SEO City Page context and no dynamic tokens, return content 100% untouched.
+		if ( ! Page_Context::has_context() && false === strpos( $content, '{{' ) && false === strpos( $content, '[elementor-tag' ) ) {
+			return $content;
+		}
+
 		$is_filtering = true;
 
 		$city    = Page_Context::get_city();
