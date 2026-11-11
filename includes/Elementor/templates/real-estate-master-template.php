@@ -221,14 +221,15 @@ $display_service = ! empty( $service ) ? $service : "Real Estate Advertising Age
       html.js-animations [data-delay="500"] { transition-delay: 500ms; }
       html.js-animations [data-delay="600"] { transition-delay: 600ms; }
 
-      /* In-View Activated State */
+      /* In-View Activated State - Release transforms & will-change to eliminate compositor GPU layer thrashing */
       html.js-animations [data-animate].is-animated,
       html.js-animations [data-anim].is-animated,
       html.js-animations [data-anim].vispan-anim-visible,
       html.js-animations .vispan-anim-ready.is-animated,
       html.js-animations .vispan-anim-ready.vispan-anim-visible {
         opacity: 1 !important;
-        transform: translate3d(0, 0, 0) scale3d(1, 1, 1) rotateX(0) !important;
+        transform: none !important;
+        will-change: auto !important;
       }
     }
 
@@ -977,18 +978,38 @@ $display_service = ! empty( $service ) ? $service : "Real Estate Advertising Age
 
   <!-- SCRIPT: LENIS SMOOTH SCROLL, ANIMATIONS & AJAX (HOME SERVICES STANDARD) -->
   <script>
+    function neutralizeScrollSmoother() {
+      if (typeof ScrollSmoother !== 'undefined' && typeof ScrollSmoother.get === 'function') {
+        try {
+          const s = ScrollSmoother.get();
+          if (s) s.kill();
+        } catch (e) {}
+      }
+      const sw = document.getElementById('smooth-wrapper');
+      const sc = document.getElementById('smooth-content');
+      if (sw) {
+        sw.style.cssText = 'position: static !important; overflow: visible !important; height: auto !important; width: 100% !important; transform: none !important; inset: auto !important;';
+      }
+      if (sc) {
+        sc.style.cssText = 'position: static !important; overflow: visible !important; height: auto !important; width: 100% !important; transform: none !important;';
+      }
+    }
+
     function initAnimations() {
+      // 0. Neutralize conflicting external GSAP ScrollSmoother
+      neutralizeScrollSmoother();
+      window.addEventListener('load', neutralizeScrollSmoother);
+
       // 1. Mark root element for progressive enhancement (no CSS flash / safe for SEO)
       document.documentElement.classList.add('js-animations');
 
-      // 2. Initialize Lenis Smooth Scroll Engine
+      // 2. Initialize Lenis Smooth Scroll Engine (smoothWheel: false for 100% natural, glitch-free mouse scrolling)
       if (typeof Lenis !== 'undefined') {
         try {
           const lenis = new Lenis({
-            duration: 1.2,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-            smoothWheel: true,
-            touchMultiplier: 1.3,
+            duration: 1.0,
+            smoothWheel: false,
+            smoothTouch: false,
           });
           window.lenis = lenis;
 

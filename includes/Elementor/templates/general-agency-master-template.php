@@ -160,14 +160,15 @@ $nonce_val = ! empty( $nonce ) ? $nonce : ( function_exists( 'wp_create_nonce' )
         will-change: opacity, transform;
       }
 
-      /* In-View Active State */
+      /* In-View Active State - Release transforms & will-change to eliminate compositor GPU layer thrashing */
       .vispan-general-agency-page .vispan-reveal-left.vispan-in-view,
       .vispan-general-agency-page .vispan-reveal-right.vispan-in-view,
       .vispan-general-agency-page .vispan-reveal-up.vispan-in-view,
       .vispan-general-agency-page .vispan-reveal-fade.vispan-in-view,
       html.js-animations .vispan-general-agency-page [data-animate].is-animated {
         opacity: 1 !important;
-        transform: translate3d(0, 0, 0) scale3d(1, 1, 1) !important;
+        transform: none !important;
+        will-change: auto !important;
       }
 
       .vispan-general-agency-page .vispan-delay-1 { transition-delay: 150ms; }
@@ -511,42 +512,66 @@ $nonce_val = ! empty( $nonce ) ? $nonce : ( function_exists( 'wp_create_nonce' )
        ======================================================================= -->
   <script>
     (function() {
+      // 0. Neutralize conflicting external GSAP ScrollSmoother so mouse scrolling never glitches
+      function neutralizeScrollSmoother() {
+        if (typeof ScrollSmoother !== 'undefined' && typeof ScrollSmoother.get === 'function') {
+          try {
+            var s = ScrollSmoother.get();
+            if (s) s.kill();
+          } catch (e) {}
+        }
+        var sw = document.getElementById('smooth-wrapper');
+        var sc = document.getElementById('smooth-content');
+        if (sw) {
+          sw.style.cssText = 'position: static !important; overflow: visible !important; height: auto !important; width: 100% !important; transform: none !important; inset: auto !important;';
+        }
+        if (sc) {
+          sc.style.cssText = 'position: static !important; overflow: visible !important; height: auto !important; width: 100% !important; transform: none !important;';
+        }
+      }
+      neutralizeScrollSmoother();
+      window.addEventListener('load', neutralizeScrollSmoother);
+
       // 1. Mark progressive enhancement
       document.documentElement.classList.add('js-animations');
 
-      // 2. Initialize Lenis Smooth Scroll Engine
-      if (typeof Lenis !== 'undefined') {
-        try {
-          var lenis = new Lenis({
-            duration: 1.2,
-            easing: function(t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); },
-            smoothWheel: true,
-            touchMultiplier: 1.3
-          });
-          window.lenis = lenis;
-
-          function raf(time) {
-            lenis.raf(time);
-            requestAnimationFrame(raf);
-          }
-          requestAnimationFrame(raf);
-
-          // Internal anchor smooth scrolling
-          document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
-            anchor.addEventListener('click', function(e) {
-              var targetId = this.getAttribute('href');
-              if (!targetId || targetId === '#') return;
-              var target = document.querySelector(targetId);
-              if (target) {
-                e.preventDefault();
-                lenis.scrollTo(target, { offset: -70, duration: 1.15 });
-              }
+      // 2. Initialize Lenis Smooth Scroll Engine (smoothWheel: false for 100% natural, glitch-free mouse scrolling)
+      function initLenis() {
+        if (typeof Lenis !== 'undefined' && !window.lenis) {
+          try {
+            var lenis = new Lenis({
+              duration: 1.0,
+              smoothWheel: false,
+              smoothTouch: false
             });
-          });
-        } catch (err) {
-          console.warn('Lenis fallback', err);
+            window.lenis = lenis;
+
+            function raf(time) {
+              lenis.raf(time);
+              requestAnimationFrame(raf);
+            }
+            requestAnimationFrame(raf);
+
+            // Internal anchor smooth scrolling
+            document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+              anchor.addEventListener('click', function(e) {
+                var targetId = this.getAttribute('href');
+                if (!targetId || targetId === '#') return;
+                var target = document.querySelector(targetId);
+                if (target) {
+                  e.preventDefault();
+                  lenis.scrollTo(target, { offset: -70, duration: 1.15 });
+                }
+              });
+            });
+          } catch (err) {
+            console.warn('Lenis fallback', err);
+          }
         }
       }
+      initLenis();
+      window.addEventListener('DOMContentLoaded', initLenis);
+      window.addEventListener('load', initLenis);
 
       // 3. Hardware-Accelerated Intersection Observer
       function initAgencyAnimations() {

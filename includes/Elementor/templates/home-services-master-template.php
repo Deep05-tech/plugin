@@ -471,10 +471,11 @@ if ( ! defined( 'ABSPATH' ) ) {
       html.js-animations [data-delay="500"] { transition-delay: 500ms; }
       html.js-animations [data-delay="600"] { transition-delay: 600ms; }
 
-      /* In-View Activated State */
+      /* In-View Activated State - Release transforms & will-change to eliminate compositor GPU layer thrashing */
       html.js-animations [data-animate].is-animated {
         opacity: 1 !important;
-        transform: translate3d(0, 0, 0) scale3d(1, 1, 1) rotateX(0) !important;
+        transform: none !important;
+        will-change: auto !important;
       }
     }
 
@@ -1703,10 +1704,9 @@ if ( ! defined( 'ABSPATH' ) ) {
       if (typeof Lenis !== 'undefined') {
         try {
           const lenis = new Lenis({
-            duration: 1.2,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-            smoothWheel: true,
-            touchMultiplier: 1.3,
+            duration: 1.0,
+            smoothWheel: false, // Pure native mouse wheel scrolling — zero glitching, zero lag, zero stutter
+            smoothTouch: false, // Pure native touch scrolling
           });
           window.lenis = lenis;
 

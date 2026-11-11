@@ -494,7 +494,8 @@ class Elementor_Integration {
 			body.elementor-editor-active .vispan-reveal-up,
 			body.elementor-editor-active .vispan-reveal-fade {
 				opacity: 1 !important;
-				transform: translate3d(0, 0, 0) !important;
+				transform: none !important;
+				will-change: auto !important;
 			}
 
 			.vispan-delay-1 { transition-delay: 0.15s; }
@@ -761,17 +762,36 @@ class Elementor_Integration {
 		</style>
 		<script id="vispan-scroll-animations-js">
 		(function() {
+			// 0. Neutralize conflicting external GSAP ScrollSmoother so mouse scrolling never glitches
+			function neutralizeScrollSmoother() {
+				if (typeof ScrollSmoother !== "undefined" && typeof ScrollSmoother.get === "function") {
+					try {
+						var s = ScrollSmoother.get();
+						if (s) s.kill();
+					} catch (e) {}
+				}
+				var sw = document.getElementById("smooth-wrapper");
+				var sc = document.getElementById("smooth-content");
+				if (sw) {
+					sw.style.cssText = "position: static !important; overflow: visible !important; height: auto !important; width: 100% !important; transform: none !important; inset: auto !important;";
+				}
+				if (sc) {
+					sc.style.cssText = "position: static !important; overflow: visible !important; height: auto !important; width: 100% !important; transform: none !important;";
+				}
+			}
+			neutralizeScrollSmoother();
+			window.addEventListener("load", neutralizeScrollSmoother);
+
 			// 1. Mark progressive enhancement
 			document.documentElement.classList.add("js-animations");
 
-			// 2. Initialize Lenis Smooth Scroll Engine
+			// 2. Initialize Lenis Smooth Scroll Engine (smoothWheel: false for 100% natural, glitch-free mouse scrolling)
 			if (typeof Lenis !== "undefined" && !window.lenis) {
 				try {
 					var lenis = new Lenis({
-						duration: 1.2,
-						easing: function(t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); },
-						smoothWheel: true,
-						touchMultiplier: 1.3
+						duration: 1.0,
+						smoothWheel: false,
+						smoothTouch: false
 					});
 					window.lenis = lenis;
 
