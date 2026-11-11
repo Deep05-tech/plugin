@@ -366,6 +366,20 @@ $assert( strpos( $ai_page_html, 'How quickly will my Tampa roofing company see r
 $assert( strpos( $ai_page_html, 'Ready to Dominate the Tampa Contractor Market?' ) !== false, "Dynamic AI: Final CTA heading rendered" );
 $assert( strpos( $ai_page_html, 'Claim Your Free Strategy Session Now →' ) !== false, "Dynamic AI: Final CTA button rendered" );
 
+// 7. Button Color Immunity & Section 4 Sticky Pillar Architecture
+echo "\n7. Testing Button Color Immunity & Section 4 Sticky Pillar Architecture...\n";
+$assert( strpos( $default_page_html, 'btn-primary-consult' ) !== false, "Hero CTA button contains class btn-primary-consult" );
+$assert( strpos( $default_page_html, 'btn-secondary-services' ) !== false, "Hero secondary button contains class btn-secondary-services" );
+$assert( strpos( $default_page_html, 'style="color: #ffffff !important;"' ) !== false, "Hero buttons contain inline high-contrast white text style" );
+$assert( strpos( $default_page_html, '.vispan-home-services-page a.btn-primary-consult' ) !== false, "Scoped CSS immunity rule for btn-primary-consult is present" );
+$assert( strpos( $default_page_html, 'neutralizeScrollSmoother' ) !== false, "ScrollSmoother neutralization controller is present" );
+$assert( strpos( $default_page_html, '#smooth-wrapper,' ) !== false, "ScrollSmoother container CSS reset is present" );
+
+// Check trades-container.html directly: zero data-animate on sticky headers
+$trades_raw = file_get_contents( dirname( __DIR__ ) . '/includes/Elementor/templates/trades-container.html' );
+$assert( strpos( $trades_raw, '<div class="lg:col-span-4 lg:sticky lg:top-28 pr-4" data-animate="fade-right">' ) === false, "Zero data-animate on sticky category headers (prevents transform-disabled sticky)" );
+$assert( substr_count( $trades_raw, '<div class="lg:col-span-4 lg:sticky lg:top-28 pr-4">' ) === 6, "All 6 category headers use clean non-transformed sticky layout" );
+
 // Reset after test
 Content_Context::reset();
 

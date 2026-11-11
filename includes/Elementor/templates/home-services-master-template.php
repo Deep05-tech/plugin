@@ -82,31 +82,52 @@ if ( ! defined( 'ABSPATH' ) ) {
       background-image: radial-gradient(circle at 85% 20%, rgba(11, 101, 153, 0.32) 0%, transparent 55%);
     }
 
-    /* 2. Critical Sticky Fix for WordPress Themes & Containers */
+    /* 2. Critical Sticky & Container Isolation */
     /* Prevents overflow:hidden from disabling position:sticky across all modern browsers */
-    html, body, #page, .wp-site-blocks, .vispan-home-services-page {
+    html, body, #page, .wp-site-blocks, .vispan-home-services-page,
+    #smooth-wrapper, #smooth-content {
       overflow-x: clip !important;
       overflow-y: visible !important;
     }
 
+    /* Neutralize external GSAP ScrollSmoother containers so native position:sticky functions flawlessly */
+    #smooth-wrapper,
+    #smooth-content {
+      position: static !important;
+      overflow: visible !important;
+      height: auto !important;
+      width: 100% !important;
+      transform: none !important;
+      inset: auto !important;
+    }
+
     /* Sticky Sidebar Navigation (Section 4 Categories) */
     @media (min-width: 1024px) {
-      .lg\:sticky {
+      .vispan-home-services-page .lg\:sticky,
+      .vispan-home-services-page [class*="lg:sticky"],
+      .lg\:sticky,
+      [class*="lg:sticky"] {
         position: -webkit-sticky !important;
         position: sticky !important;
-        top: 7rem !important;
+        top: 6.5rem !important;
         align-self: flex-start !important;
         z-index: 20 !important;
+        transform: none !important;
+        will-change: auto !important;
       }
+      body.admin-bar .vispan-home-services-page .lg\:sticky,
+      body.admin-bar .vispan-home-services-page [class*="lg:sticky"],
       body.admin-bar .lg\:sticky,
       .admin-bar .lg\:sticky {
-        top: calc(7rem + 32px) !important;
+        top: calc(6.5rem + 32px) !important;
       }
     }
     @media screen and (max-width: 782px) {
+      body.admin-bar .vispan-home-services-page .lg\:sticky,
+      body.admin-bar .vispan-home-services-page [class*="lg:sticky"],
       body.admin-bar .lg\:sticky,
       .admin-bar .lg\:sticky {
-        top: calc(7rem + 46px) !important;
+        top: calc(6.5rem + 46px) !important;
       }
     }
 
@@ -225,19 +246,53 @@ if ( ! defined( 'ABSPATH' ) ) {
       box-shadow: 0 14px 28px -6px rgba(11, 101, 153, 0.1) !important;
     }
 
-    /* 8. Primary Buttons & CTAs */
-    .vispan-primary-btn {
+    /* 8. Primary Buttons & CTAs - Immunity Against Theme Link Overrides */
+    .vispan-home-services-page a.btn-primary-consult,
+    .vispan-home-services-page a.btn-primary-consult *,
+    .vispan-home-services-page a.btn-secondary-services,
+    .vispan-home-services-page a.btn-secondary-services *,
+    .vispan-home-services-page .vispan-hero-bg a,
+    .vispan-home-services-page .vispan-hero-bg a *,
+    .vispan-home-services-page .vispan-primary-btn,
+    .vispan-home-services-page .vispan-primary-btn *,
+    .vispan-home-services-page a[href="#mid-contact"],
+    .vispan-home-services-page a[href="#mid-contact"] *,
+    .vispan-home-services-page a[href="#our-services"],
+    .vispan-home-services-page a[href="#our-services"] *,
+    .vispan-home-services-page a[href="#contact"],
+    .vispan-home-services-page a[href="#contact"] * {
+      color: #FFFFFF !important;
+    }
+    .vispan-primary-btn,
+    .vispan-home-services-page a.btn-primary-consult,
+    .vispan-home-services-page a[href="#mid-contact"] {
       background-color: #0B6599 !important;
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
       will-change: transform, box-shadow;
     }
-    .vispan-primary-btn:hover {
+    .vispan-primary-btn:hover,
+    .vispan-home-services-page a.btn-primary-consult:hover,
+    .vispan-home-services-page a[href="#mid-contact"]:hover {
       background-color: #09527d !important;
       transform: translateY(-2px) !important;
       box-shadow: 0 6px 18px -2px rgba(11, 101, 153, 0.4) !important;
     }
-    .vispan-primary-btn:active {
+    .vispan-primary-btn:active,
+    .vispan-home-services-page a.btn-primary-consult:active,
+    .vispan-home-services-page a[href="#mid-contact"]:active {
       transform: translateY(0) !important;
+    }
+    .vispan-home-services-page a.btn-secondary-services,
+    .vispan-home-services-page a[href="#our-services"] {
+      background-color: transparent !important;
+      border: 1px solid #475569 !important;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+    .vispan-home-services-page a.btn-secondary-services:hover,
+    .vispan-home-services-page a[href="#our-services"]:hover {
+      border-color: #94A3B8 !important;
+      background-color: rgba(255, 255, 255, 0.05) !important;
+      transform: translateY(-1px) !important;
     }
 
     /* 9. Header Mega-Menu Smooth Dropdown */
@@ -514,11 +569,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
           <!-- Clean Action Buttons -->
           <div data-animate="fade-up" data-delay="200" class="flex flex-wrap items-center gap-4 pt-2">
-            <a href="#mid-contact" class="inline-flex items-center gap-2.5 px-7 py-4 rounded-lg bg-[#0B6599] hover:bg-[#09527d] text-white font-bold text-sm sm:text-base transition animate-btn-pulse">
-              <span><?php echo esc_html( ! empty( $hero_cta ) ? $hero_cta : 'Get A Free Consultation' ); ?></span>
+            <a href="#mid-contact" class="btn-primary-consult inline-flex items-center gap-2.5 px-7 py-4 rounded-lg bg-[#0B6599] hover:bg-[#09527d] text-white font-bold text-sm sm:text-base transition animate-btn-pulse" style="color: #ffffff !important;">
+              <span style="color: #ffffff !important;"><?php echo esc_html( ! empty( $hero_cta ) ? $hero_cta : 'Get A Free Consultation' ); ?></span>
             </a>
-            <a href="#our-services" class="inline-flex items-center gap-2 px-6 py-4 rounded-lg border border-slate-600 hover:border-slate-400 text-white font-semibold text-sm sm:text-base transition hover:-translate-y-0.5">
-              <span>View Our Services</span>
+            <a href="#our-services" class="btn-secondary-services inline-flex items-center gap-2 px-6 py-4 rounded-lg border border-slate-600 hover:border-slate-400 text-white font-semibold text-sm sm:text-base transition hover:-translate-y-0.5" style="color: #ffffff !important;">
+              <span style="color: #ffffff !important;">View Our Services</span>
             </a>
           </div>
 
@@ -654,9 +709,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
           <!-- Section 2 Contact Us Button -->
           <div class="pt-3">
-            <a href="#contact" class="inline-flex items-center gap-2 px-7 py-3.5 rounded-lg vispan-primary-btn text-white font-bold text-sm">
-              <span>Contact Us</span>
-              <i class="fa-solid fa-arrow-right text-xs"></i>
+            <a href="#contact" class="inline-flex items-center gap-2 px-7 py-3.5 rounded-lg vispan-primary-btn text-white font-bold text-sm" style="color: #ffffff !important;">
+              <span style="color: #ffffff !important;">Contact Us</span>
+              <i class="fa-solid fa-arrow-right text-xs" style="color: #ffffff !important;"></i>
             </a>
           </div>
         </div>
@@ -893,7 +948,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                 </div>
               </div>
 
-              <button type="submit" class="w-full py-3.5 rounded-lg vispan-primary-btn text-white font-bold text-sm">
+              <button type="submit" class="w-full py-3.5 rounded-lg vispan-primary-btn text-white font-bold text-sm" style="color: #ffffff !important;">
                 Schedule My Free 1-on-1 Session
               </button>
 
@@ -1425,7 +1480,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                 </select>
               </div>
             </div>
-            <button type="submit" class="w-full py-3.5 rounded-lg vispan-primary-btn text-white font-bold text-sm">
+            <button type="submit" class="w-full py-3.5 rounded-lg vispan-primary-btn text-white font-bold text-sm" style="color: #ffffff !important;">
               <?php echo esc_html( ! empty( $final_cta_btn ) ? $final_cta_btn : 'Request My Free Demo & Proposal' ); ?>
             </button>
             <div id="proposalToast" class="hidden p-3.5 rounded-lg bg-[#EFF6FF] border border-[#0B6599] text-[#0B6599] text-xs font-bold text-center">
@@ -1617,7 +1672,30 @@ if ( ! defined( 'ABSPATH' ) ) {
     // =========================================================================
     // MODERN ANIMATIONS & LENIS SMOOTH SCROLL CONTROLLER
     // =========================================================================
+    function neutralizeScrollSmoother() {
+      if (typeof ScrollSmoother !== 'undefined' && typeof ScrollSmoother.get === 'function') {
+        try {
+          const s = ScrollSmoother.get();
+          if (s) s.kill();
+        } catch (e) {}
+      }
+      const sw = document.getElementById('smooth-wrapper');
+      const sc = document.getElementById('smooth-content');
+      if (sw) {
+        sw.style.cssText = 'position: static !important; overflow: visible !important; height: auto !important; width: 100% !important; transform: none !important; inset: auto !important;';
+      }
+      if (sc) {
+        sc.style.cssText = 'position: static !important; overflow: visible !important; height: auto !important; width: 100% !important; transform: none !important;';
+      }
+    }
+
     function initAnimations() {
+      // 0. Neutralize conflicting external GSAP ScrollSmoother so native sticky works
+      neutralizeScrollSmoother();
+      window.addEventListener('load', neutralizeScrollSmoother);
+      setTimeout(neutralizeScrollSmoother, 100);
+      setTimeout(neutralizeScrollSmoother, 400);
+
       // 1. Mark root element for progressive enhancement (no CSS flash / safe for SEO)
       document.documentElement.classList.add('js-animations');
 

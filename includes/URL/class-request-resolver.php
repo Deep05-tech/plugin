@@ -95,7 +95,45 @@ class Request_Resolver {
 				pointer-events: none !important;
 				z-index: -99999 !important;
 			}
+
+			/* Button High-Contrast Color Immunity Against Theme Link Styles */
+			.vispan-home-services-page a.btn-primary-consult,
+			.vispan-home-services-page a.btn-primary-consult *,
+			.vispan-home-services-page a.btn-secondary-services,
+			.vispan-home-services-page a.btn-secondary-services *,
+			.vispan-home-services-page .vispan-hero-bg a,
+			.vispan-home-services-page .vispan-hero-bg a *,
+			.vispan-home-services-page .vispan-primary-btn,
+			.vispan-home-services-page .vispan-primary-btn *,
+			.vispan-home-services-page a[href="#mid-contact"],
+			.vispan-home-services-page a[href="#mid-contact"] *,
+			.vispan-home-services-page a[href="#our-services"],
+			.vispan-home-services-page a[href="#our-services"] *,
+			.vispan-home-services-page a[href="#contact"],
+			.vispan-home-services-page a[href="#contact"] * {
+				color: #FFFFFF !important;
+			}
+
+			/* ScrollSmoother Container Neutralization for Rock-Solid Sticky Behavior */
+			#smooth-wrapper,
+			#smooth-content {
+				position: static !important;
+				overflow: visible !important;
+				height: auto !important;
+				width: 100% !important;
+				transform: none !important;
+				inset: auto !important;
+			}
 		</style>' . "\n";
+		echo '<script id="vispan-early-smoother-neutralizer">
+			if (typeof window !== "undefined") {
+				window.addEventListener("DOMContentLoaded", function() {
+					if (window.WCF_ADDONS_JS && typeof window.WCF_ADDONS_JS === "object") {
+						window.WCF_ADDONS_JS.smoothScroller = null;
+					}
+				}, true);
+			}
+		</script>' . "\n";
 	}
 
 	/**
