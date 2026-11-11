@@ -110,24 +110,7 @@ if ( ! defined( 'ABSPATH' ) ) {
       }
     }
 
-    /* Sticky Header */
-    header.sticky {
-      position: -webkit-sticky !important;
-      position: sticky !important;
-      top: 0 !important;
-      z-index: 40 !important;
-      background-color: #FFFFFF !important;
-    }
-    body.admin-bar header.sticky,
-    .admin-bar header.sticky {
-      top: 32px !important;
-    }
-    @media screen and (max-width: 782px) {
-      body.admin-bar header.sticky,
-      .admin-bar header.sticky {
-        top: 46px !important;
-      }
-    }
+
 
     /* 3. Trade Cards Interactive Animations (Section 4) */
     .trade-card,
@@ -498,78 +481,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     }
   </style>
 
-  <!-- ===================================================================== -->
-  <!-- TOP UTILITY BAR: REAL VISPAN CONTACT INFO + COUNTY PREVIEW SELECTOR   -->
-  <!-- ===================================================================== -->
-  <div class="bg-[#070C17] text-slate-300 border-b border-slate-800/80 text-xs">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2 flex flex-wrap items-center justify-between gap-3">
-      <div class="flex flex-wrap items-center gap-5">
-        <a href="mailto:contact@vispansolutions.com" class="hover:text-white transition flex items-center gap-1.5">
-          <i class="fa-regular fa-envelope text-[#38BDF8]"></i>
-          <span>contact@vispansolutions.com</span>
-        </a>
-        <a href="tel:+918485986860" class="hover:text-white transition flex items-center gap-1.5">
-          <i class="fa-solid fa-phone text-[#38BDF8] text-[10px]"></i>
-          <span>India HQ: +91 84859 86860</span>
-        </a>
-      </div>
 
-      <div class="flex flex-wrap items-center gap-1.5">
-        <span class="text-slate-400 mr-1 hidden sm:inline">County Page Preview:</span>
-        <button id="btn-oc-fl" onclick="switchCounty('Orange County', 'FL', 'Orlando, Winter Park & Lake Nona', 'btn-oc-fl')" class="county-pill px-2.5 py-1 rounded bg-[#0B6599] text-white font-semibold transition">Orange County, FL</button>
-        <button id="btn-mc-az" onclick="switchCounty('Maricopa County', 'AZ', 'Phoenix, Scottsdale & Mesa', 'btn-mc-az')" class="county-pill px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium transition">Maricopa County, AZ</button>
-        <button id="btn-hc-tx" onclick="switchCounty('Harris County', 'TX', 'Houston, Katy & The Woodlands', 'btn-hc-tx')" class="county-pill px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium transition">Harris County, TX</button>
-        <button id="btn-oc-ca" onclick="switchCounty('Orange County', 'CA', 'Irvine, Anaheim & Newport Beach', 'btn-oc-ca')" class="county-pill px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium transition">Orange County, CA</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===================================================================== -->
-  <!-- VISPAN SOLUTIONS OFFICIAL NAVIGATION HEADER + 10-SERVICE MEGA MENU    -->
-  <!-- ===================================================================== -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
-      <a href="https://vispansolutions.com/" class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-lg bg-[#0B6599] flex items-center justify-center text-white font-display font-extrabold text-xl">
-          V
-        </div>
-        <div>
-          <span class="font-display font-extrabold text-xl tracking-tight text-slate-900 block leading-none">
-            VISPAN <span class="text-[#0B6599]">SOLUTIONS</span>
-          </span>
-          <span class="text-[11px] font-medium tracking-wider uppercase text-slate-500 block mt-1">
-            We Span Your Digital Presence
-          </span>
-        </div>
-      </a>
-
-      <nav class="hidden lg:flex items-center gap-8 text-sm font-semibold text-slate-700">
-        <a href="#why-marketing" class="hover:text-[#0B6599] transition">Why Digital Marketing</a>
-        
-        <!-- Hover Mega-Menu Preview of All 10 Official Services -->
-        <div class="relative group py-6">
-          <a href="#our-services" class="inline-flex items-center gap-1.5 hover:text-[#0B6599] transition">
-            <span>What We Do</span>
-            <i class="fa-solid fa-chevron-down text-[10px] text-slate-500 group-hover:text-[#0B6599] transition"></i>
-          </a>
-          <div class="absolute left-1/2 -translate-x-1/2 top-full w-[900px] bg-white rounded-lg shadow-xl border border-slate-200 p-7 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-50">
-            <div class="grid grid-cols-4 gap-x-6 gap-y-6" id="header-mega-services"></div>
-          </div>
-        </div>
-
-        <a href="#home-services-list" class="hover:text-[#0B6599] transition">Home Services</a>
-        <a href="#process" class="hover:text-[#0B6599] transition">How We Work</a>
-        <a href="#testimonials" class="hover:text-[#0B6599] transition">Client Reviews</a>
-        <a href="#faq" class="hover:text-[#0B6599] transition">FAQs</a>
-      </nav>
-
-      <div class="flex items-center gap-4">
-        <a href="#contact" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg vispan-primary-btn text-white font-semibold text-sm">
-          <span>Contact Us</span>
-        </a>
-      </div>
-    </div>
-  </header>
 
   <!-- ===================================================================== -->
   <!-- SECTION 1: HUMANIZED EDITORIAL HERO (NO AI BENTO BOX CLUTTER)         -->
@@ -1526,24 +1438,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     </div>
   </section>
 
-  <!-- FOOTER -->
-  <footer class="bg-[#070C17] text-slate-400 py-8 border-t border-slate-800/80 text-xs" data-animate="fade-up">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <div class="w-7 h-7 rounded bg-[#0B6599] text-white font-display font-extrabold flex items-center justify-center">V</div>
-        <span class="font-semibold text-white">© 2012–2026 Vispan Solutions Pvt. Ltd. All Rights Reserved.</span>
-      </div>
-      <div class="flex flex-wrap gap-6 text-slate-400">
-        <a href="https://vispansolutions.com/" class="hover:text-white">Home</a>
-        <a href="https://vispansolutions.com/about-us/" class="hover:text-white">About Us</a>
-        <a href="https://vispansolutions.com/what-we-do/" class="hover:text-white">What We Do</a>
-        <a href="https://vispansolutions.com/portfolio/" class="hover:text-white">Portfolio</a>
-        <a href="https://vispansolutions.com/career/" class="hover:text-white">Career</a>
-        <a href="https://vispansolutions.com/blog/" class="hover:text-white">Blog</a>
-        <a href="https://vispansolutions.com/contact-us/" class="hover:text-white">Contact Us</a>
-      </div>
-    </div>
-  </footer>
+
 
   <!-- ===================================================================== -->
   <!-- JAVASCRIPT: OFFICIAL VISPAN SERVICES + HOME SERVICES (ZERO NUMBERS)   -->

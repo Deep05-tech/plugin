@@ -264,32 +264,7 @@ $display_service = ! empty( $service ) ? $service : "Real Estate Advertising Age
     }
   </style>
 
-  <!-- TOP HEADER -->
-  <header class="sticky top-0 bg-white border-b border-slate-100 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-      <a href="https://vispansolutions.com/" class="flex items-center gap-3 group">
-        <img src="https://vispansolutions.com/wp-content/uploads/2025/01/vispan-new-logo.webp" alt="Vispan Solutions" class="h-10 w-auto object-contain transition-transform group-hover:scale-105" />
-      </a>
 
-      <nav class="hidden md:flex items-center gap-8 font-medium text-sm text-slate-700">
-        <a href="#services" class="hover:text-vispan-ocean transition-colors">Services</a>
-        <a href="#sectors" class="hover:text-vispan-ocean transition-colors">Property Sectors</a>
-        <a href="#market-anatomy" class="hover:text-vispan-ocean transition-colors"><?php echo esc_html( $display_city ); ?> Market</a>
-        <a href="#comparison" class="hover:text-vispan-ocean transition-colors">Why Vispan</a>
-        <a href="#faq" class="hover:text-vispan-ocean transition-colors">FAQs</a>
-      </nav>
-
-      <div class="flex items-center gap-4">
-        <a href="tel:+918485986860" class="hidden sm:flex items-center gap-2 text-sm font-semibold text-slate-800 hover:text-vispan-ocean transition-colors">
-          <i class="fa-solid fa-phone text-vispan-ocean"></i>
-          <span>+91 84859 86860</span>
-        </a>
-        <a href="#inquiry-form-section" class="inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-vispan-ocean text-white text-sm font-bold shadow-md shadow-vispan-ocean/20 hover:bg-vispan-royal transition-all duration-200">
-          Get Proposal
-        </a>
-      </div>
-    </div>
-  </header>
 
   <!-- HERO SECTION -->
   <section class="vispan-hero-bg text-white relative overflow-hidden pt-16 pb-24 lg:pt-20 lg:pb-32 border-b border-slate-800">
@@ -998,20 +973,7 @@ $display_service = ! empty( $service ) ? $service : "Real Estate Advertising Age
     </div>
   </section>
 
-  <!-- FOOTER -->
-  <footer class="bg-vispan-navy text-slate-400 text-xs py-12 border-t border-slate-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 text-center sm:text-left sm:flex sm:justify-between sm:items-center">
-      <div>
-        <p>&copy; <?php echo esc_html( gmdate( "Y" ) ); ?> <strong class="text-white">Vispan Solutions Pvt. Ltd.</strong> All rights reserved.</p>
-        <p class="text-slate-500 mt-1">Official Real Estate Performance Marketing Division &bull; Serving <?php echo esc_html( $display_city ); ?>, <?php echo esc_html( $display_state ); ?>.</p>
-      </div>
-      <div class="flex justify-center sm:justify-end gap-6 text-sm">
-        <a href="https://vispansolutions.com/privacy-policy/" class="hover:text-white transition-colors">Privacy Policy</a>
-        <a href="https://vispansolutions.com/terms-and-conditions/" class="hover:text-white transition-colors">Terms of Service</a>
-        <a href="https://vispansolutions.com/contact-us/" class="hover:text-white transition-colors">Contact</a>
-      </div>
-    </div>
-  </footer>
+
 
   <!-- SCRIPT: LENIS SMOOTH SCROLL, ANIMATIONS & AJAX (HOME SERVICES STANDARD) -->
   <script>

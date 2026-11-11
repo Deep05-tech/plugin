@@ -199,6 +199,9 @@ assert_test( false === strpos( $html, "HVAC & Air Conditioning" ), "Zero leakage
 assert_test( false === strpos( $html, "Emergency Plumbing" ), "Zero leakage of Plumbing trade" );
 assert_test( false === strpos( $html, "Roof Repair & Replacement" ), "Zero leakage of Roofing trade" );
 
+assert_test( false === strpos( $html, "<header" ), "Real Estate output contains zero custom header tags" );
+assert_test( false === strpos( $html, "<footer" ), "Real Estate output contains zero custom footer tags" );
+
 // 3. Demo CSV Validation
 echo "\n3. Testing Demo CSV Dataset (20 Pages)...\n";
 $demo_csv_file = dirname( __DIR__ ) . "/data/real-estate-demo-20.csv";

@@ -199,6 +199,8 @@ foreach ( $trades as $t ) {
 	}
 }
 $assert( empty( $missing_trades ), "All 21 requested trades present in HTML output" );
+$assert( strpos( $home_html, "<header" ) === false, "Home Services output contains zero custom header tags" );
+$assert( strpos( $home_html, "<footer" ) === false, "Home Services output contains zero custom footer tags" );
 
 // 3. Category tabs
 echo "\n3. Testing Category Filter Tabs & Interactive JS...\n";

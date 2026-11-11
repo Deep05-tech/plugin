@@ -154,11 +154,7 @@ class Post_Sync {
 				update_post_meta( $post_id, self::META_URL_PATH, $page->url_path );
 				update_post_meta( $post_id, '_elementor_edit_mode', 'builder' );
 				update_post_meta( $post_id, '_elementor_template_type', 'wp-page' );
-				$service_obj      = \SeoCityPages\Database\Service_Repository::get( (int) $page->service_id );
-				$service_name     = $service_obj ? $service_obj->name : '';
-				$is_home_services = (bool) preg_match( '/\b(home\s*services?|home\s*cleaning|contractors?|emergency\s*trades?)\b/i', (string) $service_name );
-				$is_real_estate   = (bool) preg_match( '/\b(real\s*estate|realtor|brokerage|housing|realty)\b/i', (string) $service_name );
-				$page_template    = ( $is_home_services || $is_real_estate ) ? 'elementor_canvas' : 'elementor_header_footer';
+				$page_template = 'elementor_header_footer';
 
 				update_post_meta( $post_id, '_wp_page_template', $page_template );
 

@@ -265,6 +265,8 @@ assert_test( false === strpos( $rendered_html, 'HVAC Systems' ), "Zero leakage o
 assert_test( false === strpos( $rendered_html, 'Roofing & Solar' ), "Zero leakage of Roofing trade" );
 assert_test( false === strpos( $rendered_html, 'Luxury Estates' ), "Zero leakage of Luxury Estates real estate pillar" );
 assert_test( false === strpos( $rendered_html, 'Commercial Portfolios' ), "Zero leakage of Commercial Portfolios real estate pillar" );
+assert_test( false === strpos( $rendered_html, '<header' ), "General Agency output contains zero custom header tags" );
+assert_test( false === strpos( $rendered_html, '<footer' ), "General Agency output contains zero custom footer tags" );
 
 // 3. Shortcode and Template Canvas Isolation
 echo "\n3. Testing Shortcode and Template Canvas Isolation...\n";
