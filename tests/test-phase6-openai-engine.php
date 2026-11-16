@@ -724,6 +724,16 @@ namespace SeoCityPages\Tests {
 			$res_placeholder = Content_Validator::validate( $placeholder_sample, $context );
 			$this->assert( 'Unreplaced template placeholders [City] are rejected', false === $res_placeholder['valid'] );
 
+			$bracket_company_sample = $valid_sample;
+			$bracket_company_sample['hero']['title'] = 'Top Services for [YOUR COMPANY] in Orlando';
+			$res_bracket_company = Content_Validator::validate( $bracket_company_sample, $context );
+			$this->assert( 'Placeholder [YOUR COMPANY] is rejected', false === $res_bracket_company['valid'] );
+
+			$natural_company_sample = $valid_sample;
+			$natural_company_sample['introduction']['body'] = 'We help your company grow and generate qualified leads in Orlando.';
+			$res_natural_company = Content_Validator::validate( $natural_company_sample, $context );
+			$this->assert( 'Natural phrase "your company" is permitted and passes validation', true === $res_natural_company['valid'] );
+
 			// Test Identity / Anti-Hallucination Rejection (Target city missing completely)
 			$wrong_city_sample = $valid_sample;
 			$wrong_city_sample['hero']['title'] = 'Premier Denver Marketing Services';

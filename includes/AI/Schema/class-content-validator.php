@@ -33,9 +33,14 @@ class Content_Validator {
 		'/\{city\}/i',
 		'/\{service\}/i',
 		'/\{company\}/i',
-		'/\bYOUR COMPANY\b/i',
-		'/\bCOMPANY NAME\b/i',
-		'/\bINSERT TEXT\b/i',
+		'/\[(?:your\s+)?company(?:\s+name)?\]/i',
+		'/\{(?:your\s+)?company(?:\s+name)?\}/i',
+		'/\{\{[^\}]+\}\}/',
+		'/\[insert\s+text\]/i',
+		'/\bINSERT_TEXT\b/i',
+		'/\bYOUR_COMPANY\b/i',
+		'/\bCOMPANY_NAME\b/i',
+		'/_{3,}/',
 		'/\blorem ipsum\b/i',
 	];
 
