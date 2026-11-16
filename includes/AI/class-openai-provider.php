@@ -274,9 +274,9 @@ class OpenAI_Provider implements AI_Provider_Interface {
 	 * @param int    $max_retries Max retry attempts.
 	 * @return array|\WP_Error
 	 */
-	private function send_request_with_retry( string $url, array $payload, string $api_key, int $max_retries = 2 ) {
-		$attempts = 0;
-		$backoff_ms = 1000;
+	private function send_request_with_retry( string $url, array $payload, string $api_key, int $max_retries = 3 ) {
+		$attempts   = 0;
+		$backoff_ms = 1500;
 
 		while ( $attempts <= $max_retries ) {
 			$attempts++;
@@ -307,8 +307,9 @@ class OpenAI_Provider implements AI_Provider_Interface {
 
 			// 429 (Rate Limit) or 500/502/503/504 (Server error) -> Retry with backoff.
 			if ( in_array( $status, [ 429, 500, 502, 503, 504 ], true ) && $attempts <= $max_retries ) {
-				Logger::warning( sprintf( 'OpenAI returned HTTP %d, retrying attempt %d of %d...', $status, $attempts, $max_retries ) );
-				usleep( $backoff_ms * 1000 );
+				$wait_ms = ( 429 === $status ) ? max( 3500, $backoff_ms * 2 ) : $backoff_ms;
+				Logger::warning( sprintf( 'OpenAI returned HTTP %d, retrying attempt %d of %d after %dms...', $status, $attempts, $max_retries, $wait_ms ) );
+				usleep( $wait_ms * 1000 );
 				$backoff_ms *= 2;
 				continue;
 			}

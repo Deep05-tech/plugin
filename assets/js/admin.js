@@ -340,12 +340,28 @@
 						$('#scp-bulk-success-text').text((bData.success_cnt || 0) + ' succeeded');
 						$('#scp-bulk-failed-text').text((bData.failed_cnt || 0) + ' failed');
 
+						if (bData.failed_cnt && bData.failed_cnt > 0) {
+							$('#scp-bulk-error-box').slideDown(150);
+							var errList = bData.errors_summary || bData.errors || [];
+							if (errList && errList.length > 0) {
+								var latestErrors = errList.slice(-6).reverse();
+								var errHtml = '';
+								latestErrors.forEach(function(e) {
+									var msg  = (typeof e === 'object') ? (e.error || '') : e;
+									var code = (typeof e === 'object' && e.code) ? ' (' + e.code + ')' : '';
+									var pid  = (typeof e === 'object' && e.page_id) ? '[Page #' + e.page_id + code + ']: ' : '';
+									errHtml += '<div style="margin-bottom: 3px;">' + pid + msg + '</div>';
+								});
+								$('#scp-bulk-error-list').html(errHtml);
+							}
+						}
+
 						if (bData.stats) {
 							updateDashboardStats(bData.stats);
 						}
 
 						if (!bData.is_complete) {
-							setTimeout(processNextChunk, 200);
+							setTimeout(processNextChunk, 1200);
 						} else {
 							$('#scp-bulk-status-heading').html('<span style="color: #00a32a;">✓ Generation Complete!</span>');
 							$('#scp-bulk-progress-bar').css('width', '100%');

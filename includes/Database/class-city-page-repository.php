@@ -622,9 +622,20 @@ class City_Page_Repository {
 			$where_clauses[] = 'p.status = %s';
 			$params[] = $args['status'];
 		}
-		if ( ! empty( $args['generation_status'] ) && in_array( $args['generation_status'], self::ALLOWED_GENERATION_STATUSES, true ) ) {
-			$where_clauses[] = 'p.generation_status = %s';
-			$params[] = $args['generation_status'];
+		if ( ! empty( $args['generation_status'] ) ) {
+			if ( is_array( $args['generation_status'] ) ) {
+				$clean_statuses = array_values( array_intersect( $args['generation_status'], self::ALLOWED_GENERATION_STATUSES ) );
+				if ( ! empty( $clean_statuses ) ) {
+					$placeholders    = implode( ', ', array_fill( 0, count( $clean_statuses ), '%s' ) );
+					$where_clauses[] = "p.generation_status IN ({$placeholders})";
+					foreach ( $clean_statuses as $st ) {
+						$params[] = $st;
+					}
+				}
+			} elseif ( in_array( $args['generation_status'], self::ALLOWED_GENERATION_STATUSES, true ) ) {
+				$where_clauses[] = 'p.generation_status = %s';
+				$params[] = $args['generation_status'];
+			}
 		}
 		if ( isset( $args['is_published'] ) && '' !== $args['is_published'] ) {
 			$where_clauses[] = 'p.is_published = %d';
@@ -686,6 +697,34 @@ class City_Page_Repository {
 	}
 
 	/**
+	 * Retrieve all Page IDs that are missing generated content (not_generated, failed, or orphaned).
+	 *
+	 * @param int $limit Max page IDs to fetch.
+	 * @return int[]
+	 */
+	public static function get_missing_content_page_ids( int $limit = 50000 ): array {
+		global $wpdb;
+		$pages_table    = Schema::get_table_name( Schema::TABLE_CITY_PAGES );
+		$versions_table = Schema::get_table_name( Schema::TABLE_CONTENT_VERSIONS );
+
+		$sql = "
+			SELECT p.id 
+			FROM {$pages_table} p
+			LEFT JOIN {$versions_table} cv ON ( cv.page_id = p.id AND cv.status IN ('approved', 'needs_review', 'manually_edited') )
+			WHERE (
+				p.generation_status IN ('not_generated', 'failed', 'generating')
+				OR cv.id IS NULL
+			)
+			GROUP BY p.id
+			ORDER BY p.id ASC
+			LIMIT %d
+		";
+
+		$results = $wpdb->get_col( $wpdb->prepare( $sql, max( 1, $limit ) ) );
+		return array_map( 'intval', $results ?: [] );
+	}
+
+	/**
 	 * Count total page records matching query.
 	 *
 	 * @param array $args Filter parameters.
@@ -722,9 +761,20 @@ class City_Page_Repository {
 			$where_clauses[] = 'p.status = %s';
 			$params[] = $args['status'];
 		}
-		if ( ! empty( $args['generation_status'] ) && in_array( $args['generation_status'], self::ALLOWED_GENERATION_STATUSES, true ) ) {
-			$where_clauses[] = 'p.generation_status = %s';
-			$params[] = $args['generation_status'];
+		if ( ! empty( $args['generation_status'] ) ) {
+			if ( is_array( $args['generation_status'] ) ) {
+				$clean_statuses = array_values( array_intersect( $args['generation_status'], self::ALLOWED_GENERATION_STATUSES ) );
+				if ( ! empty( $clean_statuses ) ) {
+					$placeholders    = implode( ', ', array_fill( 0, count( $clean_statuses ), '%s' ) );
+					$where_clauses[] = "p.generation_status IN ({$placeholders})";
+					foreach ( $clean_statuses as $st ) {
+						$params[] = $st;
+					}
+				}
+			} elseif ( in_array( $args['generation_status'], self::ALLOWED_GENERATION_STATUSES, true ) ) {
+				$where_clauses[] = 'p.generation_status = %s';
+				$params[] = $args['generation_status'];
+			}
 		}
 		if ( isset( $args['is_published'] ) && '' !== $args['is_published'] ) {
 			$where_clauses[] = 'p.is_published = %d';

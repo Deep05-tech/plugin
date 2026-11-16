@@ -95,7 +95,7 @@ class SEO_Manager {
 				break;
 		}
 
-		Logger::info(
+		Logger::debug(
 			sprintf( 'SEO Manager initialized with adapter: %s (%s)', $this->adapter->get_name(), $this->adapter->get_slug() ),
 			[ 'adapter' => $this->adapter->get_slug() ]
 		);

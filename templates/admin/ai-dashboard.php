@@ -136,6 +136,30 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<span id="scp-bulk-success-text" style="color: #00a32a;"><?php echo esc_html( "{$active_success} succeeded" ); ?></span>
 					<span id="scp-bulk-failed-text" style="color: #d63638;"><?php echo esc_html( "{$active_failed} failed" ); ?></span>
 				</div>
+
+				<!-- Live Error Details Box -->
+				<div id="scp-bulk-error-box" style="display: <?php echo ( $has_active && $active_failed > 0 ) ? 'block' : 'none'; ?>; margin-top: 14px; padding: 12px 14px; background: #fff5f5; border: 1.5px solid #f87171; border-radius: 6px;">
+					<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+						<strong style="color: #b91c1c; font-size: 13px;">⚠️ <?php esc_html_e( 'Error Reason Details:', 'seo-city-pages' ); ?></strong>
+						<a href="<?php echo esc_url( admin_url( 'admin.php?page=seo-city-pages-status' ) ); ?>" style="font-size: 11px; color: #b91c1c; text-decoration: underline;" target="_blank"><?php esc_html_e( 'Open Full System Logs ↗', 'seo-city-pages' ); ?></a>
+					</div>
+					<div id="scp-bulk-error-list" style="max-height: 110px; overflow-y: auto; font-family: monospace; font-size: 11px; line-height: 1.4; color: #991b1b; background: #fff; padding: 8px 10px; border-radius: 4px; border: 1px solid #fecaca;">
+						<?php
+						if ( $has_active && ! empty( $active_job->errors_summary ) ) {
+							$err_list = json_decode( (string) $active_job->errors_summary, true );
+							if ( is_array( $err_list ) && ! empty( $err_list ) ) {
+								$latest_errors = array_slice( array_reverse( $err_list ), 0, 6 );
+								foreach ( $latest_errors as $err_item ) {
+									$err_msg  = is_array( $err_item ) ? ( $err_item['error'] ?? '' ) : (string) $err_item;
+									$err_code = is_array( $err_item ) ? ( $err_item['code'] ?? '' ) : '';
+									$err_pid  = is_array( $err_item ) ? ( $err_item['page_id'] ?? '' ) : '';
+									echo '<div style="margin-bottom: 3px;">' . esc_html( sprintf( '[Page #%s%s]: %s', $err_pid, $err_code ? " ({$err_code})" : '', $err_msg ) ) . '</div>';
+								}
+							}
+						}
+						?>
+					</div>
+				</div>
 			</div>
 		</div>
 

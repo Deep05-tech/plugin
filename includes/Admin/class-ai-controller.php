@@ -297,12 +297,13 @@ class AI_Controller {
 
 		if ( empty( $page_ids ) ) {
 			// If no explicit IDs selected, fetch all pages matching mode.
-			$filter_args = [ 'limit' => 5000 ];
 			if ( 'missing_only' === $mode ) {
-				$filter_args['generation_status'] = 'not_generated';
+				$page_ids = City_Page_Repository::get_missing_content_page_ids( 50000 );
+			} else {
+				$filter_args = [ 'limit' => 50000 ];
+				$pages       = City_Page_Repository::get_all( $filter_args );
+				$page_ids    = array_map( function( $p ) { return (int) $p->id; }, $pages );
 			}
-			$pages = City_Page_Repository::get_all( $filter_args );
-			$page_ids = array_map( function( $p ) { return (int) $p->id; }, $pages );
 		}
 
 		if ( empty( $page_ids ) ) {
@@ -396,6 +397,7 @@ class AI_Controller {
 			'percentage'     => $pct,
 			'is_complete'    => $is_complete,
 			'stats'          => $stats,
+			'errors_summary' => json_decode( (string) $job->errors_summary, true ) ?: [],
 		] );
 	}
 

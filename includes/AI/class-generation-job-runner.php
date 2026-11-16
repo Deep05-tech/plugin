@@ -119,8 +119,9 @@ class Generation_Job_Runner {
 		foreach ( $chunk as $page_id ) {
 			$batch_processed++;
 			$result = $manager->generate_for_page( (int) $page_id, [
-				'provider' => $job->provider,
-				'model'    => $job->model,
+				'provider'   => $job->provider,
+				'model'      => $job->model,
+				'force_lock' => true,
 			] );
 
 			if ( $result->is_success() ) {
@@ -150,14 +151,15 @@ class Generation_Job_Runner {
 		$is_complete   = $new_processed >= $total_count;
 
 		return [
-			'success'     => true,
-			'job_id'      => $job->job_id,
-			'is_complete' => $is_complete,
-			'processed'   => $new_processed,
-			'total'       => $total_count,
-			'success_cnt' => (int) $refreshed_job->success_pages,
-			'failed_cnt'  => (int) $refreshed_job->failed_pages,
-			'errors'      => $new_errors,
+			'success'        => true,
+			'job_id'         => $job->job_id,
+			'is_complete'    => $is_complete,
+			'processed'      => $new_processed,
+			'total'          => $total_count,
+			'success_cnt'    => (int) $refreshed_job->success_pages,
+			'failed_cnt'     => (int) $refreshed_job->failed_pages,
+			'errors'         => $new_errors,
+			'errors_summary' => json_decode( (string) $refreshed_job->errors_summary, true ) ?: [],
 		];
 	}
 }

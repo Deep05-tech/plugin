@@ -48,7 +48,7 @@ class System_Status {
 
 		$diagnostics = Environment::get_diagnostics();
 		$db_version  = Migrator::get_current_db_version();
-		$logs        = Logger::get_recent_logs( 50 );
+		$logs        = Logger::get_recent_logs( 200 );
 		$log_file    = Logger::get_log_file_path();
 
 		require SEO_CITY_PAGES_PLUGIN_DIR . 'templates/admin/system-status.php';
